@@ -1,7 +1,6 @@
 #include <filesystem>
 
 #include "AssetsWindow.h"
-#include "IAssetRelocationPolicy.h"
 #include "IconsForkAwesome/IconsForkAwesome.h"
 #include "ModelParseSettings.h"
 #include "sge_core/AssetLibrary.h"
@@ -26,6 +25,18 @@
 
 namespace sge {
 
+AssetsWindow::AssetsWindow(std::string windowName, GameInspector& inspector)
+    : m_windowName(std::move(windowName))
+    , m_inspector(inspector) {
+	if (mdlconvlibHandler.load("mdlconvlib.dll")) {
+		sgeImportFBXFile = reinterpret_cast<sgeImportFBXFileFn>(mdlconvlibHandler.getProcAdress("sgeImportFBXFile"));
+	}
+
+	if (sgeImportFBXFile == nullptr) {
+		SGE_DEBUG_WAR("Failed to load dynamic library mdlconvlib. Importing FBX files would not be possible without it!");
+	}
+}
+
 void AssetsWindow::openAssetImport(const std::string& filename) {
 	AssetLibrary* const assetLib = getCore()->getAssetLib();
 
@@ -34,14 +45,14 @@ void AssetsWindow::openAssetImport(const std::string& filename) {
 	aid.assetType = assetType_fromExtension(extractFileExtension(filename.c_str()).c_str());
 	if (aid.assetType != AssetType::None) {
 		if (aid.assetType == AssetType::Model) {
-			Model::Model importedModel;
-			ModelParseSettings mps;
-			NoneAssetRelocationPolicy relocationPolicy = NoneAssetRelocationPolicy();
-			mps.pRelocaionPolicy = &relocationPolicy;
+			if (sgeImportFBXFile == nullptr) {
+				SGE_DEBUG_ERR("mdlconvlib dynamic library is not loaded. We cannot import FBX files without it!");
+			}
 
+			Model::Model importedModel;
 			std::vector<std::string> referencedTextures;
 
-			if (sgeImportFBXFile(importedModel, aid.filename.c_str(), mps, &referencedTextures)) {
+			if (sgeImportFBXFile && sgeImportFBXFile(importedModel, aid.filename.c_str(), &referencedTextures)) {
 				createDirectory(extractFileDir(aid.outputFilename.c_str(), false).c_str());
 				ModelWriter modelWriter;
 
@@ -81,11 +92,13 @@ bool AssetsWindow::importAsset(AssetImportData& aid) {
 
 	if (aid.assetType == AssetType::Model) {
 		Model::Model importedModel;
-		NoneAssetRelocationPolicy relocationPolicy = NoneAssetRelocationPolicy();
-		ModelParseSettings mps;
-		mps.pRelocaionPolicy = &relocationPolicy;
+
+		if (sgeImportFBXFile == nullptr) {
+			SGE_DEBUG_ERR("mdlconvlib dynamic library is not loaded. We cannot import FBX files without it!");
+		}
+
 		std::vector<std::string> referencedTextures;
-		if (sgeImportFBXFile(importedModel, aid.filename.c_str(), mps, &referencedTextures)) {
+		if (sgeImportFBXFile && sgeImportFBXFile(importedModel, aid.filename.c_str(), &referencedTextures)) {
 			createDirectory(extractFileDir(aid.outputDir.c_str(), false).c_str());
 
 			// Convert the 3d model to our internal type.
@@ -413,6 +426,13 @@ void AssetsWindow::update(SGEContext* const sgecon, const InputState& is) {
 
 							ImGuiEx::InputText("Read From", m_importAssetToImportInPopup.filename, ImGuiInputTextFlags_ReadOnly);
 							ImGuiEx::InputText("Import As", m_importAssetToImportInPopup.filename);
+
+							// Show a warning that the import will fail if mdlconvlib is not loaded.
+							if (sgeImportFBXFile == nullptr && m_importAssetToImportInPopup.assetType == AssetType::Model) {
+								ImGui::TextColored(ImVec4(1.f, 1.f, 0.f, 1.f),
+								                   "Importing FBX Files cannot be done! mdlconvlib is missing!");
+							}
+
 
 							if (ImGui::Button(ICON_FK_DOWNLOAD " Import")) {
 								importAsset(m_importAssetToImportInPopup);

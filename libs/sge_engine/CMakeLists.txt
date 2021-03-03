@@ -10,7 +10,11 @@ target_compile_definitions(sge_engine PRIVATE SGE_ENGINE_BUILDING_DLL=1)
 
 target_include_directories(sge_engine PUBLIC "./src")
 target_include_directories(sge_engine PUBLIC "../../libs_ext/bullet/bullet3/src")
-target_link_libraries(sge_engine sge_core mdlconvlib BulletDynamics BulletCollision LinearMath Recast Detour)
+
+# mdlconvlib should be dynamically linked to avoid linktime dependency in sge_engine on FBX SDK
+target_include_directories(sge_engine PUBLIC "../mdlconvlib/src")
+
+target_link_libraries(sge_engine sge_core BulletDynamics BulletCollision LinearMath Recast Detour)
 if(WIN32)
 	target_link_libraries(sge_engine Dbghelp.lib)
 endif()

@@ -2,7 +2,6 @@
 set(INSTALL_RUNTIME_TARGETS
 	SDL2
 	sge_core
-	mdlconvlib
 	sge_engine
 	sge_editor
 )
@@ -14,15 +13,18 @@ set(INSTALL_LIBRARIES_TARGETS
 	BulletCollision
 	LinearMath
 	imgui
-	mdlconvlib
 	sge_utils
 	sge_renderer
 	sge_core
 	sge_engine
 )
 
-if(SGE_REND_API STREQUAL "OpenGL")
+if(TARGET glew)
 	list(APPEND INSTALL_LIBRARIES_TARGETS glew)
+endif()
+
+if(TARGET mdlconvlib)
+	list(APPEND INSTALL_RUNTIME_TARGETS mdlconvlib)
 endif()
 
 # Runtimes (*.exe, *.dll, *.so and so on)

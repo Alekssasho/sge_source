@@ -83,6 +83,9 @@ set(SGE_FBX_SDK_DIR "" CACHE PATH "The directory that contains the FBX SDK inclu
 set(SGE_INSTALL_DIR_FORCE "${CMAKE_BINARY_DIR}/SGEEngine_Installed" CACHE PATH "The install directory for the INSTALL target. This is the same as CMAKE_INSTALL_PREFIX with a new name to have all SGE options in one place.")
 set(CMAKE_INSTALL_PREFIX ${SGE_INSTALL_DIR_FORCE} CACHE PATH "" FORCE)
 
+if(SGE_FBX_SDK_DIR STREQUAL "")
+	message(WARNING "FBX SDK Is not specified! Importing FBX Files would not be possible.")
+endif()
 
 #####################################################
 MESSAGE("SGE_REND_API = ${SGE_REND_API}")
