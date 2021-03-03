@@ -1,0 +1,637 @@
+#include <filesystem>
+#include <stb_image.h>
+
+#include "sge_core/ICore.h"
+
+#include "sge_core/dds/dds.h"
+#include "sge_core/model/EvaluatedModel.h"
+#include "sge_core/model/Model.h"
+#include "sge_core/model/ModelReader.h"
+#include "sge_renderer/renderer/renderer.h"
+#include "sge_utils/utils/FileStream.h"
+#include "sge_utils/utils/Path.h"
+#include "sge_utils/utils/json.h"
+#include "sge_utils/utils/strings.h"
+#include "sge_utils/utils/timer.h"
+
+#include "AssetLibrary.h"
+
+namespace sge {
+
+AssetType assetType_fromExtension(const char* const ext) {
+	if (ext == nullptr) {
+		return AssetType::None;
+	}
+
+	if (_stricmp(ext, "mdl") == 0) {
+		return AssetType::Model;
+	}
+
+	if (_stricmp(ext, "fbx") == 0) {
+		return AssetType::Model;
+	}
+
+	if (_stricmp(ext, "dae") == 0) {
+		return AssetType::Model;
+	}
+
+	if (_stricmp(ext, "obj") == 0) {
+		return AssetType::Model;
+	}
+
+	if (_stricmp(ext, "png") == 0 || _stricmp(ext, "dds") == 0 || _stricmp(ext, "jpg") == 0) {
+		return AssetType::TextureView;
+	}
+
+	if (_stricmp(ext, "txt") == 0) {
+		return AssetType::Text;
+	}
+
+	return AssetType::None;
+}
+
+template <typename T>
+struct TAssetAllocatorDefault : public IAssetAllocator {
+	void* allocate() final {
+		data.push_back(new T);
+		return data.back();
+	}
+
+	void deallocate(void* ptr) final {
+		auto itr = std::find(data.begin(), data.end(), ptr);
+
+		if (itr != data.end()) {
+			delete *itr;
+			data.erase(itr);
+		} else {
+			// TODO; now wut?
+			sgeAssert(false);
+		}
+	}
+
+	std::vector<T*> data;
+};
+
+//-------------------------------------------------------
+// ModelAssetFactory
+//-------------------------------------------------------
+struct ModelAssetFactory : public IAssetFactory {
+	bool load(void* const pAsset, const char* const pPath, AssetLibrary* const pMngr) final {
+		sgeAssert(pAsset != nullptr);
+		sgeAssert(pPath != nullptr);
+		sgeAssert(pMngr != nullptr);
+
+		AssetModel& modelAsset = *(AssetModel*)(pAsset);
+
+		FileReadStream frs(pPath);
+
+		if (frs.isOpened() == false) {
+			SGE_DEBUG_ERR("Unable to find model asset: '%s'!\n", pPath);
+			// sgeAssert(false);
+			return false;
+		}
+
+		Model::LoadSettings loadSettings;
+		loadSettings.assetDir = extractFileDir(pPath, true);
+
+		Model::ModelReader modelReader;
+		const bool succeeded = modelReader.Load(loadSettings, pMngr->getDevice(), &frs, modelAsset.model);
+
+		if (!succeeded) {
+			SGE_DEBUG_ERR("Unable to load model asset: '%s'!\n", pPath);
+			// sgeAssert(false);
+			return nullptr;
+		}
+
+		modelAsset.staticEval.initialize(pMngr, &modelAsset.model);
+		modelAsset.staticEval.evaluate(nullptr, 0);
+
+		modelAsset.sharedEval.initialize(pMngr, &modelAsset.model);
+		modelAsset.sharedEval.evaluate(nullptr, 0);
+
+		return succeeded;
+	}
+
+	void unload(void* const pAsset, [[maybe_unused]] AssetLibrary* const pMngr) final {
+		sgeAssert(pAsset != nullptr);
+		sgeAssert(pMngr != nullptr);
+
+		AssetModel& model = *(AssetModel*)(pAsset);
+
+		model.staticEval = EvaluatedModel();
+		model.sharedEval = EvaluatedModel();
+
+		// TOOD: Should we do something here?
+	}
+};
+
+//-------------------------------------------------------
+// TextureViewAssetFactory
+//-------------------------------------------------------
+struct TextureViewAssetFactory : public IAssetFactory {
+	enum DDSLoadCode {
+		ddsLoadCode_fine = 0,
+		ddsLoadCode_fileDoesntExist,
+		ddsLoadCode_importOrCreationFailed,
+	};
+
+
+	SamplerDesc getTextureSamplerDesc(const char* const pAssetPath) const {
+		std::string const infoPath = std::string(pAssetPath) + ".info";
+		SamplerDesc result;
+
+		if (strstr(pAssetPath, ".pointsamp") != nullptr) {
+			result.filter = TextureFilter::Min_Mag_Mip_Point;
+		}
+
+		FileReadStream frs;
+		if (frs.open(infoPath.c_str())) {
+			JsonValueBuffer jvb;
+			JsonParser jp;
+			if_checked(jp.parse(&frs)) {
+				const JsonValue* const jRoot = jp.getRigidBody();
+
+				// Read the filtering.
+				{
+					const JsonValue* const jFiltering = jRoot->getMember("filtering");
+					const char* const filtering = jFiltering->GetString();
+					if (strcmp(filtering, "linear") == 0) {
+						result.filter = TextureFilter::Min_Mag_Mip_Linear;
+					} else if (strcmp(filtering, "point") == 0) {
+						result.filter = TextureFilter::Min_Mag_Mip_Point;
+					} else {
+						sgeAssert(false && "Unknown filtering type, using the defaults!");
+					}
+				}
+
+				// Read the address mode.
+				{
+					TextureAddressMode::Enum addressMode = TextureAddressMode::Repeat;
+					const JsonValue* const jAddrMode = jRoot->getMember("addressMode");
+					const char* const addrMode = jAddrMode->GetString();
+					if (strcmp(addrMode, "repeat") == 0) {
+						addressMode = TextureAddressMode::Repeat;
+					} else if (strcmp(addrMode, "edge") == 0) {
+						addressMode = TextureAddressMode::ClampEdge;
+					} else if (strcmp(addrMode, "border") == 0) {
+						addressMode = TextureAddressMode::ClampBorder;
+					} else {
+						sgeAssert(false && "Unknown addres mode, using the defaults!");
+					}
+
+					result.addressModes[0] = addressMode;
+					result.addressModes[1] = addressMode;
+					result.addressModes[2] = addressMode;
+				}
+			}
+		}
+
+		return result;
+	}
+
+	// Check if the file version in DDS already exists, if not or the import fails the function returns false;
+	DDSLoadCode loadDDS(void* const pAsset, const char* const pPath, AssetLibrary* const pMngr) {
+		std::string const ddsPath = (extractFileExtension(pPath) == "dds") ? pPath : std::string(pPath) + ".dds";
+
+		// Load the File contents.
+		std::vector<char> ddsDataRaw;
+		if (FileReadStream::readFile(ddsPath.c_str(), ddsDataRaw) == false) {
+			return ddsLoadCode_fileDoesntExist;
+		}
+
+
+		// Parse the file and generate the texture creation strctures.
+		DDSLoader loader;
+		TextureDesc desc;
+		std::vector<TextureData> initalData;
+
+		if (loader.load(ddsDataRaw.data(), ddsDataRaw.size(), desc, initalData) == false) {
+			return ddsLoadCode_importOrCreationFailed;
+		}
+
+		// Create the texture.
+		GpuHandle<Texture>& texture = *(GpuHandle<Texture>*)(pAsset);
+		texture = pMngr->getDevice()->requestResource<Texture>();
+
+		const SamplerDesc samplerDesc = getTextureSamplerDesc(pPath);
+		bool const createSucceeded = texture->create(desc, &initalData[0], samplerDesc);
+
+		if (createSucceeded == false) {
+			texture.Release();
+			return ddsLoadCode_importOrCreationFailed;
+		}
+
+		return ddsLoadCode_fine;
+	}
+
+	bool load(void* const pAsset, const char* const pPath, AssetLibrary* const pMngr) final {
+		sgeAssert(pAsset != nullptr);
+		sgeAssert(pPath != nullptr);
+		sgeAssert(pMngr != nullptr);
+
+#if !defined(__EMSCRIPTEN__)
+		DDSLoadCode const ddsLoadStatus = loadDDS(pAsset, pPath, pMngr);
+
+		if (ddsLoadStatus == ddsLoadCode_fine) {
+			return true;
+		} else if (ddsLoadStatus == ddsLoadCode_importOrCreationFailed) {
+			SGE_DEBUG_ERR("Failed to load the DDS equivalent to '%s'!\n", pPath);
+			return false;
+		}
+#endif
+
+		// If we are here than the DDS file doesn't exist and
+		// we must try to load the exact file that we were asked for.
+		GpuHandle<Texture>& texture = *(GpuHandle<Texture>*)(pAsset);
+
+		// Now check for the actual asset that is requested.
+		FileReadStream frs(pPath);
+		if (!frs.isOpened()) {
+			SGE_DEBUG_ERR("Unable to find texture view asset: '%s'!\n", pPath);
+			return false;
+		}
+
+		int width, height, components;
+		const unsigned char* textureData = stbi_load(pPath, &width, &height, &components, 4);
+
+		TextureDesc textureDesc;
+
+		textureDesc.textureType = UniformType::Texture2D;
+		textureDesc.format = TextureFormat::R8G8B8A8_UNORM;
+		textureDesc.usage = TextureUsage::ImmutableResource;
+		textureDesc.texture2D.arraySize = 1;
+		textureDesc.texture2D.numMips = 1;
+		textureDesc.texture2D.numSamples = 1;
+		textureDesc.texture2D.sampleQuality = 0;
+		textureDesc.texture2D.width = width;
+		textureDesc.texture2D.height = height;
+
+		TextureData textureDataDesc;
+		textureDataDesc.data = textureData;
+		textureDataDesc.rowByteSize = width * 4;
+
+		texture = pMngr->getDevice()->requestResource<Texture>();
+
+		const SamplerDesc samplerDesc = getTextureSamplerDesc(pPath);
+		texture->create(textureDesc, &textureDataDesc, samplerDesc);
+
+		if (textureData != nullptr) {
+			stbi_image_free((void*)textureData);
+			textureData = nullptr;
+		}
+
+		const bool succeeded = texture.IsResourceValid();
+
+		return succeeded;
+	}
+
+	void unload([[maybe_unused]] void* const pAsset, [[maybe_unused]] AssetLibrary* const pMngr) final {
+		sgeAssert(pAsset != nullptr);
+		sgeAssert(pMngr != nullptr);
+
+		// TOOD: Should we do something here?
+	}
+};
+
+//-------------------------------------------------------
+// TextAssetFactory
+//-------------------------------------------------------
+struct TextAssetFactory : public IAssetFactory {
+	bool load(void* const pAsset, const char* const pPath, AssetLibrary* const UNUSED(pMngr)) final {
+		std::string& text = *(std::string*)(pAsset);
+
+		std::vector<char> fileContents;
+		if (!FileReadStream::readFile(pPath, fileContents)) {
+			return false;
+		}
+
+		fileContents.push_back('\0');
+		text = fileContents.data();
+
+		return true;
+	}
+
+	void unload(void* const pAsset, AssetLibrary* const UNUSED(pMngr)) final {
+		std::string& text = *(std::string*)(pAsset);
+		text = std::string();
+	}
+};
+
+//-------------------------------------------------------
+// TextAssetFactory
+//-------------------------------------------------------
+struct SpriteAssetFactory : public IAssetFactory {
+	bool load(void* const pAsset, const char* const pPath, AssetLibrary* const assetLib) final {
+		// Aseprite sprite definition.
+		Sprite& sprite = *(Sprite*)(pAsset);
+
+		FileReadStream frs;
+		frs.open(pPath);
+		if (!frs.open(pPath)) {
+			return false;
+		}
+
+		JsonParser jp;
+		if (jp.parse(&frs) == false) {
+			return false;
+		}
+
+		const JsonValue* const jRoot = jp.getRigidBody();
+		const JsonValue* const jMeta = jRoot->getMember("meta");
+
+		const char* const imageDirRelative = jMeta->getMember("image")->GetString();
+		const float fFullSheetWidth = (jMeta->getMember("size")->getMember("w")->getNumberAs<float>());
+		const float fFullSheetHeight = (jMeta->getMember("size")->getMember("h")->getNumberAs<float>());
+		const std::string imgPath = extractFileDir(pPath, true) + imageDirRelative;
+		sprite.texture = assetLib->getAsset(AssetType::TextureView, imgPath.c_str(), true);
+
+		if (!sprite.texture) {
+			return false;
+		}
+
+		float totalAnimationDuration = 0.f;
+
+		const JsonValue* const jFrames = jRoot->getMember("frames");
+		for (int iFrame = 0; iFrame < jFrames->arrSize(); ++iFrame) {
+			const JsonValue* const jFrame = jFrames->arrAt(iFrame);
+
+			const JsonValue* const jRegion = jFrame->getMember("frame");
+			const int x = jRegion->getMember("x")->getNumberAs<int>();
+			const int y = jRegion->getMember("y")->getNumberAs<int>();
+			const int w = jRegion->getMember("w")->getNumberAs<int>();
+			const int h = jRegion->getMember("h")->getNumberAs<int>();
+
+			Sprite::Frame frame;
+			frame.xy = vec2i(x, y);
+			frame.wh = vec2i(w, h);
+			frame.uvRegion =
+			    vec4f((float)x / fFullSheetWidth, (float)y / fFullSheetHeight, (float)w / fFullSheetWidth, (float)h / fFullSheetHeight);
+			frame.uvRegion.z += frame.uvRegion.x;
+			frame.uvRegion.w += frame.uvRegion.y;
+			frame.frameStart = totalAnimationDuration;
+			frame.duration = (float)(jFrame->getMember("duration")->getNumberAs<int>()) / 1000.f;
+
+			sprite.frames.push_back(frame);
+
+			totalAnimationDuration += frame.duration;
+		}
+
+		sprite.animationDuration = totalAnimationDuration;
+
+		return true;
+	}
+
+	void unload(void* const pAsset, AssetLibrary* const UNUSED(pMngr)) final {
+		std::string& text = *(std::string*)(pAsset);
+		text = std::string();
+	}
+};
+
+
+//-------------------------------------------------------
+// AssetLibrary
+//-------------------------------------------------------
+AssetLibrary::AssetLibrary(SGEDevice* const sgedev) {
+	m_sgedev = sgedev;
+
+	// Register all supported asset types.
+	this->registerAssetType(AssetType::Model, new TAssetAllocatorDefault<AssetModel>(), new ModelAssetFactory());
+	this->registerAssetType(AssetType::TextureView, new TAssetAllocatorDefault<GpuHandle<Texture>>(), new TextureViewAssetFactory());
+	this->registerAssetType(AssetType::Text, new TAssetAllocatorDefault<std::string>(), new TextAssetFactory());
+	this->registerAssetType(AssetType::Sprite, new TAssetAllocatorDefault<Sprite>(), new SpriteAssetFactory());
+}
+
+void AssetLibrary::registerAssetType(const AssetType type, IAssetAllocator* const pAllocator, IAssetFactory* const pFactory) {
+	sgeAssert(pAllocator != nullptr);
+	sgeAssert(pFactory != nullptr);
+
+	m_assetAllocators[type] = pAllocator;
+	m_assetFactories[type] = pFactory;
+	// CAUTION: This is here to ensure that the element "type" is present in "std::map<...> m_assets" from nwo on. This is pretty stupid and
+	// has to be fixed.
+	m_assets[type];
+}
+
+std::shared_ptr<Asset> AssetLibrary::makeRuntimeAsset(AssetType type, const char* path) {
+	IAssetAllocator* const pAllocator = getAllocator(type);
+	if (!pAllocator) {
+		return nullptr;
+	}
+
+	// Check if the asset already exists.
+	std::map<std::string, std::shared_ptr<Asset>>& assets = m_assets[type];
+
+	auto findItr = assets.find(path);
+	if (findItr != assets.end() && isAssetLoaded(findItr->second)) {
+		sgeAssertFalse("Asset with the same path already exists");
+		// The asset already exists, we cannot make a new one.
+		return nullptr;
+	}
+
+	void* pAsset = pAllocator->allocate();
+	if (pAsset == nullptr) {
+		sgeAssertFalse("Failed to allocate the asset");
+		return nullptr;
+	}
+
+	std::shared_ptr<Asset> result = std::make_shared<Asset>(pAsset, type, AssetStatus::Loaded, path);
+	assets[path] = result;
+
+	return result;
+}
+
+std::shared_ptr<Asset> AssetLibrary::getAsset(AssetType type, const char* pPath, const bool loadIfMissing) {
+	if (!pPath || pPath[0] == '\0') {
+		sgeAssert(false);
+		return std::shared_ptr<Asset>();
+	}
+
+	const double loadStartTime = Timer::now_seconds();
+
+	// Now make the path relative to the current directory, as some assets
+	// might refer it relative to them, and this wolud lead us loading the same asset
+	// via different path and we don't want that.
+	std::error_code pathToAssetRelativeError;
+	const std::filesystem::path pathToAssetRelative = std::filesystem::relative(pPath, pathToAssetRelativeError);
+
+	// The commented code below, not only makes the path cannonical, but it also makes it absolute, which we don't want.
+	// std::error_code pathToAssetCanonicalError;
+	// const std::filesystem::path pathToAssetCanonical = std::filesystem::weakly_canonical(pathToAssetRelative, pathToAssetCanonicalError);
+
+	// canonizePathRespectOS makes makes the slashes UNUX Style.
+	const std::string pathToAsset = canonizePathRespectOS(pathToAssetRelative.string());
+
+	if (pathToAssetRelativeError) {
+		sgeAssert(false && "Failed to transform the asset path to relative");
+	}
+
+	if (pathToAsset.empty()) {
+		// Because std::filesystem::canonical() returns empty string if the path doesn't exists
+		// we assume that the loading failed.
+		return std::shared_ptr<Asset>();
+	}
+
+	// Check if the asset already exists.
+	std::map<std::string, std::shared_ptr<Asset>>& assets = m_assets[type];
+
+	auto findItr = assets.find(pathToAsset);
+	if (findItr != assets.end() && isAssetLoaded(findItr->second)) {
+		return findItr->second;
+	}
+
+	if (!loadIfMissing) {
+		// Empty asset shared ptr.
+		// TODO: Should I create an empty asset to that path with unknown state? It sounds logical?
+		return findItr != assets.end() ? findItr->second : std::shared_ptr<Asset>();
+	}
+
+	// Load the asset.
+	IAssetAllocator* const pAllocator = getAllocator(type);
+	IAssetFactory* const pFactory = getFactory(type);
+
+	if (!pAllocator || !pFactory) {
+		sgeAssert(false && "Cannot lode an asset of the specified type");
+		return std::shared_ptr<Asset>();
+	}
+
+	void* pAsset = pAllocator->allocate();
+
+	const bool succeeded = pFactory->load(pAsset, pathToAsset.c_str(), this);
+	if (succeeded == false) {
+		SGE_DEBUG_ERR("Failed on asset %s\n", pPath);
+		pAllocator->deallocate(pAsset);
+		pAsset = NULL;
+	}
+
+	std::shared_ptr<Asset> result;
+
+	if (findItr == assets.end()) {
+		// Add the asset to the library.
+		std::shared_ptr<Asset> asset =
+		    std::make_shared<Asset>(pAsset, type, (pAsset) ? AssetStatus::Loaded : AssetStatus::LoadFailed, pathToAsset.c_str());
+
+		asset->m_loadedModifiedTime = FileReadStream::getFileModTime(pPath);
+
+		assets[pathToAsset] = asset;
+		result = asset;
+	} else {
+		sgeAssert(findItr->second->asVoid() == nullptr);
+		*findItr->second = Asset(pAsset, type, (pAsset) ? AssetStatus::Loaded : AssetStatus::LoadFailed, pathToAsset.c_str());
+		findItr->second->m_loadedModifiedTime = FileReadStream::getFileModTime(pPath);
+		result = findItr->second;
+	}
+
+	// Measure the loading time.
+	const float loadEndTime = Timer::now_seconds();
+	SGE_DEBUG_LOG("Asset '%s' loaded in %f seconds.\n", pathToAsset.c_str(), loadEndTime - loadStartTime);
+
+	return result;
+}
+
+std::shared_ptr<Asset> AssetLibrary::getAsset(const char* pPath, bool loadIfMissing) {
+	AssetType assetType = assetType_fromExtension(extractFileExtension(pPath).c_str());
+	return getAsset(assetType, pPath, loadIfMissing);
+}
+
+bool AssetLibrary::loadAsset(Asset* asset) {
+	if (asset) {
+		return getAsset(asset->getType(), asset->getPath().c_str(), true) != nullptr;
+	}
+
+	return false;
+}
+
+
+
+bool AssetLibrary::reloadAssetModified(Asset* const asset) {
+	if (!asset) {
+		sgeAssert(false);
+		return false;
+	}
+
+	if (asset->getStatus() != AssetStatus::Loaded && asset->getStatus() != AssetStatus::LoadFailed) {
+		return false;
+	}
+
+	const sint64 fileNewModTime = FileReadStream::getFileModTime(asset->getPath().c_str());
+
+	if (asset->getLastModTime() == fileNewModTime) {
+		return false;
+	}
+
+	const double reloadStartTime = Timer::now_seconds();
+
+	IAssetFactory* const pFactory = getFactory(asset->getType());
+	sgeAssert(pFactory);
+
+	std::string pathToAsset = asset->getPath();
+
+	pFactory->unload(asset->m_pAsset, this);
+	bool const succeeded = pFactory->load(asset->m_pAsset, pathToAsset.c_str(), this);
+
+	if (!succeeded) {
+		sgeAssert(false);
+		return false;
+	}
+
+	// Measure the loading time.
+	const float reloadEndTime = Timer::now_seconds();
+	SGE_DEBUG_LOG("Asset '%s' loaded in %f seconds.\n", pathToAsset.c_str(), reloadEndTime - reloadStartTime);
+
+	return true;
+}
+
+void AssetLibrary::scanForAvailableAssets(const char* const path) {
+	using namespace std;
+
+	m_gameAssetsDir = absoluteOf(path);
+	sgeAssert(m_gameAssetsDir.empty() == false);
+
+	if (filesystem::is_directory(path))
+		for (const filesystem::directory_entry& entry : filesystem::recursive_directory_iterator(path)) {
+			if (entry.status().type() == filesystem::file_type::regular) {
+				const std::string ext = entry.path().extension().u8string();
+				if (ext == ".mdl") {
+					// Mark the assets as something that exists but do not load it.
+					markThatAssetExists(entry.path().generic_u8string().c_str(), AssetType::Model);
+				} else if (ext == ".png" || ext == ".jpg" || ext == ".dds") {
+					if (string_endsWith(entry.path().string(), ".png.dds")) {
+						const std::string pathWithPngOnlyExt = removeFileExtension(entry.path().generic_u8string().c_str());
+						markThatAssetExists(pathWithPngOnlyExt.c_str(), AssetType::TextureView);
+					} else {
+						markThatAssetExists(entry.path().generic_u8string().c_str(), AssetType::TextureView);
+					}
+				} else if (ext == ".json") {
+					// todo 08-2019 change json extension for sprites to something else.
+					markThatAssetExists(entry.path().generic_u8string().c_str(), AssetType::Sprite);
+				}
+			}
+		}
+}
+
+void AssetLibrary::reloadChangedAssets() {
+	for (auto& assetsPerType : m_assets) {
+		for (auto& assetPair : assetsPerType.second) {
+			std::shared_ptr<Asset>& asset = assetPair.second;
+			reloadAssetModified(asset.operator->());
+		}
+	}
+}
+
+void AssetLibrary::markThatAssetExists(const char* path, AssetType const type) {
+	if (!path || path[0] == '\0') {
+		return;
+	}
+
+	std::map<std::string, std::shared_ptr<Asset>>& assets = m_assets[type];
+	std::shared_ptr<Asset>& asset = assets[path];
+
+	// Check if the asset is allocaded.
+	if (asset) {
+		return;
+	}
+
+	asset = std::make_shared<Asset>(nullptr, type, AssetStatus::NotLoaded, canonizePathRespectOS(path).c_str());
+}
+
+} // namespace sge

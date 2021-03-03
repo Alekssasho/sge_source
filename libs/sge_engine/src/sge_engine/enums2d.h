@@ -1,0 +1,36 @@
+#pragma once
+
+#include "sge_engine_api.h"
+#include "sge_utils/math/transform.h"
+
+namespace sge {
+
+// Describes a textured plane facing +X with bottom,left point being at (0,0,0) in object space.
+enum Billboarding : int {
+	billboarding_none,
+	billboarding_yOnly,
+	billboarding_faceCamera,
+};
+
+enum Anchor : int {
+	anchor_bottomMid,
+	anchor_mid,
+	anchor_bottomLeft,
+	anchor_topLeft,
+};
+
+/// Assuming that the plane faces +X and has corners (0,0,0) and (0,1,1),
+/// computes the matrix that is going to align the plane, so the (0,0,0) coordinates
+/// related to the anchor position according to the size of the plane.
+/// Usually @planeSizeZY is proprtional ot the texture size that is going to be glued on the plane.
+mat4f anchor_getPlaneAlignMatrix(const Anchor anchor, const vec2f& planeSizeZY);
+
+/// Computes the transformation of an object, so it faces the camera, based on the
+/// @billboarding parameter.
+/// The object is assumed that it is going to facing +X.
+SGE_ENGINE_API mat4f billboarding_getOrentationMtx(const Billboarding billboarding,
+                                                   const transf3d& objectTr,
+                                                   const vec3f& camPos,
+                                                   const mat4f& camViewMtx);
+
+} // namespace sge

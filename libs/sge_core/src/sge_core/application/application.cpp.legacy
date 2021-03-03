@@ -1,0 +1,1068 @@
+#include "sge/sge_utils.h"
+
+#define SGE_USE_SDL2
+
+#ifdef SGE_USE_SDL2
+
+#include <SDL.h>
+#include <SDL_syswm.h>
+#else
+#if defined(WIN32)
+	#define WIN32_LEAN_AND_MEAN
+	#define NOMINMAX
+	#include <windows.h>
+	#include <Xinput.h>
+	#include <joystickapi.h>
+#pragma comment(lib, "winmm.lib")
+#endif
+
+#ifdef __linux__
+	#include <GL/glxew.h>
+	#include <GL/glx.h>
+	#include <X11/X.h>
+	#include <X11/Xlib.h>
+#endif
+#endif
+
+#ifdef SGE_RENDERER_GL
+#include <algorithm>
+#include "sge_renderer/gl/opengl_include.h"
+#endif 
+
+#include "application.h"
+
+namespace sge {
+
+struct ApplicationHandlerImplData
+{
+#if defined(WIN32)
+
+#elif defined(__linux__)
+	Display* display = nullptr;
+#endif
+
+};
+
+struct WindowImplData
+{
+
+#ifdef SGE_USE_SDL2
+	SDL_Window* window = nullptr;
+#else
+#if defined(WIN32)
+	HWND hwnd = 0;
+#elif defined(__linux__)
+	unsigned long hwnd = 9;
+	int clientWidth = 0;
+	int clientHeight = 0;
+#endif
+#endif
+
+	bool isActive = 0;
+
+};
+#ifdef SGE_USE_SDL2
+int SDL_key_to_SGEKey(int sdlKey)
+{
+	switch(sdlKey)
+	{
+		// Letters
+		case SDLK_a : return Key_A;
+		case SDLK_b : return Key_B;
+		case SDLK_c : return Key_C;
+		case SDLK_d : return Key_D;
+		case SDLK_e : return Key_E;
+		case SDLK_f : return Key_F;
+		case SDLK_g : return Key_G;
+		case SDLK_h : return Key_H;
+		case SDLK_i : return Key_I;
+		case SDLK_j : return Key_J;
+		case SDLK_k : return Key_K;
+		case SDLK_l : return Key_L;
+		case SDLK_m : return Key_M;
+		case SDLK_n : return Key_N;
+		case SDLK_o : return Key_O;
+		case SDLK_p : return Key_P;
+		case SDLK_q : return Key_Q;
+		case SDLK_r : return Key_R;
+		case SDLK_s : return Key_S;
+		case SDLK_t : return Key_T;
+		case SDLK_u : return Key_U;
+		case SDLK_v : return Key_V;
+		case SDLK_w : return Key_W;
+		case SDLK_x : return Key_X;
+		case SDLK_y : return Key_Y;
+		case SDLK_z : return Key_Z;
+		
+		// Numbers
+		case SDLK_0 : return Key_0;
+		case SDLK_1 : return Key_1;
+		case SDLK_2 : return Key_2;
+		case SDLK_3 : return Key_3;
+		case SDLK_4 : return Key_4;
+		case SDLK_5 : return Key_5;
+		case SDLK_6 : return Key_6;
+		case SDLK_7 : return Key_7;
+		case SDLK_8 : return Key_8;
+		case SDLK_9 : return Key_9;
+		
+		// F1-12
+		case SDLK_F1 : return Key_F1;
+		case SDLK_F2 : return Key_F2;
+		case SDLK_F3 : return Key_F3;
+		case SDLK_F4 : return Key_F4;
+		case SDLK_F5 : return Key_F5;
+		case SDLK_F6 : return Key_F6;
+		case SDLK_F7 : return Key_F7;
+		case SDLK_F8 : return Key_F8;
+		case SDLK_F9 : return Key_F9;
+		case SDLK_F10 : return Key_F10;
+		case SDLK_F11 : return Key_F11;
+		case SDLK_F12 : return Key_F12;
+
+		// Other:
+		case SDLK_RETURN : return Key_Enter;
+		case SDLK_BACKSPACE : return Key_Backspace;
+		case SDLK_LCTRL : return Key_LCtrl;
+		case SDLK_RCTRL : return Key_RCtrl;
+		case SDLK_LALT : return Key_LAlt;
+		case SDLK_RALT  : return Key_RAlt;
+
+		// Arrow keys.
+		case SDLK_LEFT : return Key_Left;
+		case SDLK_UP : return Key_Up;
+		case SDLK_RIGHT : return Key_Right;
+		case SDLK_DOWN : return Key_Down;
+	};
+	
+	// Unknown key.
+	return -1;
+}
+#else
+#ifdef __linux__
+Key Xlib_key_to_SGEKey(const int xk)
+{
+	switch(xk)
+	{
+		// Letters
+		case XK_a : return Key_A;
+		case XK_b : return Key_B;
+		case XK_c : return Key_C;
+		case XK_d : return Key_D;
+		case XK_e : return Key_E;
+		case XK_f : return Key_F;
+		case XK_g : return Key_G;
+		case XK_h : return Key_H;
+		case XK_i : return Key_I;
+		case XK_j : return Key_J;
+		case XK_k : return Key_K;
+		case XK_l : return Key_L;
+		case XK_m : return Key_M;
+		case XK_n : return Key_N;
+		case XK_o : return Key_O;
+		case XK_p : return Key_P;
+		case XK_q : return Key_Q;
+		case XK_r : return Key_R;
+		case XK_s : return Key_S;
+		case XK_t : return Key_T;
+		case XK_u : return Key_U;
+		case XK_v : return Key_V;
+		case XK_w : return Key_W;
+		case XK_x : return Key_X;
+		case XK_y : return Key_Y;
+		case XK_z : return Key_Z;
+		
+		// Numbers
+		case XK_0 : return Key_0;
+		case XK_1 : return Key_1;
+		case XK_2 : return Key_2;
+		case XK_3 : return Key_3;
+		case XK_4 : return Key_4;
+		case XK_5 : return Key_5;
+		case XK_6 : return Key_6;
+		case XK_7 : return Key_7;
+		case XK_8 : return Key_8;
+		case XK_9 : return Key_9;
+		
+		// F1-12
+		case XK_F1 : return Key_F1;
+		case XK_F2 : return Key_F2;
+		case XK_F3 : return Key_F3;
+		case XK_F4 : return Key_F4;
+		case XK_F5 : return Key_F5;
+		case XK_F6 : return Key_F6;
+		case XK_F7 : return Key_F7;
+		case XK_F8 : return Key_F8;
+		case XK_F9 : return Key_F9;
+		case XK_F10 : return Key_F10;
+		case XK_F11 : return Key_F11;
+		case XK_F12 : return Key_F12;
+
+		// Other:
+		case XK_Return : return Key_Enter;
+		case XK_BackSpace : return Key_Backspace;
+		case XK_Control_L : return Key_LCtrl;
+		case XK_Control_R : return Key_RCtrl;
+		case XK_Alt_L : return Key_LAlt;
+		//case XK_Alt_ : return Key_RAlt; // TODO: Right alt.
+
+		// Arrow keys.
+		case XK_Left : return Key_Left;
+		case XK_Up : return Key_Up;
+		case XK_Right : return Key_Right;
+		case XK_Down : return Key_Down;
+	}
+	
+	// Unknown key.
+	return -1;
+}
+
+#endif
+
+#if defined(WIN32)
+LRESULT CALLBACK WindowBase_WndProc(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	WindowBase* window = nullptr;
+
+	if(msg == WM_NCCREATE)
+	{
+		window = (WindowBase*)(((LPCREATESTRUCT)lParam)->lpCreateParams);
+		window->m_implData->hwnd = wnd;
+		SetWindowLongPtr(wnd, GWLP_USERDATA, (LONG_PTR)window);
+	}
+	else
+	{
+		window = (WindowBase*)GetWindowLongPtr(wnd, GWLP_USERDATA);
+	}
+
+	if(window==nullptr)
+	{
+		//sgeAssert(false); // Should never happen.
+		return DefWindowProc(wnd, msg, wParam, lParam);
+	}
+
+	switch(msg)
+	{
+		case WM_CREATE:
+		{
+			//if(joySetCapture(wnd, JOYSTICKID1, NULL, FALSE))
+			//{
+			//	// Failed
+			//}
+
+			window->HandleEvent(WE_Create, nullptr);
+		}break;
+		case MM_JOY1MOVE :                     // changed position 
+	/*		if(window)
+			{
+				InputState& is = window->m_inputState;
+
+				is.winapiGamepads->hooked = true;
+
+				if(wParam & JOY_BUTTON1) is.winapiGamepads[0].btnX |= 1;
+				if(wParam & JOY_BUTTON2) is.winapiGamepads[0].btnY |= 1; 
+				if(wParam & JOY_BUTTON3) is.winapiGamepads[0].btnA |= 1; 
+				if(wParam & JOY_BUTTON4) is.winapiGamepads[0].btnB |= 1; 
+
+				is.winapiGamepads[0].axisL.x = ((LOWORD(lParam) / 65535.f) - 0.5f) * 2.f;
+				is.winapiGamepads[0].axisL.y = -((HIWORD(lParam) / 65535.f) - 0.5f) * 2.f;
+			}
+			*/
+			
+			break; 
+		case MM_JOY1BUTTONDOWN :               // button is down 
+			if((UINT) wParam & JOY_BUTTON1) 
+			{ 
+
+			} 
+			else if((UINT) wParam & JOY_BUTTON2) 
+			{ 
+
+			} 
+			break; 
+		case MM_JOY1BUTTONUP :
+
+			break; 
+		case WM_CHAR :
+		{
+			static_assert(sizeof(TCHAR) == sizeof(char), "Unicode isn't supported!");
+			TCHAR charCode = (TCHAR)wParam;
+
+			// Skip the '\r' character.
+			//if(charCode != 13)
+			{
+				int repeatCnt = 0xF & lParam;
+				for(int t = 0; t < repeatCnt; ++t)
+				{
+					window->m_inputState.m_inputText += charCode;
+				}
+			}
+		}break;
+		case WM_DESTROY :
+		{
+			window->HandleEvent(WE_Destroying, nullptr);
+			ApplicationHandler::get()->DeregisterWindowInternal(window);
+		}break;
+		case WM_CLOSE :
+		{
+			DestroyWindow(wnd);
+			return 0;
+		}
+		case WM_ACTIVATE :
+		{
+			window->m_implData->isActive = wParam > 0;
+		} break;
+		case WM_MOVE :
+		{
+			//window->m_windowPosX = (int)(short)(LOWORD(lParam));
+			//window->m_windowPosY = (int)(short)(HIWORD(lParam));
+		} break;
+		case WM_SIZE :
+		{
+			RECT rc;
+			GetClientRect(wnd, &rc);
+
+			const int width = rc.right - rc.left;
+			const int height = rc.bottom - rc.top;
+
+			if(window->IsActive() && width > 0 && height > 0)
+			{
+				WE_Resize_Data data(width, height);
+				window->HandleEvent(WE_Resize, &data);
+			}
+
+		} break;
+		case WM_MOUSEWHEEL :
+		{
+			window->m_inputState.m_wheelCount = 0;
+			short const delta = (short)HIWORD(wParam);
+			window->m_inputState.m_wheelCount = -delta / WHEEL_DELTA;
+		} break;
+		case WM_KEYDOWN :
+		{
+
+		}break;
+		default : break;
+	}
+
+	return DefWindowProc(wnd , msg , wParam , lParam);
+}
+#endif
+#endif
+
+ApplicationHandler::ApplicationHandler()
+{
+	m_implData = new ApplicationHandlerImplData;
+#if defined(__linux__)
+	m_implData->display = XOpenDisplay(nullptr);
+#endif
+}
+ApplicationHandler::~ApplicationHandler() 
+{
+	delete m_implData;
+	m_implData = nullptr;
+}
+
+WindowBase* ApplicationHandler::findWindowById([[maybe_unused]] uint32 id)
+{
+#ifdef SGE_USE_SDL2
+	for(WindowBase* wnd : this->m_wnds) {
+		if(SDL_GetWindowID(wnd->m_implData->window) == id) {
+			return wnd;
+		}
+	}
+#endif
+	return nullptr;
+}
+
+void ApplicationHandler::NewWindowInternal(WindowBase* window, const char* windowName, int width, int height)
+{
+#ifdef SGE_USE_SDL2
+	const Uint32 wndFlags = SDL_WINDOW_RESIZABLE 
+#ifdef SGE_RENDERER_GL
+		| SDL_WINDOW_OPENGL;
+#else
+		;
+#endif
+	window->m_implData->window = SDL_CreateWindow(windowName, 
+		SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 
+		width, height,
+		wndFlags);
+
+	SDL_ShowWindow(window->m_implData->window);
+#if SGE_RENDERER_GL
+	SDL_GL_CreateContext(window->m_implData->window);
+#endif
+	//window->HandleEvent(WE_Create, nullptr);
+#else
+#if defined(WIN32)
+	
+	HINSTANCE hinst = GetModuleHandle(0);
+	const DWORD windowStyle = WS_OVERLAPPEDWINDOW;
+	
+	WNDCLASSEXA wincl = {0};
+	wincl.cbSize = sizeof(WNDCLASSEXA);
+	wincl.hIcon = LoadIcon(0 , IDI_APPLICATION);
+	wincl.hIconSm  = LoadIcon(0 , IDI_APPLICATION);
+	wincl.hCursor = LoadCursor(nullptr , IDC_ARROW);
+	wincl.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+	wincl.hInstance = hinst;
+	wincl.lpszClassName = windowName;
+	wincl.lpfnWndProc = &WindowBase_WndProc;
+	wincl.cbWndExtra = sizeof(this);
+	wincl.hbrBackground = 0;//(HBRUSH)GetStockObject(BLACK_BRUSH);
+	wincl.lpszMenuName = 0;
+	wincl.cbClsExtra = 0;
+	wincl.cbWndExtra = 0;
+
+	RegisterClassExA(&wincl);
+
+	RECT ClientRect = { 0 , 0 , width , height};
+	AdjustWindowRect(&ClientRect, windowStyle, FALSE);
+
+	window->m_implData->hwnd = CreateWindowExA(0, wincl.lpszClassName, windowName , windowStyle, CW_USEDEFAULT , CW_USEDEFAULT ,
+		ClientRect.right - ClientRect.left ,
+		ClientRect.bottom - ClientRect.top,
+		nullptr , nullptr , hinst,
+		window // this is tagCREATESTRUCT::lpCreateParams
+	);
+
+	//ShowWindow(window->m_implData->hwnd, SW_SHOWMAXIMIZED);
+	ShowWindow(window->m_implData->hwnd, SW_SHOWDEFAULT);
+	
+
+#elif defined(__linux__)
+	Display* const display = ApplicationHandler::get()->getImplData()->display;
+
+	GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
+	unsigned long root = DefaultRootWindow(display);
+	XVisualInfo* vi = glXChooseVisual(display, 0, att);
+
+	Colormap cmap = cmap = XCreateColormap(display, root, vi->visual, AllocNone);
+
+	XSetWindowAttributes swa;
+	swa.border_pixel = 0;
+	swa.colormap = cmap;
+	swa.event_mask = ExposureMask | KeyPressMask;
+
+	Window x11wnd = XCreateWindow(display, root, 0, 0, width, height, 0, vi->depth, InputOutput, vi->visual, CWColormap | CWEventMask, &swa);
+
+	XMapWindow(display, x11wnd);
+	XStoreName(display, x11wnd, windowName);
+
+	GLXContext glc = glXCreateContext(display, vi, NULL, GL_TRUE);
+	glXMakeCurrent(display, x11wnd, glc);
+	
+	if(glXSwapIntervalEXT) {
+		glXSwapIntervalEXT(display, glXGetCurrentDrawable(), 1);
+	}
+
+	XSelectInput(display, x11wnd, ButtonPressMask|ButtonReleaseMask|StructureNotifyMask|KeyPressMask|KeyReleaseMask|KeymapStateMask|PointerMotionMask|Button1MotionMask);
+
+	window->m_implData->hwnd = x11wnd;
+	window->m_implData->clientWidth = width;
+	window->m_implData->clientHeight = height;
+
+	window->HandleEvent(WE_Create, nullptr);
+#endif
+#endif
+	m_wnds.push_back(window);
+}
+
+void ApplicationHandler::DeregisterWindowInternal(WindowBase* wnd)
+{
+	m_wnds.erase(std::find(m_wnds.begin(), m_wnds.end(), wnd));
+}
+
+void ApplicationHandler::PollEvents()
+{
+	m_inputState.Advance();
+
+#ifdef SGE_USE_SDL2
+
+	m_inputState.m_wasActiveWhilePolling = true;
+
+	int mouseX, mouseY;
+	SDL_GetMouseState(&mouseX, &mouseY);
+
+	m_inputState.m_cursorClient = vec2f(float(mouseX), float(mouseY));
+	m_inputState.m_cursorDomain = vec2f(float(mouseX), float(mouseY));
+
+	SDL_Event event;
+	while (SDL_PollEvent(&event)) {
+		WindowBase* const wnd = findWindowById(event.window.windowID);
+		if(!wnd) {
+			continue;
+		}
+		switch (event.type) {
+			case SDL_WINDOWEVENT :
+			{
+				if(event.window.event == SDL_WINDOWEVENT_SHOWN) {
+					wnd->HandleEvent(WE_Create, nullptr);
+				} else if(event.window.event == SDL_WINDOWEVENT_RESIZED) {
+					WE_Resize_Data data(event.window.data1, event.window.data2);
+					wnd->HandleEvent(WE_Resize, &data);
+				}
+			} break;
+			case SDL_TEXTINPUT: {
+				for(char ch : event.text.text){
+					if(ch != '\0') {
+						m_inputState.m_inputText.push_back(ch);
+					} else {
+						break;
+					}
+				}
+			}break;
+			case SDL_KEYDOWN: {
+				const int sge_key = SDL_key_to_SGEKey(event.key.keysym.sym);
+				if (sge_key != -1) {
+					m_inputState.m_keyStates[sge_key] |= 1;
+				}
+			} break;
+			case SDL_KEYUP: {
+				const int sge_key = SDL_key_to_SGEKey(event.key.keysym.sym);
+				if (sge_key != -1) {
+					m_inputState.m_keyStates[sge_key] &= ~1;
+				}
+			} break;
+			case SDL_MOUSEBUTTONDOWN: {
+				int sgeKey = -1;
+				if (event.button.button == SDL_BUTTON_LEFT)
+					sgeKey = Key_MouseLeft;
+				if (event.button.button == SDL_BUTTON_RIGHT)
+					sgeKey = Key_MouseRight;
+				if (event.button.button == SDL_BUTTON_MIDDLE)
+					sgeKey = Key_MouseMiddle;
+
+				if (sgeKey != -1) {
+					m_inputState.m_keyStates[sgeKey] |= 1;
+				}
+
+			} break;
+			case SDL_MOUSEBUTTONUP: {
+				int sgeKey = -1;
+				if (event.button.button == SDL_BUTTON_LEFT)
+					sgeKey = Key_MouseLeft;
+				if (event.button.button == SDL_BUTTON_RIGHT)
+					sgeKey = Key_MouseRight;
+				if (event.button.button == SDL_BUTTON_MIDDLE)
+					sgeKey = Key_MouseMiddle;
+
+				if (sgeKey != -1) {
+					m_inputState.m_keyStates[sgeKey] &= ~1;
+				}
+			} break;
+			default:
+				break;
+		};
+	}
+
+	for(auto wnd : m_wnds) {
+		
+		const bool wasActiveWhilePolling = true; //SDL_GetWindowFlags(wnd->m_implData->window) & SDL_WINDOW_INPUT_GRABBED;
+		wnd->m_implData->isActive = wasActiveWhilePolling;
+		wnd->m_inputState = m_inputState;
+
+		vec2f const prevCursorClient = wnd->m_inputState.m_cursorClient;
+
+		vec2f const newCursorClient = vec2f((float)mouseX, (float)mouseY);
+		vec2f const cursorMotion = (wnd->m_shouldRecenterMouseEveryFrame)
+			? newCursorClient - vec2f(wnd->GetClientWidth() * 0.5f, wnd->GetClientHeight() * 0.5f)
+			: newCursorClient - prevCursorClient;
+
+		wnd->m_inputState.m_cursorClient = newCursorClient;
+		wnd->m_inputState.m_cursorDomain = wnd->m_inputState.m_cursorClient; 
+		wnd->m_inputState.m_cursorDomainSize  = vec2f(float(wnd->GetClientWidth()), float(wnd->GetClientHeight()));
+		wnd->m_inputState.m_cursorMotion = cursorMotion;
+		wnd->m_inputState.setWasActiveDuringPoll(wasActiveWhilePolling);
+
+#ifdef SGE_RENDERER_GL
+		SDL_GL_SwapWindow(wnd->m_implData->window);
+#endif
+	}
+
+#else
+#if defined(WIN32)
+
+	// Capture directly the input of the application and multiplicate it to all windows.
+
+#define SGE_MARK_KEY(ch, isSet) \
+	if(isSet) (ch) |= 1; \
+	else (ch) &= ~1;
+
+#define SGE_WIN_KEY_OP(vk, sge_key) \
+	SGE_MARK_KEY(m_inputState.m_keyStates[sge_key], GetAsyncKeyState(vk) & 0x8000)
+
+	for(int t = 0; t < (Key_Z - Key_A + 1); ++t) {
+		SGE_WIN_KEY_OP('A' + t, (Key_A + t));
+	}
+
+	SGE_WIN_KEY_OP(VK_SPACE, Key_Space);
+
+	SGE_WIN_KEY_OP(VK_ESCAPE, Key_Escape);
+
+	for(int t = 0; t < 10; ++t) {
+		SGE_WIN_KEY_OP(0x30 + t, Key_0 + t);
+	}
+
+	SGE_WIN_KEY_OP(VK_LSHIFT, Key_LShift);
+	SGE_WIN_KEY_OP(VK_LSHIFT, Key_RShift);
+
+	SGE_WIN_KEY_OP(VK_LBUTTON, Key_MouseLeft);
+	SGE_WIN_KEY_OP(VK_RBUTTON, Key_MouseRight);
+	SGE_WIN_KEY_OP(VK_MBUTTON, Key_MouseMiddle);
+
+	SGE_WIN_KEY_OP(VK_UP, Key_Up);
+	SGE_WIN_KEY_OP(VK_DOWN, Key_Down);
+	SGE_WIN_KEY_OP(VK_LEFT, Key_Left);
+	SGE_WIN_KEY_OP(VK_RIGHT, Key_Right);
+
+	SGE_WIN_KEY_OP(VK_BACK, Key_Backspace);
+	SGE_WIN_KEY_OP(VK_RETURN, Key_Enter);
+	SGE_WIN_KEY_OP(VK_TAB, Key_Tab);
+
+	SGE_WIN_KEY_OP(VK_HOME, Key_Home);
+	SGE_WIN_KEY_OP(VK_END, Key_End);
+	SGE_WIN_KEY_OP(VK_DELETE, Key_Delete);
+
+	SGE_WIN_KEY_OP(VK_LCONTROL, Key_LCtrl);
+	SGE_WIN_KEY_OP(VK_RCONTROL, Key_RCtrl);
+	SGE_WIN_KEY_OP(VK_LMENU, Key_LAlt);
+	SGE_WIN_KEY_OP(VK_RMENU, Key_RAlt);
+
+	SGE_WIN_KEY_OP(VK_F1, Key_F1);
+	SGE_WIN_KEY_OP(VK_F2, Key_F2);
+	SGE_WIN_KEY_OP(VK_F3, Key_F3);
+	SGE_WIN_KEY_OP(VK_F4, Key_F4);
+	SGE_WIN_KEY_OP(VK_F5, Key_F5);
+	SGE_WIN_KEY_OP(VK_F6, Key_F6);
+	SGE_WIN_KEY_OP(VK_F7, Key_F7);
+	SGE_WIN_KEY_OP(VK_F8, Key_F8);
+	SGE_WIN_KEY_OP(VK_F9, Key_F9);
+	SGE_WIN_KEY_OP(VK_F10, Key_F10);
+	SGE_WIN_KEY_OP(VK_F11, Key_F11);
+	SGE_WIN_KEY_OP(VK_F12, Key_F12);
+
+#undef SGE_WIN_KEY_OP
+
+	{
+		JOYINFOEX joyInfoEx;
+		joyInfoEx.dwSize = sizeof(joyInfoEx);
+		joyInfoEx.dwFlags = JOY_RETURNALL;
+		if(joyGetPosEx(JOYSTICKID1, &joyInfoEx) == 0)
+		{
+			JOYCAPS caps;
+			const bool success = joyGetDevCaps(0, &caps, sizeof(caps)) == JOYERR_NOERROR;
+
+			// Check if this is a Play Station DualShock controller.
+			// https://wiki.gentoo.org/wiki/Sony_DualShock
+			const bool isPSDualShock = caps.wMid == 0x054c;
+
+			GamepadState& ourState = m_inputState.winapiGamepads[0];
+
+			ourState.hooked = true;
+
+			SGE_MARK_KEY(ourState.btnA, joyInfoEx.dwButtons & JOY_BUTTON2);
+			SGE_MARK_KEY(ourState.btnB, joyInfoEx.dwButtons & JOY_BUTTON3);
+			SGE_MARK_KEY(ourState.btnX, joyInfoEx.dwButtons & JOY_BUTTON1);
+			SGE_MARK_KEY(ourState.btnY, joyInfoEx.dwButtons & JOY_BUTTON4);
+
+			SGE_MARK_KEY(ourState.btnShoulderL, joyInfoEx.dwButtons & JOY_BUTTON5);
+			SGE_MARK_KEY(ourState.btnShoulderR, joyInfoEx.dwButtons & JOY_BUTTON6);
+
+			SGE_MARK_KEY(ourState.btnThumbL, joyInfoEx.dwButtons & JOY_BUTTON11);
+			SGE_MARK_KEY(ourState.btnThumbR, joyInfoEx.dwButtons & JOY_BUTTON12);
+
+			ourState.axisL.x =  ((float)(joyInfoEx.dwXpos - caps.wXmin) / (float)(caps.wXmax - caps.wXmin)) * 2.f - 1.f;
+			ourState.axisL.y = -(((float)(joyInfoEx.dwYpos - caps.wYmin) / (float)(caps.wYmax - caps.wYmin)) * 2.f - 1.f);
+
+			if(caps.wCaps & JOYCAPS_HASZ) {
+				ourState.axisR.x =  (((float)(joyInfoEx.dwZpos - caps.wZmin) / (float)(caps.wZmax - caps.wZmin)) * 2.f - 1.f);
+			}
+			
+			if(caps.wCaps & JOYCAPS_HASR) {
+				ourState.axisR.y =  -(((float)(joyInfoEx.dwRpos - caps.wRmin) / (float)(caps.wRmax - caps.wRmin)) * 2.f - 1.f);
+			}
+
+			if(caps.wCaps & JOYCAPS_HASV) {
+				ourState.triggerL = (float)(joyInfoEx.dwVpos - caps.wVmin) / (float)(caps.wVmax - caps.wVmin);
+			}
+
+			if(caps.wCaps & JOYCAPS_HASU) {
+				ourState.triggerR = (float)(joyInfoEx.dwUpos - caps.wUmin) / (float)(caps.wUmax - caps.wUmin);
+			}
+			
+			const bool hasPov = caps.wCaps & JOYCAPS_HASPOV;
+			const bool povUsed = hasPov && joyInfoEx.dwPOV != 65535;
+			const float povAngle = hasPov ? deg2rad(joyInfoEx.dwPOV / 100.f) : 0.f;
+			const vec2f pov = hasPov ? vec2f(-sin(povAngle), cos(povAngle)) : vec2f(0.f);
+
+			SGE_MARK_KEY(ourState.btnLeft, povUsed && pov.x > 0.5f);
+			SGE_MARK_KEY(ourState.btnRight, povUsed && pov.x < -0.5f);
+
+			SGE_MARK_KEY(ourState.btnUp, povUsed && pov.y > 0.5f);
+			SGE_MARK_KEY(ourState.btnDown, povUsed && pov.y < -0.5f);
+
+			if(fabsf(ourState.axisL.x) < 0.1f) ourState.axisL.x = 0;
+			if(fabsf(ourState.axisL.y) < 0.1f) ourState.axisL.y = 0;
+		} else {
+			GamepadState& ourState = m_inputState.winapiGamepads[0];
+			ourState.hooked = false;
+		}
+	}
+
+	// XInput controllers.
+	for(DWORD iCtrl = 0; iCtrl < XUSER_MAX_COUNT; iCtrl++)
+	{
+		XINPUT_STATE state;
+		ZeroMemory(&state, sizeof(XINPUT_STATE));
+
+		GamepadState& ourState = m_inputState.xinputDevicesState[iCtrl];
+
+		DWORD const dwResult = XInputGetState(iCtrl, &state);
+		if(dwResult == ERROR_SUCCESS)
+		{
+			// The controller is connected.
+			// https://msdn.microsoft.com/en-us/library/windows/desktop/microsoft.directx_sdk.reference.xinput_gamepad(v=vs.85).aspx
+			ourState.hooked = true;
+
+			SGE_MARK_KEY(ourState.btnA, state.Gamepad.wButtons & XINPUT_GAMEPAD_A);
+			SGE_MARK_KEY(ourState.btnB, state.Gamepad.wButtons & XINPUT_GAMEPAD_B);
+			SGE_MARK_KEY(ourState.btnX, state.Gamepad.wButtons & XINPUT_GAMEPAD_X);
+			SGE_MARK_KEY(ourState.btnY, state.Gamepad.wButtons & XINPUT_GAMEPAD_Y);
+
+			SGE_MARK_KEY(ourState.btnShoulderL, state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER);
+			SGE_MARK_KEY(ourState.btnShoulderR, state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER);
+
+			SGE_MARK_KEY(ourState.btnUp, state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP);
+			SGE_MARK_KEY(ourState.btnDown, state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN);
+			SGE_MARK_KEY(ourState.btnLeft, state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT);
+			SGE_MARK_KEY(ourState.btnRight, state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT);
+
+			SGE_MARK_KEY(ourState.btnThumbL, state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB);
+			SGE_MARK_KEY(ourState.btnThumbR, state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB);
+
+			// https://msdn.microsoft.com/en-us/library/windows/desktop/ee417001(v=vs.85).aspx
+			ourState.axisL = vec2f((float)state.Gamepad.sThumbLX, (float)state.Gamepad.sThumbLY);
+			float axisLMagnitude = ourState.axisL.length();
+			if(axisLMagnitude > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
+			{
+				//clip the magnitude at its expected maximum value
+				if (axisLMagnitude > 32767) axisLMagnitude = 32767;
+				axisLMagnitude -= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE;
+
+				//optionally normalize the magnitude with respect to its expected range
+				//giving a magnitude value of 0.0 to 1.0
+				float normalizedMagnitude = axisLMagnitude / (32767 - XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
+				ourState.axisL = ourState.axisL.normalized()*normalizedMagnitude; 
+			}
+			else
+			{
+				ourState.axisL = vec2f(0.f);
+			}
+			
+			ourState.axisR = vec2f((float)state.Gamepad.sThumbRX, (float)state.Gamepad.sThumbRY);
+			float axisRMagnitude = ourState.axisR.length();
+			if(axisRMagnitude > XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)
+			{
+				//clip the magnitude at its expected maximum value
+				if (axisRMagnitude > 32767) axisRMagnitude = 32767;
+				axisRMagnitude -= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE;
+
+				//optionally normalize the magnitude with respect to its expected range
+				//giving a magnitude value of 0.0 to 1.0
+				float normalizedMagnitude = axisRMagnitude / (32767 - XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
+				ourState.axisR = ourState.axisR.normalized()*normalizedMagnitude; 
+			}
+			else
+			{
+				ourState.axisR = vec2f(0.f);
+			}
+
+			ourState.triggerL = (float)state.Gamepad.bLeftTrigger / 255.f;
+			ourState.triggerR = (float)state.Gamepad.bRightTrigger / 255.f;
+		}
+		else
+		{
+			// Controller is not connected.
+			ourState.hooked = false;
+		}
+	}
+
+	POINT cursorPos;
+	GetCursorPos(&cursorPos);
+
+	HWND const focusWindow = GetFocus();
+
+	for(int t = 0; t <	m_wnds.size(); ++t)
+	{
+		bool hasInputFocus = m_wnds[t]->m_implData->hwnd == focusWindow;
+
+		vec2f const prevCursorClient = m_wnds[t]->m_inputState.m_cursorClient;
+
+		m_wnds[t]->m_inputState = m_inputState;
+		m_wnds[t]->m_inputState.setWasActiveDuringPoll(hasInputFocus);
+
+		POINT cursorClient = cursorPos;
+		ScreenToClient(m_wnds[t]->m_implData->hwnd, &cursorClient);
+		
+		vec2f const newCursorClient = vec2f((float)cursorClient.x, (float)cursorClient.y);
+		vec2f const cursorMotion = (m_wnds[t]->m_shouldRecenterMouseEveryFrame)
+			? newCursorClient - vec2f(m_wnds[t]->GetClientWidth() * 0.5f, m_wnds[t]->GetClientHeight() * 0.5f)
+			: newCursorClient - prevCursorClient;
+
+		m_wnds[t]->m_inputState.m_cursorClient = newCursorClient;
+		m_wnds[t]->m_inputState.m_cursorDomain = m_wnds[t]->m_inputState.m_cursorClient; 
+		m_wnds[t]->m_inputState.m_cursorDomainSize  = vec2f(float(m_wnds[t]->GetClientWidth()), float(m_wnds[t]->GetClientHeight()));
+		m_wnds[t]->m_inputState.m_cursorMotion = cursorMotion;
+	}
+
+	MSG Message;
+	while (PeekMessage(&Message, nullptr, 0, 0, PM_REMOVE))
+	{
+		TranslateMessage(&Message);
+		DispatchMessage(&Message);
+	}
+
+	HWND captureWnd = GetCapture();
+
+	for(int t = 0; t < m_wnds.size(); ++t)
+	{
+		if(m_wnds[t]->m_shouldRecenterMouseEveryFrame)
+		{
+			POINT pt;
+			pt.x = m_wnds[t]->GetClientWidth() / 2;
+			pt.y = m_wnds[t]->GetClientHeight() / 2;
+
+			ClientToScreen(m_wnds[t]->m_implData->hwnd, &pt);
+			SetCursorPos(pt.x, pt.y);
+		}
+
+		if(m_wnds[t]->m_shouldCaptureMouse)
+		{
+			SetCapture(m_wnds[t]->m_implData->hwnd);
+		}
+		else
+		{
+			if(captureWnd == m_wnds[t]->m_implData->hwnd)
+			{
+				SetCapture(NULL);
+			}
+		}
+
+	}
+
+#elif defined(__linux__)
+
+	Display* const display = ApplicationHandler::get()->getImplData()->display;
+
+	// todo:
+	m_inputState.setWasActiveDuringPoll(true);
+
+	XEvent event;
+	while(XCheckMaskEvent(display,-1,&event))
+	{
+		if(event.type == MotionNotify) {
+			// This is somehow in client space.
+			m_inputState.m_cursorClient = vec2f(event.xmotion.x, event.xmotion.y);
+			m_inputState.m_cursorDomain = m_inputState.m_cursorClient;
+		}
+		if(event.type == KeyPress) {
+
+			XKeyEvent* const keyEvent = &event.xkey;
+			
+			KeySym key = XKeycodeToKeysym(display, keyEvent->keycode, 0);
+            const int mods = (event.xkey.state);
+			
+			const int sge_key = Xlib_key_to_SGEKey(key);
+			if(sge_key != -1) {
+				m_inputState.m_keyStates[sge_key] |= 1;
+			}
+
+			// int count = 0;
+			// KeySym keysym = 0;
+			// char buf[20];
+			// Status status = 0;
+			// count = Xutf8LookupString(ic, (XKeyPressedEvent*)&event, buf, 20, &keysym, &status);
+			char text[255];
+			if(XLookupString(&event.xkey,text,SGE_ARRSZ(text),&key,0)==1)
+			{
+				m_inputState.m_inputText += text;
+			}
+		}
+
+
+		if(event.type == KeyRelease) {
+			XKeyEvent *keyEvent = &event.xkey;
+
+			KeySym key = XKeycodeToKeysym(display, keyEvent->keycode, 0);
+			const int mods=(event.xkey.state);
+	
+			const int sge_key = Xlib_key_to_SGEKey(key);
+			if(sge_key != -1) {
+				m_inputState.m_keyStates[sge_key] &= ~1;
+			}
+		}
+		
+		if(event.type == ButtonPress) {
+			if(event.xbutton.button == Button1) m_inputState.m_keyStates[Key_MouseLeft] |= 1;
+			if(event.xbutton.button == Button2) m_inputState.m_keyStates[Key_MouseMiddle] |= 1;
+			if(event.xbutton.button == Button3) m_inputState.m_keyStates[Key_MouseRight] |= 1;
+
+			// Mouse wheel is a button event in X11.
+			if(event.xbutton.button == Button4) m_inputState.m_wheelCount = -1.f;
+			if(event.xbutton.button == Button5) m_inputState.m_wheelCount = 1.f;
+		}
+		
+		if(event.type == ButtonRelease) {
+			if(event.xbutton.button == Button1) m_inputState.m_keyStates[Key_MouseLeft] &= ~1;
+			if(event.xbutton.button == Button2) m_inputState.m_keyStates[Key_MouseMiddle] &= ~1;
+			if(event.xbutton.button == Button3) m_inputState.m_keyStates[Key_MouseRight] &= ~1;
+		}
+		else if(event.type == ConfigureNotify) {
+			// Window resize and move (and possibly something else).
+			XConfigureEvent xce = event.xconfigure;
+			
+			// Find the window that is being resized.
+			for(int t = 0; t < m_wnds.size(); ++t)
+			{	
+				if(m_wnds[t]->m_implData->hwnd == xce.window) {
+
+					// Check if the size is different form the one that we've got cached.
+					if(    m_wnds[t]->m_implData->clientWidth != xce.width
+						|| m_wnds[t]->m_implData->clientHeight != xce.height)
+					{
+						m_wnds[t]->m_implData->clientWidth = xce.width;
+						m_wnds[t]->m_implData->clientHeight = xce.height;
+	
+						// Sent the event.
+						WE_Resize_Data data;
+						data.width = xce.width;
+						data.height = xce.height;
+						m_wnds[t]->HandleEvent(WE_Resize, &data);
+					}
+				}
+			}
+		}
+	}
+	
+	for(int t = 0; t < m_wnds.size(); ++t){
+		m_wnds[t]->m_inputState = m_inputState;
+		glXSwapBuffers(display, m_wnds[t]->m_implData->hwnd); //[TODO]
+	}
+#endif
+#endif
+}
+
+WindowBase::WindowBase()
+{
+	m_implData = new WindowImplData;
+}
+
+WindowBase::~WindowBase()
+{
+	delete m_implData;
+	m_implData = nullptr;
+}
+
+void* WindowBase::GetNativeHandle() const
+{
+#ifdef SGE_USE_SDL2
+	
+	SDL_SysWMinfo wmInfo;
+	SDL_VERSION(&wmInfo.version);
+	if(SDL_GetWindowWMInfo(m_implData->window, &wmInfo) == false) {
+		SGE_DEBUG_LOG(SDL_GetError());
+		sgeAssert(false);
+		return nullptr;
+	}
+	HWND hwnd = wmInfo.info.win.window;
+	
+	return hwnd;
+#else
+	return m_implData->hwnd;
+#endif
+}
+
+bool WindowBase::IsActive() const
+{
+#ifdef SGE_USE_SDL2
+	return bool(SDL_WINDOW_INPUT_FOCUS & SDL_GetWindowFlags(m_implData->window));
+#else
+#if defined(WIN32)
+	return GetActiveWindow() == m_implData->hwnd;
+#else 
+	return true;
+#endif
+#endif
+}
+
+int WindowBase::GetClientWidth() const
+{
+#ifdef SGE_USE_SDL2
+	int w = 0;
+	int h = 0;
+	SDL_GetWindowSize(m_implData->window, &w, &h);
+	return w;
+#else
+#if defined(WIN32)
+	RECT rc;
+	GetClientRect(m_implData->hwnd, &rc);
+	return rc.right - rc.left;
+#else
+	return 1280;
+#endif
+#endif
+}
+
+int WindowBase::GetClientHeight() const
+{
+#ifdef SGE_USE_SDL2
+	int w = 0;
+	int h = 0;
+	SDL_GetWindowSize(m_implData->window, &w, &h);
+	return h;
+#else
+#if defined(WIN32)
+	RECT rc;
+	GetClientRect(m_implData->hwnd, &rc);
+	return rc.bottom - rc.top;
+#else
+	return 720;
+#endif
+#endif
+}
+
+}
+
+//
+#ifdef SGE_USE_SDL2
+int WINAPI SDL_main(int argc, char* argv[])
+{
+#ifdef SGE_RENDERER_D3D11
+	SDL_SetHint(SDL_HINT_RENDER_DRIVER, "software");
+#else if SGE_RENDERER_GL
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+#endif
+	SDL_Init(SDL_INIT_EVERYTHING);
+
+	SGE_DEBUG_LOG("Program started!\n");
+	return sge_main(argc, argv);
+}
+#else
+#if defined(WIN32)
+int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
+{
+	SGE_DEBUG_LOG("Program started!\n");
+	return sge_main(__argc, __argv);
+}
+#else
+int main(int argc, char* argv[])
+{
+	SGE_DEBUG_LOG("Program started!\n");
+	sge_main(argc, argv);
+}
+#endif
+#endif
