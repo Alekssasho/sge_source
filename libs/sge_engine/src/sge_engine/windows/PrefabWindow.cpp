@@ -38,7 +38,7 @@ void PrefabWindow::update(SGEContext* const UNUSED(sgecon), const InputState& UN
 		if (ImGui::BeginPopup("SGEPrefabWindowsCreatePrefabPopup")) {
 			ImGuiEx::InputText("Prefab Name", createPrefabName);
 			if (ImGui::Button(ICON_FK_CHECK " Create")) {
-				std::string prefabFilePath = "./prefabs/" + createPrefabName + ".lvl";
+				std::string prefabFilePath = "./assets/prefabs/" + createPrefabName + ".lvl";
 
 				// Create the prefab world.
 				vector_set<ObjectId> entitesToSaveInPrefab;
@@ -59,7 +59,7 @@ void PrefabWindow::update(SGEContext* const UNUSED(sgecon), const InputState& UN
 					const JsonValue* const jPrefabWorld = serializeGameWorld(&prefabWorld, jvb);
 
 					// Ensure that the prefabs directory exists.
-					createDirectory("prefabs");
+					createDirectory(extractFileDir(prefabFilePath.c_str(), false).c_str());
 
 					JsonWriter jw;
 					[[maybe_unused]] bool succeeded = jw.WriteInFile(prefabFilePath.c_str(), jPrefabWorld, true);
@@ -86,11 +86,11 @@ void PrefabWindow::update(SGEContext* const UNUSED(sgecon), const InputState& UN
 
 		if (m_availablePrefabs.isValid() == false) {
 			m_availablePrefabs = std::vector<std::string>();
-			if (std::filesystem::is_directory("prefabs"))
-				for (const std::filesystem::directory_entry& entry : std::filesystem::recursive_directory_iterator("./prefabs")) {
+			if (std::filesystem::is_directory("assets/prefabs"))
+				for (const std::filesystem::directory_entry& entry : std::filesystem::recursive_directory_iterator("./assets/prefabs")) {
 					if (entry.path().extension() == ".lvl") {
-						const char* const prefabPath = entry.path().generic_u8string().c_str();
-						m_availablePrefabs->emplace_back(prefabPath);
+						std::string prefabPath = entry.path().generic_u8string().c_str();
+						m_availablePrefabs->emplace_back(std::move(prefabPath));
 					}
 				}
 		}
