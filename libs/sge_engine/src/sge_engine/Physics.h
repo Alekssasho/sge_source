@@ -239,8 +239,14 @@ struct SGE_ENGINE_API RigidBody {
 	/// @brief Disables/Enables movement of the rigid body along the specified axis.
 	void setCanMove(bool x, bool y, bool z);
 
+	/// @brief Retrieves if the rigid body is restricted to move in the specified axes.
+	void getCanMove(bool& x, bool& y, bool& z) const;
+
 	/// @brief Disables/Enables rotation of the rigid body along the specified axis.
 	void setCanRotate(bool x, bool y, bool z);
+
+	/// @brief Retrieves if the rigid body is restricted to rotate around the specified axes.
+	void getCanRotate(bool& x, bool& y, bool& z) const;
 
 	/// @brief Changes the restitution of the rigid body. This controls how bouncy is the object.
 	void setBounciness(float v);
@@ -251,6 +257,9 @@ struct SGE_ENGINE_API RigidBody {
 	/// @brief. Changed the damping of the velocity of the object. The dampling is applied always no matter if the object is in contant with
 	/// something or in air.
 	void setDamping(float linearDamping, float angularDamping);
+
+	/// @brief Retrieves the linear and angular damping of the rigid body.
+	void getDamping(float& linearDamping, float& angularDamping) const;
 
 	/// @brief Sets the friction of the rigid body.
 	void setFriction(float f);
@@ -318,7 +327,7 @@ struct SGE_ENGINE_API RigidBody {
 
 	/// @brief Retrurns true if the rigid body participates in a physics world.
 	bool isInWorld() const;
-	
+
 	/// @brief Returns the axis aligned bounding box according to the physics engine in world space.
 	AABox3f getBBoxWs() const;
 

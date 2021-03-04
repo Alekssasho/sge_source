@@ -72,7 +72,18 @@ void RigidBodyPropertiesConfigurator::extractPropsFromRigidBody(const RigidBody&
 	rollingFriction = rb.getRollingFriction();
 	spinningFriction = rb.getSpinningFriction();
 	bounciness = rb.getBounciness();
-	// TODO: Load the others.
+
+	rb.getCanMove(noMoveX, noMoveY, noMoveZ);
+	noMoveX = !noMoveX;
+	noMoveY = !noMoveY;
+	noMoveZ = !noMoveZ;
+
+	rb.getCanRotate(noRotationX, noRotationY, noRotationZ);
+	noRotationX = !noRotationX;
+	noRotationY = !noRotationY;
+	noRotationZ = !noRotationZ;
+
+	rb.getDamping(movementDamping, rotationDamping);
 }
 
 //---------------------------------------------------------------------

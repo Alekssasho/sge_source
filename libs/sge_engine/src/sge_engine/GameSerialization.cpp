@@ -657,6 +657,7 @@ bool loadGameWorldFromStream(GameWorld* world, IReadStream* stream, const char* 
 
 	// Save the filename that we are working with.
 	world->m_workingFilePath = workingFilename;
+	world->physicsWorld.setGravity(world->m_defaultGravity);
 	world->update(GameUpdateSets(0.f, true, InputState()));
 	world->onWorldLoaded();
 

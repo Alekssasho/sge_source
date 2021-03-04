@@ -440,6 +440,17 @@ void RigidBody::setCanMove(bool x, bool y, bool z) {
 	}
 }
 
+void RigidBody::getCanMove(bool& x, bool& y, bool& z) const {
+	const btRigidBody* btrb = getBulletRigidBody();
+	if (btrb) {
+		btVector3 linearFactor = btrb->getLinearFactor();
+
+		x = linearFactor.x() != 0.f;
+		y = linearFactor.y() != 0.f;
+		z = linearFactor.z() != 0.f;
+	}
+}
+
 void RigidBody::setCanRotate(bool x, bool y, bool z) {
 	btRigidBody* btrb = getBulletRigidBody();
 	if (btrb) {
@@ -447,6 +458,16 @@ void RigidBody::setCanRotate(bool x, bool y, bool z) {
 	}
 }
 
+void RigidBody::getCanRotate(bool& x, bool& y, bool& z) const {
+	const btRigidBody* btrb = getBulletRigidBody();
+	if (btrb) {
+		btVector3 linearFactor = btrb->getAngularFactor();
+
+		x = linearFactor.x() != 0.f;
+		y = linearFactor.y() != 0.f;
+		z = linearFactor.z() != 0.f;
+	}
+}
 
 void RigidBody::setBounciness(float v) {
 	btRigidBody* btrb = getBulletRigidBody();
@@ -468,6 +489,14 @@ void RigidBody::setDamping(float linearDamping, float angularDamping) {
 	btRigidBody* btrb = getBulletRigidBody();
 	if (btrb) {
 		btrb->setDamping(linearDamping, angularDamping);
+	}
+}
+
+void RigidBody::getDamping(float& linearDamping, float& angularDamping) const {
+	const btRigidBody* btrb = getBulletRigidBody();
+	if (btrb) {
+		linearDamping = btrb->getLinearDamping();
+		angularDamping = btrb->getAngularDamping();
 	}
 }
 
