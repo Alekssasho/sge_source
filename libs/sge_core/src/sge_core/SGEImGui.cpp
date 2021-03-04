@@ -1083,8 +1083,16 @@ bool InputText(const char* label, std::string& str, ImGuiInputTextFlags flags, I
 	cb_user_data.Str = &str;
 	cb_user_data.ChainCallback = callback;
 	cb_user_data.ChainCallbackUserData = user_data;
-	
+
 	return ImGui::InputText(label, (char*)str.c_str(), str.capacity() + 1, flags, InputTextCallback, &cb_user_data);
+}
+
+SGE_CORE_API void TextTooltip(const char* const text) {
+	if (text != nullptr && ImGui::IsItemHovered()) {
+		ImGui::BeginTooltip();
+		ImGui::Text(text);
+		ImGui::EndTooltip();
+	}
 }
 
 } // namespace ImGuiEx

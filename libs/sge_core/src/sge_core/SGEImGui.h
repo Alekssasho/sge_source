@@ -170,4 +170,7 @@ SGE_CORE_API bool InputText(const char* label,
                             ImGuiInputTextFlags flags = 0,
                             ImGuiInputTextCallback callback = nullptr,
                             void* user_data = nullptr);
+
+/// @brief Createa tooltip if the previous item was hovered.
+SGE_CORE_API void TextTooltip(const char* const text);
 } // namespace ImGuiEx

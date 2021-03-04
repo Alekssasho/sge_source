@@ -21,7 +21,6 @@ void ActorCreateWindow::update(SGEContext* const UNUSED(sgecon), const InputStat
 		return;
 	}
 
-
 	if (ImGui::Begin(m_windowName.c_str(), &m_isOpened)) {
 		const float kItemWidth = 32.f;
 		const ImVec2 kWidgetSize = ImVec2(kItemWidth + 40.f, kItemWidth + 30.f);
@@ -72,9 +71,9 @@ void ActorCreateWindow::update(SGEContext* const UNUSED(sgecon), const InputStat
 				}
 
 				i = (ImGui::GetContentRegionAvailWidth() - ImGui::CalcTextSize(typeDesc->name).x) * 0.5f;
-				ImGui::Indent(i);
+				//ImGui::Indent(i);
 				ImGui::Text(typeDesc->name);
-				ImGui::Unindent(i);
+				//ImGui::Unindent(i);
 
 				if (isImageButtonPressed) {
 					CmdObjectCreation* cmd = new CmdObjectCreation;

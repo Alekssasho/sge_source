@@ -17,6 +17,7 @@
 #include "WorldSettingsWindow.h"
 #include "sge_core/ICore.h"
 #include "sge_core/QuickDraw.h"
+#include "sge_core/SGEImGui.h"
 #include "sge_core/application/application.h"
 #include "sge_core/application/input.h"
 #include "sge_core/ui/MultiCurve2DEditor.h"
@@ -516,6 +517,7 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 		if (m_assets.m_assetPickingIcon && ImGui::ImageButton((*m_assets.m_assetPickingIcon->asTextureView()), ImVec2(24, 24))) {
 			m_sceneInstance.getInspector().setTool(&m_sceneInstance.getInspector().m_selectionTool);
 		}
+		ImGuiEx::TextTooltip("Enables the scene selection tool.");
 
 		ImGui::SameLine();
 
@@ -523,6 +525,7 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 			m_sceneInstance.getInspector().m_transformTool.m_mode = Gizmo3D::Mode_Translation;
 			m_sceneInstance.getInspector().setTool(&m_sceneInstance.getInspector().m_transformTool);
 		}
+		ImGuiEx::TextTooltip("Enables the actor move tool.");
 
 		ImGui::SameLine();
 
@@ -530,6 +533,7 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 			m_sceneInstance.getInspector().m_transformTool.m_mode = Gizmo3D::Mode_Rotation;
 			m_sceneInstance.getInspector().setTool(&m_sceneInstance.getInspector().m_transformTool);
 		}
+		ImGuiEx::TextTooltip("Enables the actor rotation tool.");
 
 		ImGui::SameLine();
 
@@ -537,6 +541,7 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 			m_sceneInstance.getInspector().m_transformTool.m_mode = Gizmo3D::Mode_Scaling;
 			m_sceneInstance.getInspector().setTool(&m_sceneInstance.getInspector().m_transformTool);
 		}
+		ImGuiEx::TextTooltip("Enables the actor scaling tool.");
 
 		ImGui::SameLine();
 
@@ -544,6 +549,7 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 			m_sceneInstance.getInspector().m_transformTool.m_mode = Gizmo3D::Mode_ScaleVolume;
 			m_sceneInstance.getInspector().setTool(&m_sceneInstance.getInspector().m_transformTool);
 		}
+		ImGuiEx::TextTooltip("Enables the actor box-scaling tool.");
 
 		ImGui::SameLine();
 
@@ -560,6 +566,7 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 			jw.write(&stringStream, jWorld);
 			getEngineGlobal()->addWindow(new GamePlayWindow("Game Play", stringStream.serializedString.c_str()));
 		}
+		ImGuiEx::TextTooltip("Play the level in isolation.");
 
 		ImGui::SameLine();
 		ImGui::Separator();
@@ -576,38 +583,25 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 				m_sceneInstance.getInspector().m_transformTool.m_useSnapSettings = true;
 			}
 		}
+		ImGuiEx::TextTooltip("Toggle on/off snapping for tools.");
 
 		ImGui::SameLine();
 
 		ImGui::SameLine();
 		ImGui::Separator();
 		ImGui::SameLine();
-
-		if (m_assets.m_assetRefreshIcon && ImGui::ImageButton((*m_assets.m_assetRefreshIcon->asTextureView()), ImVec2(24, 24))) {
-			getCore()->getAssetLib()->scanForAvailableAssets("assets");
-		}
-
-		ImGui::SameLine();
-
-		if (m_assets.m_assetRebuildIcon && ImGui::ImageButton((*m_assets.m_assetRebuildIcon->asTextureView()), ImVec2(24, 24))) {
-			system("sge_gameAssets.bat"); // Launch the script for rebuilding assets and wait for it to finish.
-			getCore()->getAssetLib()->reloadChangedAssets();
-		}
-
-		ImGui::SameLine();
-		ImGui::Separator();
-		ImGui::SameLine();
-
 
 		if (m_assets.m_assetRebuildIcon && ImGui::ImageButton((*m_assets.m_orthoIcon->asTextureView()), ImVec2(24, 24))) {
 			getInspector().m_editorCamera.isOrthograhpic = !getInspector().m_editorCamera.isOrthograhpic;
 		}
+		ImGuiEx::TextTooltip("Toggle the orthographic/perspective mode of the preview camera.");
 
 		ImGui::SameLine();
 		if (m_assets.m_assetRebuildIcon && ImGui::ImageButton((*m_assets.m_xIcon->asTextureView()), ImVec2(24, 24))) {
 			getInspector().m_editorCamera.m_orbitCamera.yaw = 0.f;
 			getInspector().m_editorCamera.m_orbitCamera.pitch = 0.f;
 		}
+		ImGuiEx::TextTooltip("Align the preview camera to +X axis.");
 
 		ImGui::SameLine();
 		if (m_assets.m_assetRebuildIcon && ImGui::ImageButton((*m_assets.m_yIcon->asTextureView()), ImVec2(24, 24))) {
@@ -615,12 +609,14 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 			    deg2rad(90.f) * float(int(getInspector().m_editorCamera.m_orbitCamera.yaw / deg2rad(90.f)));
 			getInspector().m_editorCamera.m_orbitCamera.pitch = deg2rad(90.f);
 		}
+		ImGuiEx::TextTooltip("Align the preview camera to +Y axis.");
 
 		ImGui::SameLine();
 		if (m_assets.m_assetRebuildIcon && ImGui::ImageButton((*m_assets.m_zIcon->asTextureView()), ImVec2(24, 24))) {
 			getInspector().m_editorCamera.m_orbitCamera.yaw = deg2rad(-90.f);
 			getInspector().m_editorCamera.m_orbitCamera.pitch = 0.f;
 		}
+		ImGuiEx::TextTooltip("Align the preview camera to +Z axis.");
 
 		// int editMode_int = (int)editMode;
 		// if (ImGui::Combo("Mode", &editMode_int, "Actors\0Points\0")) {
@@ -708,7 +704,7 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 		ImGui::NewLine();
 
 		if (ImGui::Button(ICON_FK_BOOK " Keyboard shortcuts and Help")) {
-			HelpWindow* wnd = getEngineGlobal()->findFirstWindowOfType<HelpWindow>();
+			HelpWindow* const wnd = getEngineGlobal()->findFirstWindowOfType<HelpWindow>();
 			if (wnd) {
 				ImGui::SetWindowFocus(wnd->getWindowName());
 			} else {
@@ -725,7 +721,8 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 		}
 
 		// If the user clicks somewhere outside of the start-up window, close it.
-		if (!ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows) && ImGui::IsMouseClicked(0)) {
+		const bool isWindowOrItsChildsHovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem) || ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows);
+		if (!isWindowOrItsChildsHovered && ImGui::IsMouseClicked(0)) {
 			m_isWelcomeWindowOpened = false;
 		}
 

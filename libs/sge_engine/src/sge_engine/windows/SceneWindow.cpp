@@ -185,7 +185,7 @@ void SceneWindow::updateRightClickMenu(bool canOpen) {
 
 	const char* const kRightClickMenuName = "SGE Inspector Right Click Menu Name";
 
-	if ((ImGui::IsKeyPressed(ImGuiKey_Tab) || ImGui::IsMouseClicked(1)) && canOpen) {
+	if ((ImGui::IsKeyPressed(ImGuiKey_Tab, false) || ImGui::IsMouseClicked(1)) && canOpen) {
 		ImGui::OpenPopup(kRightClickMenuName);
 	}
 
@@ -198,7 +198,7 @@ void SceneWindow::updateRightClickMenu(bool canOpen) {
 
 		// If the menu has just been opened and tab is down (the manu can be opened by pressing tab)
 		// Then automatically open the create menu.
-		if (ImGui::IsWindowAppearing() && ImGui::IsKeyPressed(ImGuiKey_Tab)) {
+		if (ImGui::IsWindowAppearing() && ImGui::IsKeyPressed(ImGuiKey_Tab, false)) {
 			ImGui::OpenPopup("Create");
 		}
 
@@ -210,6 +210,7 @@ void SceneWindow::updateRightClickMenu(bool canOpen) {
 			static ImGuiTextFilter createActorFilter;
 
 			createActorFilter.Draw(ICON_FK_SEARCH);
+
 			if (ImGui::IsItemClicked(2)) {
 				ImGui::ClearActiveID(); // Hack: (if we do not make this call ImGui::InputText will set it's cached value.
 				createActorFilter.Clear();
