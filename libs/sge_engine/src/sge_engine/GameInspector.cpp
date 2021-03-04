@@ -84,6 +84,13 @@ bool GameInspector::isPrimarySelected(ObjectId const id) const {
 	return false;
 }
 
+ObjectId GameInspector::getPrimarySelection() const {
+	if (m_selection.empty())
+		return ObjectId();
+
+	return m_selection[0].objectId;
+}
+
 ObjectId GameInspector::getSecondarySelectedActor() const {
 	if (m_selection.size() < 2) {
 		return ObjectId();

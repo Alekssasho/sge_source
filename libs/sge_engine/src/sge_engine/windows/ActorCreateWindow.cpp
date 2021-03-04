@@ -60,20 +60,31 @@ void ActorCreateWindow::update(SGEContext* const UNUSED(sgecon), const InputStat
 
 				ImGui::BeginChildFrame(ImHashStr(typeDesc->name), kWidgetSize, ImGuiWindowFlags_NoBackground);
 
-				float i = (ImGui::GetContentRegionAvailWidth() - kItemWidth) * 0.5f;
-				ImGui::Indent(i);
+				float indent = (ImGui::GetContentRegionAvailWidth() - kItemWidth) * 0.5f;
+				ImGui::Indent(indent);
 				ImGui::ImageButton(*icon, ImVec2(32, 32), ImVec2(0.f, 0.f), ImVec2(1.f, 1.f), 0);
 				bool isImageButtonPressed = ImGui::IsItemClicked(0);
-				ImGui::Unindent(i);
+				ImGui::Unindent(indent);
 
 				if (ImGui::IsItemHovered()) {
 					ImGui::SetTooltip(typeDesc->name);
 				}
 
-				i = (ImGui::GetContentRegionAvailWidth() - ImGui::CalcTextSize(typeDesc->name).x) * 0.5f;
-				//ImGui::Indent(i);
+				// If the text is too long, do not center it below the icon, as it is hard to read the name of the type.
+				const float typeNameTextWidth = ImGui::CalcTextSize(typeDesc->name).x;
+				if (typeNameTextWidth >= kWidgetSize.x) {
+					indent = 0.f;
+				} else {
+					indent = (ImGui::GetContentRegionAvailWidth() - ImGui::CalcTextSize(typeDesc->name).x) * 0.5f;
+				}
+
+				if (indent != 0.f) {
+					ImGui::Indent(indent);
+				}
 				ImGui::Text(typeDesc->name);
-				//ImGui::Unindent(i);
+				if (indent != 0.f) {
+					ImGui::Unindent(indent);
+				}
 
 				if (isImageButtonPressed) {
 					CmdObjectCreation* cmd = new CmdObjectCreation;

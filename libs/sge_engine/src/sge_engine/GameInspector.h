@@ -34,6 +34,7 @@ struct SGE_ENGINE_API GameInspector {
 	bool isSelected(ObjectId const id, bool* const outIsPrimary = nullptr) const;
 	bool isPrimarySelected(ObjectId const id) const;
 	const std::vector<SelectedItem>& getSelection() const { return m_selection; }
+	ObjectId getPrimarySelection() const;
 	ObjectId getSecondarySelectedActor() const;
 	void getAllSelectedObjects(vector_set<ObjectId>& allActors);
 	void select(ObjectId const id, bool const selectAsPrimary = false);

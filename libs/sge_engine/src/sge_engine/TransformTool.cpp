@@ -59,7 +59,7 @@ void TransformTool::onSetActive(GameInspector* const inspector) {
 			gizmoTransform = transf3d::getIdentity();
 			gizmoBBoxScaleVolume = allBBoxesWs;
 		} else {
-			Actor* const actor = inspector->m_world->getActorById(inspector->getSelection()[0].objectId);
+			Actor* const actor = inspector->m_world->getActorById(inspector->getPrimarySelection());
 			if (actor) {
 				gizmoTransform = actor->getTransform();
 				gizmoBBoxScaleVolume = actor->getBBoxOS();
