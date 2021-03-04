@@ -1,5 +1,4 @@
-#include "sge_core/DebugDraw2.h"
-#include "sge_core/GameUI/UIContext.h"
+#include "sge_core/DebugDraw.h"
 #include "sge_core/ICore.h"
 #include "sge_core/QuickDraw.h"
 #include "sge_engine/materials/Material.h"
@@ -11,11 +10,11 @@
 #include "sge_engine/traits/TraitViewportIcon.h"
 #include "sge_utils/math/Frustum.h"
 #include "sge_utils/math/color.h"
-#include "sge_utils/utils/timer.h"
 
 #include "sge_engine/GameInspector.h"
 #include "sge_engine/GameWorld.h"
 #include "sge_engine/Physics.h"
+#include "sge_engine/actors/ABlockingObstacle.h"
 #include "sge_engine/actors/ACRSpline.h"
 #include "sge_engine/actors/ACamera.h"
 #include "sge_engine/actors/AInfinitePlaneObstacle.h"
@@ -23,7 +22,6 @@
 #include "sge_engine/actors/ALine.h"
 #include "sge_engine/actors/ALocator.h"
 #include "sge_engine/actors/ANavMesh.h"
-#include "sge_engine/actors/ATerrainPrimitive.h"
 
 #include "sge_engine/actors/AInvisibleRigidObstacle.h"
 
@@ -512,7 +510,7 @@ void DefaultGameDrawer::drawWorld(const GameDrawSets& drawSets, const DrawReason
 		getWorld()->m_physicsDebugDraw.postDebugDraw();
 	}
 
-	getCore()->getDebugDraw2().draw(drawSets.rdest, drawSets.drawCamera->getProjView());
+	getCore()->getDebugDraw().draw(drawSets.rdest, drawSets.drawCamera->getProjView());
 }
 
 void DefaultGameDrawer::drawActor(
@@ -1218,8 +1216,10 @@ void DefaultGameDrawer::drawActorLegacy(Actor* actor,
 			const float scale = plane->displayScale * plane->getTransform().s.componentMaxAbs();
 
 			drawSets.quickDraw->drawWired_Clear();
-			drawSets.quickDraw->drawWiredAdd_Arrow(actor->getPosition(), actor->getPosition() + actor->getDirY() * scale, wireframeColorInt);
-			drawSets.quickDraw->drawWiredAdd_Grid(actor->getPosition(), actor->getDirX() * scale, actor->getDirZ() * scale, 1, 1, wireframeColorInt);
+			drawSets.quickDraw->drawWiredAdd_Arrow(actor->getPosition(), actor->getPosition() + actor->getDirY() * scale,
+			                                       wireframeColorInt);
+			drawSets.quickDraw->drawWiredAdd_Grid(actor->getPosition(), actor->getDirX() * scale, actor->getDirZ() * scale, 1, 1,
+			                                      wireframeColorInt);
 			drawSets.quickDraw->drawWired_Execute(drawSets.drawCamera->getProjView());
 		}
 	}

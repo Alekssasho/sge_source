@@ -15,7 +15,7 @@ struct SGE_ENGINE_API BulletPhysicsDebugDraw : public btIDebugDraw {
 	int m_debugMode = DBG_DrawWireframe | DBG_DrawContactPoints | DBG_DrawNormals | DBG_EnableCCD | DBG_DrawConstraints | DBG_DrawFrames |
 	                  DBG_DrawContactPoints;
 	mat4f m_projView = mat4f::getIdentity();
-	QuickDraw* m_debugDraw = nullptr;
+	QuickDraw* m_quickDraw = nullptr;
 
   public:
 	// bt*World::debugDraw* should be called between these two.

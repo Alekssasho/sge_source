@@ -1,4 +1,4 @@
-#include "DebugDraw2.h"
+#include "DebugDraw.h"
 
 namespace sge
 {
@@ -42,23 +42,23 @@ float4 psMain(VERTEX_OUT IN) : COLOR {
 //------------------------------------------------------------------------------------------
 // WiredCommandData
 //------------------------------------------------------------------------------------------
-void DebugDraw2::WiredCommandData::line(const vec3f& a, const vec3f& b, const int rgba)
+void DebugDraw::WiredCommandData::line(const vec3f& a, const vec3f& b, const int rgba)
 {
 	m_verts.push_back(GeomGen::PosColorVert(a, rgba));
 	m_verts.push_back(GeomGen::PosColorVert(b, rgba));
 }
 
-void DebugDraw2::WiredCommandData::box(const mat4f& world, const int rgba)
+void DebugDraw::WiredCommandData::box(const mat4f& world, const int rgba)
 {
 	GeomGen::wiredBox(m_verts, world, rgba);
 }
 
-void DebugDraw2::WiredCommandData::box(const AABox3f& aabb, const int rgba)
+void DebugDraw::WiredCommandData::box(const AABox3f& aabb, const int rgba)
 {
 	GeomGen::wiredBox(m_verts, aabb, rgba);
 }
 
-void DebugDraw2::WiredCommandData::box(const mat4f& world, const AABox3f& aabb, const int rgba)
+void DebugDraw::WiredCommandData::box(const mat4f& world, const AABox3f& aabb, const int rgba)
 {
 	const size_t newBoxStart = m_verts.size();
 
@@ -70,27 +70,27 @@ void DebugDraw2::WiredCommandData::box(const mat4f& world, const AABox3f& aabb, 
 	}
 }
 
-void DebugDraw2::WiredCommandData::capsule(const mat4f& world, const int rgba, float height, float radius, int numSides)
+void DebugDraw::WiredCommandData::capsule(const mat4f& world, const int rgba, float height, float radius, int numSides)
 {
 	GeomGen::wiredCapsule(m_verts, world, rgba, height, radius, numSides, GeomGen::center);
 }
 
-void DebugDraw2::WiredCommandData::sphere(const mat4f& world, const int rgba, float radius, int numSides)
+void DebugDraw::WiredCommandData::sphere(const mat4f& world, const int rgba, float radius, int numSides)
 {
 	GeomGen::wiredSphere(m_verts, world, rgba, radius, numSides);
 }
 
-void DebugDraw2::WiredCommandData::cylinder(const mat4f& world, const int rgba, float height, float radius, int numSides)
+void DebugDraw::WiredCommandData::cylinder(const mat4f& world, const int rgba, float height, float radius, int numSides)
 {
 	GeomGen::wiredCylinder(m_verts, world, rgba, height, radius, numSides, GeomGen::center);
 }
 
-void DebugDraw2::WiredCommandData::basis(const mat4f& world)
+void DebugDraw::WiredCommandData::basis(const mat4f& world)
 {
 	GeomGen::wiredBasis(m_verts, world);
 }
 
-void DebugDraw2::WiredCommandData::grid(const vec3f& origin,
+void DebugDraw::WiredCommandData::grid(const vec3f& origin,
 								  const vec3f& xAxis,
 								  const vec3f& zAxis,
 								  const int xLines,
@@ -103,7 +103,7 @@ void DebugDraw2::WiredCommandData::grid(const vec3f& origin,
 //------------------------------------------------------------------------------------------
 // WiredCommandData
 //------------------------------------------------------------------------------------------
-void DebugDraw2::initialze(SGEDevice* sgedev)
+void DebugDraw::initialze(SGEDevice* sgedev)
 {
 	if(isInitialized) return;
 	isInitialized = true;
@@ -130,7 +130,7 @@ void DebugDraw2::initialze(SGEDevice* sgedev)
 	m_vertexBuffer->create(bd, nullptr);
 }
 
-void DebugDraw2::draw(const RenderDestination& rdest, const mat4f& projView)
+void DebugDraw::draw(const RenderDestination& rdest, const mat4f& projView)
 {
 	for(auto& grpItr : m_groups)
 	{
@@ -138,7 +138,7 @@ void DebugDraw2::draw(const RenderDestination& rdest, const mat4f& projView)
 	}
 }
 
-void DebugDraw2::drawWieredCommand(
+void DebugDraw::drawWieredCommand(
 	const RenderDestination& rdest, 
 	const mat4f& projView,
 	const WiredCommandData& cmd)

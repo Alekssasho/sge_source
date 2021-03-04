@@ -3,7 +3,7 @@
 #include "GameInspector.h"
 #include "GameWorld.h"
 #include "IWorldScript.h"
-#include "sge_core/DebugDraw2.h"
+#include "sge_core/DebugDraw.h"
 #include "sge_core/ICore.h"
 
 namespace sge {
@@ -50,7 +50,7 @@ void IGameDrawer::drawWorld(const GameDrawSets& drawSets, const DrawReason drawR
 		}
 	}
 
-	getCore()->getDebugDraw2().draw(drawSets.rdest, drawSets.drawCamera->getProjView());
+	getCore()->getDebugDraw().draw(drawSets.rdest, drawSets.drawCamera->getProjView());
 }
 
 } // namespace sge

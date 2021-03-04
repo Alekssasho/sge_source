@@ -1,16 +1,16 @@
 #pragma once
 
 #include "CoreLog.h"
-#include "sgecore_api.h"
-#include "sge_utils/sge_utils.h"
-#include "sge_utils/math/mat4.h"
 #include "sge_renderer/renderer/renderer.h"
+#include "sge_utils/math/mat4.h"
+#include "sge_utils/sge_utils.h"
+#include "sgecore_api.h"
 #include <string>
 
 namespace sge {
 struct AssetLibrary;
 struct QuickDraw;
-struct DebugDraw2;
+struct DebugDraw;
 struct BasicModelDraw;
 struct SolidWireframeModelDraw;
 struct InputState;
@@ -51,17 +51,21 @@ struct SGE_CORE_API ICore {
 
 	virtual void setup(SGEDevice* const sgedev) = 0;
 
+	/// @brief 3D Gizmo drawing function. TODO: Move these form here as this is no longer a good place for them.
 	virtual void drawGizmo(const RenderDestination& rdest, const Gizmo3D& gizmo, const mat4f& projView) = 0;
-
 	virtual void drawTranslationGizmo(const RenderDestination& rdest, const Gizmo3DTranslation& gizmo, const mat4f& projView) = 0;
 	virtual void drawRotationGizmo(const RenderDestination& rdest, const Gizmo3DRotation& gizmo, const mat4f& projView) = 0;
 	virtual void drawScaleGizmo(const RenderDestination& rdest, const Gizmo3DScale& gizmo, const mat4f& projView) = 0;
 	virtual void drawScaleVolumeGizmo(const RenderDestination& rdest, const Gizmo3DScaleVolume& gizmo, const mat4f& projView) = 0;
 
-	// Accessros to commonly used subsystems.
+	/// @brief AssetLibrary is the "manager" of all loaded assets - 3d models, textures and others.
 	virtual AssetLibrary* getAssetLib() = 0;
+	/// @brief QuickDraw provides an easy way to draw simple shapes, textures and text.
 	virtual QuickDraw& getQuickDraw() = 0;
-	virtual DebugDraw2& getDebugDraw2() = 0;
+	/// @brief DebugDraw provides a way for the user to easily draw, from anywhere in code, lines, boxes, arrows and more.
+	/// The idea of this class is to help you visualize a particlar problem - maybe it is forces, collsion geometry, guides and more.
+	virtual DebugDraw& getDebugDraw() = 0;
+
 	virtual BasicModelDraw& getModelDraw() = 0;
 
 	virtual SGEDevice* getDevice() = 0;

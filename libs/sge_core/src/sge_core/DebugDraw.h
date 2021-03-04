@@ -7,7 +7,7 @@
 namespace sge
 {
 
-struct SGE_CORE_API DebugDraw2
+struct SGE_CORE_API DebugDraw
 {
 	struct SGE_CORE_API WiredCommandData
 	{

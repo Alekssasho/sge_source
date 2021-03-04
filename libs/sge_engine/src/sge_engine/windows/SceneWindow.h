@@ -2,7 +2,7 @@
 
 #include "IImGuiWindow.h"
 #include "imgui/imgui.h"
-#include "sge_core/DebugDraw2.h"
+#include "sge_core/DebugDraw.h"
 
 
 namespace sge {

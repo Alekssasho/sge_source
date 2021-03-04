@@ -1,6 +1,6 @@
 #include <imgui/imgui.h>
 
-#include "ATerrainPrimitive.h"
+#include "ABlockingObstacle.h"
 #include "sge_core/ICore.h"
 
 #include "sge_engine/GameInspector.h"

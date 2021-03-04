@@ -1,7 +1,7 @@
 #include "IKNode.h"
 #include "sge_engine/GameWorld.h"
 #include "sge_engine/windows/PropertyEditorWindow.h"
-#include "sge_core/DebugDraw2.h"
+#include "sge_core/DebugDraw.h"
 #include "sge_core/ICore.h"
 #include "sge_core/SGEImGui.h"
 #include "sge_utils/math/FABRIKSolver.h"
@@ -233,7 +233,7 @@ void AIKNode::update(const GameUpdateSets& u) {
 	}
 
 	//
-	auto& g = getCore()->getDebugDraw2().getGroup("IKDebug");
+	auto& g = getCore()->getDebugDraw().getGroup("IKDebug");
 	g.clear(false);
 	for (vec3f p : solverPositionWs) {
 		g.getWiered().sphere(mat4f::getTranslation(p), 0xFF00FFFF, 0.1f, 6);

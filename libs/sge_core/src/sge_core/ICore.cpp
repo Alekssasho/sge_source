@@ -1,13 +1,13 @@
 #include "Gizmo3D.h"
 #include "sge_core/AssetLibrary.h"
-#include "sge_core/DebugDraw2.h"
+#include "sge_core/DebugDraw.h"
 #include "sge_core/QuickDraw.h"
 #include "sge_core/SGEImGui.h"
 #include "sge_core/application/input.h"
+#include "sge_core/sgecore_api.h"
 #include "sge_core/shaders/modeldraw.h"
 #include "sge_utils/utils/FileStream.h"
 #include "sge_utils/utils/common.h"
-#include "sge_core/sgecore_api.h"
 
 #include "ICore.h"
 
@@ -26,18 +26,15 @@ struct Core : public ICore {
 
 	void setup(SGEDevice* const sgedev) final;
 
-	// Transformation gizmo drawing.
 	void drawGizmo(const RenderDestination& rdest, const Gizmo3D& gizmo, const mat4f& projView) final;
-
 	void drawTranslationGizmo(const RenderDestination& rdest, const Gizmo3DTranslation& gizmo, const mat4f& projView) final;
 	void drawRotationGizmo(const RenderDestination& rdest, const Gizmo3DRotation& gizmo, const mat4f& projView) final;
 	void drawScaleGizmo(const RenderDestination& rdest, const Gizmo3DScale& gizmo, const mat4f& projView) final;
 	void drawScaleVolumeGizmo(const RenderDestination& rdest, const Gizmo3DScaleVolume& gizmo, const mat4f& projView) final;
 
-	// Accessros to commonly used subsystems.
 	AssetLibrary* getAssetLib() final { return m_assetLibrary.get(); }
-	QuickDraw& getQuickDraw() final { return m_debugDraw; }
-	DebugDraw2& getDebugDraw2() final { return m_debugDraw2; }
+	QuickDraw& getQuickDraw() final { return m_quickDraw; }
+	DebugDraw& getDebugDraw() final { return m_debugDraw; }
 	BasicModelDraw& getModelDraw() final { return m_modelDraw; }
 
 	SGEDevice* getDevice() final { return m_sgedev; }
@@ -60,8 +57,8 @@ struct Core : public ICore {
 	std::unique_ptr<AssetLibrary> m_assetLibrary;
 	GraphicsResources m_graphicsResources; // A set of commonly used graphics resources.
 
-	QuickDraw m_debugDraw;
-	DebugDraw2 m_debugDraw2;
+	QuickDraw m_quickDraw;
+	DebugDraw m_debugDraw;
 	BasicModelDraw m_modelDraw;
 
 	InputState m_inputState;
@@ -169,8 +166,8 @@ void Core::setup(SGEDevice* const sgedev) {
 	};
 #endif
 
-	m_debugDraw.initialize(sgedev->getContext(), sgedev->getWindowFrameTarget(), sgedev->getWindowFrameTarget()->getViewport());
-	m_debugDraw2.initialze(sgedev);
+	m_quickDraw.initialize(sgedev->getContext(), sgedev->getWindowFrameTarget(), sgedev->getWindowFrameTarget()->getViewport());
+	m_debugDraw.initialze(sgedev);
 	return;
 }
 
@@ -292,8 +289,8 @@ void Core::drawGizmo(const RenderDestination& rdest, const Gizmo3D& gizmo, const
 }
 
 void Core::drawTranslationGizmo(const RenderDestination& rdest, const Gizmo3DTranslation& gizmo, const mat4f& projView) {
-	m_debugDraw.setFrameTarget(rdest.frameTarget);
-	m_debugDraw.setViewport(rdest.viewport);
+	m_quickDraw.setFrameTarget(rdest.frameTarget);
+	m_quickDraw.setViewport(rdest.viewport);
 
 	const mat4f world = mat4f::getTranslation(gizmo.getEditedTranslation()) * mat4f::getScaling(gizmo.getDisplayScale());
 	const mat4f pvw = projView * world;
@@ -304,7 +301,7 @@ void Core::drawTranslationGizmo(const RenderDestination& rdest, const Gizmo3DTra
 		const float bladeLen = 0.85f;
 		const float bladeHeight = bladeLen * 0.05f;
 
-		m_debugDraw.drawWiredAdd_Line(vec3f(0.f), dir, color);
+		m_quickDraw.drawWiredAdd_Line(vec3f(0.f), dir, color);
 
 		// The things that make it look like an arrow.
 		const int numBlades = 32;
@@ -312,8 +309,8 @@ void Core::drawTranslationGizmo(const RenderDestination& rdest, const Gizmo3DTra
 
 		vec3f new_up = up;
 		for (int t = 0; t < numBlades; ++t) {
-			m_debugDraw.drawWiredAdd_Line(dir, dir * bladeLen + new_up * bladeHeight, color);
-			m_debugDraw.drawWiredAdd_Line(dir * bladeLen + new_up * bladeHeight, dir * bladeLen, color);
+			m_quickDraw.drawWiredAdd_Line(dir, dir * bladeLen + new_up * bladeHeight, color);
+			m_quickDraw.drawWiredAdd_Line(dir * bladeLen + new_up * bladeHeight, dir * bladeLen, color);
 
 			new_up = mat_mul_dir(rot, new_up);
 		}
@@ -326,12 +323,12 @@ void Core::drawTranslationGizmo(const RenderDestination& rdest, const Gizmo3DTra
 	addArrow(axes[1], axes[2], actionMask.only_y() ? Gizmo_ActiveColor : Gizmo_BaseTransp + 0x00ff00);
 	addArrow(axes[2], axes[1], actionMask.only_z() ? Gizmo_ActiveColor : Gizmo_BaseTransp + 0xff0000);
 
-	m_debugDraw.drawWired_Execute(pvw, getGraphicsResources().BS_backToFrontAlpha);
+	m_quickDraw.drawWired_Execute(pvw, getGraphicsResources().BS_backToFrontAlpha);
 
 	// Draw the planar translation triangles.
 	const auto addQuad = [&](const vec3f o, const vec3f e1, const vec3f e2, const int color) {
-		m_debugDraw.drawSolidAdd_Triangle(o, o + e1, o + e2, color);
-		m_debugDraw.drawSolidAdd_Triangle(o + e1, o + e1 + e2, o + e2, color);
+		m_quickDraw.drawSolidAdd_Triangle(o, o + e1, o + e2, color);
+		m_quickDraw.drawSolidAdd_Triangle(o + e1, o + e1 + e2, o + e2, color);
 	};
 
 	const float quadOffset = Gizmo3DTranslation::kQuadOffset;
@@ -344,14 +341,14 @@ void Core::drawTranslationGizmo(const RenderDestination& rdest, const Gizmo3DTra
 	addQuad(axes[0] * quadOffset + axes[1] * quadOffset, axes[0] * quadLength, axes[1] * quadLength,
 	        actionMask.only_xy() ? Gizmo_ActiveColor : Gizmo_BaseTransp + 0xff0000);
 
-	m_debugDraw.drawSolid_Execute(pvw, false, getGraphicsResources().BS_backToFrontAlpha);
+	m_quickDraw.drawSolid_Execute(pvw, false, getGraphicsResources().BS_backToFrontAlpha);
 
 	return;
 }
 
 void Core::drawRotationGizmo(const RenderDestination& rdest, const Gizmo3DRotation& gizmo, const mat4f& projView) {
-	m_debugDraw.setFrameTarget(rdest.frameTarget);
-	m_debugDraw.setViewport(rdest.viewport);
+	m_quickDraw.setFrameTarget(rdest.frameTarget);
+	m_quickDraw.setViewport(rdest.viewport);
 
 	mat4f const rotation = mat4f::getRotationQuat(gizmo.getEditedRotation());
 	mat4f const world = mat4f::getTranslation(gizmo.getInitialTranslation()) * rotation * mat4f::getScaling(gizmo.getDisplayScale());
@@ -378,11 +375,11 @@ void Core::drawRotationGizmo(const RenderDestination& rdest, const Gizmo3DRotati
 
 		for (int t = 0; t < numSegments; ++t) {
 			circleVert = mat_mul_dir(mtxRotation, circleVert);
-			m_debugDraw.drawSolidAdd_Triangle(vec3f(0.f), circleVert, prevVert, 0x33000000);
+			m_quickDraw.drawSolidAdd_Triangle(vec3f(0.f), circleVert, prevVert, 0x33000000);
 			prevVert = circleVert;
 		}
 
-		m_debugDraw.drawSolid_Execute(pvw, false, this->m_graphicsResources.BS_backToFrontAlpha);
+		m_quickDraw.drawSolid_Execute(pvw, false, this->m_graphicsResources.BS_backToFrontAlpha);
 	}
 
 	// Draw the wires.
@@ -403,7 +400,7 @@ void Core::drawRotationGizmo(const RenderDestination& rdest, const Gizmo3DRotati
 			for (int t = 0; t < numSegments; ++t) {
 				dir = (rot * vec4f(dir, 0.f)).xyz();
 
-				m_debugDraw.drawWiredAdd_Line(prev, dir, color);
+				m_quickDraw.drawWiredAdd_Line(prev, dir, color);
 
 				prev = dir;
 			}
@@ -413,15 +410,15 @@ void Core::drawRotationGizmo(const RenderDestination& rdest, const Gizmo3DRotati
 		addCircle(vec3f::getAxis(1), actionMask.only_y() ? 0xff00ffff : 0xff00ff00);
 		addCircle(vec3f::getAxis(2), actionMask.only_z() ? 0xff00ffff : 0xffff0000);
 
-		m_debugDraw.drawWiredAdd_Basis(mat4f::getDiagonal(0.5f));
+		m_quickDraw.drawWiredAdd_Basis(mat4f::getDiagonal(0.5f));
 
-		m_debugDraw.drawWired_Execute(pvw, getGraphicsResources().BS_backToFrontAlpha);
+		m_quickDraw.drawWired_Execute(pvw, getGraphicsResources().BS_backToFrontAlpha);
 	}
 }
 
 void Core::drawScaleGizmo(const RenderDestination& rdest, const Gizmo3DScale& gizmo, const mat4f& projView) {
-	m_debugDraw.setFrameTarget(rdest.frameTarget);
-	m_debugDraw.setViewport(rdest.viewport);
+	m_quickDraw.setFrameTarget(rdest.frameTarget);
+	m_quickDraw.setViewport(rdest.viewport);
 
 	const mat4f world = mat4f::getTRS(gizmo.getInitialTranslation(), gizmo.getInitalRotation(), vec3f(gizmo.getDisplayScale()));
 	const mat4f pvw = projView * world;
@@ -429,19 +426,19 @@ void Core::drawScaleGizmo(const RenderDestination& rdest, const Gizmo3DScale& gi
 	const GizmoActionMask actionMask = gizmo.getActionMask();
 
 	// Draw the lines for scaling along given axis.
-	m_debugDraw.drawWiredAdd_Line(vec3f(0.f), vec3f::getAxis(0), actionMask.only_x() ? 0xff00ffff : 0xff0000ff);
-	m_debugDraw.drawWiredAdd_Line(vec3f(0.f), vec3f::getAxis(1), actionMask.only_y() ? 0xff00ffff : 0xff00ff00);
-	m_debugDraw.drawWiredAdd_Line(vec3f(0.f), vec3f::getAxis(2), actionMask.only_z() ? 0xff00ffff : 0xffff0000);
+	m_quickDraw.drawWiredAdd_Line(vec3f(0.f), vec3f::getAxis(0), actionMask.only_x() ? 0xff00ffff : 0xff0000ff);
+	m_quickDraw.drawWiredAdd_Line(vec3f(0.f), vec3f::getAxis(1), actionMask.only_y() ? 0xff00ffff : 0xff00ff00);
+	m_quickDraw.drawWiredAdd_Line(vec3f(0.f), vec3f::getAxis(2), actionMask.only_z() ? 0xff00ffff : 0xffff0000);
 
-	m_debugDraw.drawWired_Execute(pvw, getGraphicsResources().BS_backToFrontAlpha);
+	m_quickDraw.drawWired_Execute(pvw, getGraphicsResources().BS_backToFrontAlpha);
 
 	// Draw the planar sclaing trapezoids.
 	const auto addTrapezoid = [&](const vec3f& ax0, const vec3f& ax1, const int color) {
 		const float inner = Gizmo3DScale::kTrapezoidStart;
 		const float outter = Gizmo3DScale::kTrapezoidEnd;
 
-		m_debugDraw.drawSolidAdd_Triangle(ax0 * inner, ax0 * outter, ax1 * outter, color);
-		m_debugDraw.drawSolidAdd_Triangle(ax1 * inner, ax1 * outter, ax0 * inner, color);
+		m_quickDraw.drawSolidAdd_Triangle(ax0 * inner, ax0 * outter, ax1 * outter, color);
+		m_quickDraw.drawSolidAdd_Triangle(ax1 * inner, ax1 * outter, ax0 * inner, color);
 	};
 
 	addTrapezoid(vec3f::getAxis(0), vec3f::getAxis(1), actionMask.only_xy() ? Gizmo_ActiveColor : Gizmo_BaseTransp + 0xff0000);
@@ -449,19 +446,19 @@ void Core::drawScaleGizmo(const RenderDestination& rdest, const Gizmo3DScale& gi
 	addTrapezoid(vec3f::getAxis(0), vec3f::getAxis(2), actionMask.only_xz() ? Gizmo_ActiveColor : Gizmo_BaseTransp + 0x00ff00);
 
 	// Add the central triangles for drawing the scale all axes triangles.
-	m_debugDraw.drawSolidAdd_Triangle(vec3f(0.f), 0.22f * vec3f::getAxis(1), 0.22f * vec3f::getAxis(2),
+	m_quickDraw.drawSolidAdd_Triangle(vec3f(0.f), 0.22f * vec3f::getAxis(1), 0.22f * vec3f::getAxis(2),
 	                                  actionMask.only_xyz() ? Gizmo_BaseTransp + 0x00eeee : Gizmo_BaseTransp + 0xeeeeee);
-	m_debugDraw.drawSolidAdd_Triangle(vec3f(0.f), 0.22f * vec3f::getAxis(0), 0.22f * vec3f::getAxis(2),
+	m_quickDraw.drawSolidAdd_Triangle(vec3f(0.f), 0.22f * vec3f::getAxis(0), 0.22f * vec3f::getAxis(2),
 	                                  actionMask.only_xyz() ? Gizmo_BaseTransp + 0x00cccc : Gizmo_BaseTransp + 0xcccccc);
-	m_debugDraw.drawSolidAdd_Triangle(vec3f(0.f), 0.22f * vec3f::getAxis(0), 0.22f * vec3f::getAxis(1),
+	m_quickDraw.drawSolidAdd_Triangle(vec3f(0.f), 0.22f * vec3f::getAxis(0), 0.22f * vec3f::getAxis(1),
 	                                  actionMask.only_xyz() ? Gizmo_BaseTransp + 0x00bbbb : Gizmo_BaseTransp + 0xbbbbbb);
 
-	m_debugDraw.drawSolid_Execute(pvw, false, getGraphicsResources().BS_backToFrontAlpha);
+	m_quickDraw.drawSolid_Execute(pvw, false, getGraphicsResources().BS_backToFrontAlpha);
 }
 
 void Core::drawScaleVolumeGizmo(const RenderDestination& rdest, const Gizmo3DScaleVolume& gizmo, const mat4f& projView) {
-	m_debugDraw.setFrameTarget(rdest.frameTarget);
-	m_debugDraw.setViewport(rdest.viewport);
+	m_quickDraw.setFrameTarget(rdest.frameTarget);
+	m_quickDraw.setViewport(rdest.viewport);
 
 	const mat4f os2ws = gizmo.getEditedTrasform().toMatrix();
 	const AABox3f boxOs = gizmo.getInitialBBoxOS();
@@ -489,12 +486,12 @@ void Core::drawScaleVolumeGizmo(const RenderDestination& rdest, const Gizmo3DSca
 		const vec3f e1 = quat_mul_pos(gizmo.getInitialTransform().r, vec3f::getAxis((iAxis + 1) % 3)) * handleSizeWS;
 		const vec3f e2 = quat_mul_pos(gizmo.getInitialTransform().r, vec3f::getAxis((iAxis + 2) % 3)) * handleSizeWS;
 
-		m_debugDraw.drawSolidAdd_QuadCentered(handlePosWs, e1, e2, actionMask.hasOnly(SignedAxis(iAxis)) ? activeColor : axisColors[iAxis]);
-		m_debugDraw.drawSolid_Execute(projView, false, this->m_graphicsResources.BS_backToFrontAlpha);
+		m_quickDraw.drawSolidAdd_QuadCentered(handlePosWs, e1, e2, actionMask.hasOnly(SignedAxis(iAxis)) ? activeColor : axisColors[iAxis]);
+		m_quickDraw.drawSolid_Execute(projView, false, this->m_graphicsResources.BS_backToFrontAlpha);
 	}
 
-	m_debugDraw.drawWiredAdd_Box(os2ws, gizmo.getInitialBBoxOS(), 0xffffffff);
-	m_debugDraw.drawWired_Execute(projView);
+	m_quickDraw.drawWiredAdd_Box(os2ws, gizmo.getInitialBBoxOS(), 0xffffffff);
+	m_quickDraw.drawWired_Execute(projView);
 }
 
 Core g_moduleLocalCore;
