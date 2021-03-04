@@ -18,6 +18,8 @@ ReflBlock()
 	ReflAddType(RigidBodyPropertiesConfigurator)
 		ReflMember(RigidBodyConfigurator, mass)
 		ReflMember(RigidBodyPropertiesConfigurator, friction)
+		ReflMember(RigidBodyPropertiesConfigurator, rollingFriction)
+		ReflMember(RigidBodyPropertiesConfigurator, spinningFriction)
 		ReflMember(RigidBodyPropertiesConfigurator, bounciness)
 		ReflMember(RigidBodyPropertiesConfigurator, noMoveX).setPrettyName("No X Movement")
 		ReflMember(RigidBodyPropertiesConfigurator, noMoveY).setPrettyName("No Y Movement")
@@ -56,6 +58,8 @@ void RigidBodyPropertiesConfigurator::applyProperties(Actor& actor) const {
 
 void RigidBodyPropertiesConfigurator::applyProperties(RigidBody& rb) const {
 	rb.setFriction(friction);
+	rb.setRollingFriction(rollingFriction);
+	rb.setSpinningFriction(spinningFriction);
 	rb.setBounciness(bounciness);
 	rb.setCanMove(!noMoveX, !noMoveY, !noMoveZ);
 	rb.setCanRotate(!noRotationX, !noRotationY, !noRotationZ);
@@ -65,7 +69,10 @@ void RigidBodyPropertiesConfigurator::applyProperties(RigidBody& rb) const {
 void RigidBodyPropertiesConfigurator::extractPropsFromRigidBody(const RigidBody& rb) {
 	mass = rb.getMass();
 	friction = rb.getFriction();
+	rollingFriction = rb.getRollingFriction();
+	spinningFriction = rb.getSpinningFriction();
 	bounciness = rb.getBounciness();
+	// TODO: Load the others.
 }
 
 //---------------------------------------------------------------------
@@ -174,6 +181,8 @@ void edit_RigidBodyPropertiesConfigurator(GameInspector& inspector, GameObject* 
 	}
 
 	doMemberUIFn(sgeFindMember(RigidBodyPropertiesConfigurator, friction));
+	doMemberUIFn(sgeFindMember(RigidBodyPropertiesConfigurator, rollingFriction));
+	doMemberUIFn(sgeFindMember(RigidBodyPropertiesConfigurator, spinningFriction));
 	doMemberUIFn(sgeFindMember(RigidBodyPropertiesConfigurator, bounciness));
 
 	if (rbpc.dontShowDynamicProperties == false) {

@@ -219,6 +219,12 @@ void ABlockingObstacle::doAttributeEditor(GameInspector* inspector) {
 	ProperyEditorUIGen::doMemberUI(*inspector, this, chain);
 	chain.pop();
 
+
+	chain.clear();
+	chain.add(typeLib().find<ABlockingObstacle>()->findMember(&ABlockingObstacle::m_rbPropConfig));
+	ProperyEditorUIGen::doMemberUI(*inspector, this, chain);
+	chain.pop();
+
 	if (ImGui::Button("2x1x2")) {
 		transf3d newTransform = getTransform();
 		newTransform.s = vec3f(2.f, 1.f, 2.f);

@@ -149,7 +149,7 @@ struct TextureViewAssetFactory : public IAssetFactory {
 			JsonValueBuffer jvb;
 			JsonParser jp;
 			if_checked(jp.parse(&frs)) {
-				const JsonValue* const jRoot = jp.getRigidBody();
+				const JsonValue* const jRoot = jp.getRoot();
 
 				// Read the filtering.
 				{
@@ -336,7 +336,7 @@ struct SpriteAssetFactory : public IAssetFactory {
 			return false;
 		}
 
-		const JsonValue* const jRoot = jp.getRigidBody();
+		const JsonValue* const jRoot = jp.getRoot();
 		const JsonValue* const jMeta = jRoot->getMember("meta");
 
 		const char* const imageDirRelative = jMeta->getMember("image")->GetString();

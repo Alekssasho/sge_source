@@ -12,6 +12,7 @@
 #include "ModelPreviewWindow.h"
 #include "OutlinerWindow.h"
 #include "PrefabWindow.h"
+#include "ProjectSettingsWindow.h"
 #include "PropertyEditorWindow.h"
 #include "SceneWindow.h"
 #include "WorldSettingsWindow.h"
@@ -115,7 +116,7 @@ void EditorWindow::loadEditorSettings() {
 		JsonParser jp;
 		jp.parse(&frs);
 
-		const JsonValue* jRoot = jp.getRigidBody();
+		const JsonValue* jRoot = jp.getRoot();
 		const JsonValue* jReascentFiles = jRoot->getMember("reascent_files");
 		if (jReascentFiles) {
 			for (int t = 0; t < jReascentFiles->arrSize(); ++t) {
@@ -317,8 +318,8 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 				if (ImGui::IsWindowAppearing()) {
 					levelsList.clear();
 					// Fild all filels in dir. and store them in levelsList
-					if (std::filesystem::is_directory("./levels")) {
-						for (const auto& entry : std::filesystem::directory_iterator("./levels")) {
+					if (std::filesystem::is_directory("./assets/levels")) {
+						for (const auto& entry : std::filesystem::directory_iterator("./assets/levels")) {
 							levelsList.emplace_back(entry.path().string());
 						}
 					}
@@ -419,6 +420,15 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 				}
 			}
 
+			if (ImGui::MenuItem("Project Settings")) {
+				ProjectSettingsWindow* wnd = getEngineGlobal()->findFirstWindowOfType<ProjectSettingsWindow>();
+				if (wnd) {
+					ImGui::SetWindowFocus(wnd->getWindowName());
+				} else {
+					getEngineGlobal()->addWindow(new ProjectSettingsWindow(ICON_FK_PUZZLE_PIECE " Project Setting"));
+				}
+			}
+
 			ImGui::EndMenu();
 		}
 
@@ -466,6 +476,14 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 				} else {
 					getEngineGlobal()->addWindow(new CreditsWindow("Credits"));
 				}
+			}
+
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu(ICON_FK_DOWNLOAD " Run & Export")) {
+			if (ImGui::MenuItem(ICON_FK_PLAY " Run")) {
+				system("start sge_player");
 			}
 
 			ImGui::EndMenu();
@@ -721,7 +739,8 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 		}
 
 		// If the user clicks somewhere outside of the start-up window, close it.
-		const bool isWindowOrItsChildsHovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem) || ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows);
+		const bool isWindowOrItsChildsHovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem) ||
+		                                        ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows);
 		if (!isWindowOrItsChildsHovered && ImGui::IsMouseClicked(0)) {
 			m_isWelcomeWindowOpened = false;
 		}

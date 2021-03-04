@@ -4,6 +4,7 @@ set(INSTALL_RUNTIME_TARGETS
 	sge_core
 	sge_engine
 	sge_editor
+	sge_player
 )
 
 # A list of static libraries(or lib files for dlls) to be installed in the lib diretroy.

@@ -28,6 +28,10 @@ namespace sge {
 int FileReadStream::open(const char* const filename, const size_t bufsz /*= 0*/) {
 	close();
 
+	if (filename == nullptr) {
+		return 0;
+	}
+
 	sge_fopen(&file, filename, "rb");
 
 	if (!file) {

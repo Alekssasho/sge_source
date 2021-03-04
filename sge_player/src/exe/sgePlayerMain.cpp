@@ -15,6 +15,7 @@ __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 #endif
 
 #include "../exe/DummyPlugin.h"
+#include "GameMode.h"
 #include "sge_core/AssetLibrary.h"
 #include "sge_core/ICore.h"
 #include "sge_core/QuickDraw.h"
@@ -22,15 +23,16 @@ __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 #include "sge_core/application/application.h"
 #include "sge_core/setImGuiContexCore.h"
 #include "sge_engine/EngineGlobal.h"
+#include "sge_engine/GamePlayerSettings.h"
 #include "sge_engine/IPlugin.h"
 #include "sge_engine/TypeRegister.h"
 #include "sge_engine/setImGuiContextEngine.h"
-#include "sge_engine/windows/EditorWindow.h"
 #include "sge_utils/tiny/FileOpenDialog.h"
 #include "sge_utils/utils/DLLHandler.h"
 #include "sge_utils/utils/FileStream.h"
 #include "sge_utils/utils/Path.h"
 #include "sge_utils/utils/json.h"
+
 #include <filesystem>
 #include <thread>
 
@@ -41,12 +43,17 @@ using namespace sge;
 int g_argc = 0;
 char** g_argv = nullptr;
 
+GamePlayerSettings g_playerSettings;
+
 struct SGEGameWindow : public WindowBase {
+	GamePlayerSettings playerSets;
+	GameMode gameMode;
+
 	Timer m_timer;
 	std::string pluginName;
 	DLLHandler m_dllHandler;
-	sint64 m_workingDLLModTime = 0;
 	IPlugin* m_pluginInst = nullptr;
+	IGameDrawer* m_pGameDrawer = nullptr;
 	InteropPreviousState m_dllState;
 
 	DummyPlugin dummyPlugin;
@@ -68,7 +75,6 @@ struct SGEGameWindow : public WindowBase {
 			cachedWindowSize.y = resizeData.height;
 
 			SGEDevice* device = getCore()->getDevice();
-
 			if (device) {
 				const WE_Resize_Data& data = *(const WE_Resize_Data*)eventData;
 				getCore()->getDevice()->resizeBackBuffer(data.width, data.height);
@@ -79,22 +85,8 @@ struct SGEGameWindow : public WindowBase {
 		}
 
 		if (event == WE_Destroying) {
-			JsonValueBuffer jvb;
-			JsonValue* jRoot = jvb(JID_MAP);
-			jRoot->setMember("window_width", jvb(cachedWindowSize.x));
-			jRoot->setMember("window_height", jvb(cachedWindowSize.y));
-			jRoot->setMember("is_maximized", jvb(isMaximized()));
-
-			JsonWriter jw;
-			jw.WriteInFile("appdata/applicationSettings.json", jRoot, true);
-
 			SGEImGui::destroy();
 			SGE_DEBUG_LOG("Destroy Called!");
-		}
-
-		if (event == WE_FileDrop) {
-			const WE_FileDrop_Data& filedropData = *static_cast<const WE_FileDrop_Data*>(eventData);
-			getEngineGlobal()->getEditorWindow()->openAssetImport(filedropData.filename);
 		}
 	}
 
@@ -135,77 +127,41 @@ struct SGEGameWindow : public WindowBase {
 		}
 
 		if (pluginName.empty()) {
+			m_pluginInst = &dummyPlugin;
 			getEngineGlobal()->changeActivePlugin(&dummyPlugin);
 		} else {
 			loadPlugin();
 		}
 
+		m_pGameDrawer = m_pluginInst->allocateGameDrawer();
+
 		typeLib().performRegistration();
 		getEngineGlobal()->initialize();
 
-		getEngineGlobal()->addWindow(new EditorWindow(*this, "Editor Window Main"));
+		gameMode.create(m_pGameDrawer, g_playerSettings.initalLevel.c_str());
 	}
 
 	void loadPlugin() {
-		const sint64 modtime = FileReadStream::getFileModTime(pluginName.c_str());
+		// Notify that we are about to unload the plugin.
+		getEngineGlobal()->notifyOnPluginPreUnload();
 
-		if (!pluginName.empty() && (modtime > m_workingDLLModTime || m_workingDLLModTime == 0)) {
-			m_dllState.isInitializationState = (m_workingDLLModTime == 0);
-			if (m_workingDLLModTime != 0) {
-				// DialogYesNo("Realod DLL", "Game DLL is about to be reloaded!");
-			}
+		// Unload the old plugin DLL and load the new one.
+		m_dllHandler.load(pluginName.c_str());
 
-			// Save the current world into a file and then reloaded it.
-			// Do not do this if this is the 1st time we are loading the plugin (basically the engine start-up).
-			bool shouldCurrentWorldBeReloaded = false;
-			std::string workingFilename;
-			if (m_pluginInst) {
-				shouldCurrentWorldBeReloaded = true;
-				workingFilename = getEngineGlobal()->getEditorWindow()->getWorld().m_workingFilePath;
-				getEngineGlobal()->getEditorWindow()->saveWorldToSpecificFile("reload_level.lvl");
-			}
-
-			// Notify that we are about to unload the plugin.
-			getEngineGlobal()->notifyOnPluginPreUnload();
-			if (m_pluginInst) {
-				m_pluginInst->onUnload(m_dllState);
-				delete m_pluginInst;
-				m_pluginInst = nullptr;
-			}
-
-			// Unload the old plugin DLL and load the new one.
-			m_dllHandler.unload();
-			std::this_thread::sleep_for(std::chrono::milliseconds(100));
-			copyFile(pluginName.c_str(), "working_plugin.dll");
-			m_dllHandler.load("working_plugin.dll");
-			m_workingDLLModTime = modtime;
-
-			// Obain the new plugin interface.
-			GetInpteropFnPtr interopGetter = reinterpret_cast<GetInpteropFnPtr>(m_dllHandler.getProcAdress("getInterop"));
-			sgeAssert(interopGetter != nullptr && "The loaded game dll does not have a getInterop()!\n");
-			if (interopGetter) {
-				m_pluginInst = interopGetter();
-			}
-			getEngineGlobal()->changeActivePlugin(m_pluginInst);
-
-			if (m_pluginInst) {
-				m_pluginInst->onLoaded(m_dllState, ImGui::GetCurrentContext(), this, getCore());
-				typeLib().performRegistration();
-				getEngineGlobal()->initialize();
-				if (shouldCurrentWorldBeReloaded) {
-					getEngineGlobal()->getEditorWindow()->loadWorldFromFile(
-					    "reload_level.lvl", !workingFilename.empty() ? workingFilename.c_str() : nullptr, true);
-				}
-				SGE_DEBUG_CHECK("Reloaded %s\n", pluginName.c_str());
-			}
+		// Obain the new plugin interface.
+		GetInpteropFnPtr interopGetter = reinterpret_cast<GetInpteropFnPtr>(m_dllHandler.getProcAdress("getInterop"));
+		sgeAssert(interopGetter != nullptr && "The loaded game dll does not have a getInterop()!\n");
+		if (interopGetter) {
+			m_pluginInst = interopGetter();
 		}
+
+		getEngineGlobal()->changeActivePlugin(m_pluginInst);
 	}
 
 	void run() {
 		m_timer.tick();
 		getEngineGlobal()->update(m_timer.diff_seconds());
 
-		loadPlugin();
 
 		float const bgColor[] = {0.f, 0.f, 0.f, 1.f};
 
@@ -215,12 +171,13 @@ struct SGEGameWindow : public WindowBase {
 		sgecon->clearColor(getCore()->getDevice()->getWindowFrameTarget(), -1, bgColor);
 		sgecon->clearDepth(getCore()->getDevice()->getWindowFrameTarget(), 1.f);
 
-
 		if (m_pluginInst) {
 			m_pluginInst->run();
 		}
 
-		getEngineGlobal()->getEditorWindow()->update(sgecon, GetInputState());
+		gameMode.update(GetInputState());
+		RenderDestination rdest = RenderDestination(sgecon, sgecon->getDevice()->getWindowFrameTarget());
+		gameMode.draw(rdest);
 
 		// Render the ImGui User Interface.
 		SGEImGui::render();
@@ -251,20 +208,16 @@ int sge_main(int argc, char** argv) {
 	g_argc = argc;
 	g_argv = argv;
 
-	FileReadStream frs("appdata/applicationSettings.json");
-
-	vec2i windowSize(1300, 700);
-	bool isMaximized = true;
-
-	JsonParser jp;
-	if (frs.isOpened() && jp.parse(&frs)) {
-		windowSize.x = jp.getRoot()->getMember("window_width")->getNumberAs<int>();
-		windowSize.y = jp.getRoot()->getMember("window_height")->getNumberAs<int>();
-		isMaximized = jp.getRoot()->getMember("is_maximized")->getAsBool();
-		frs.close();
+	if (!g_playerSettings.loadFromJsonFile("appdata/game_project_settings.json")) {
+		DialogYesNo("Error", "game_project_settings.json seems to be missing or invalid!");
+		return 0;
 	}
 
-	sge::ApplicationHandler::get()->NewWindow<SGEGameWindow>("SGE Editor", windowSize.x, windowSize.y, isMaximized);
+	vec2i windowSize(g_playerSettings.windowWidth, g_playerSettings.windowHeight);
+
+	JsonParser jp;
+	sge::ApplicationHandler::get()->NewWindow<SGEGameWindow>("SGE Player", windowSize.x, windowSize.y, false,
+	                                                         !g_playerSettings.windowIsResizable);
 
 #ifdef __EMSCRIPTEN__
 	emscripten_set_main_loop(main_loop, 0, true);
@@ -286,8 +239,6 @@ int sge_main(int argc, char** argv) {
 #include <SDL.h>
 #include <SDL_syswm.h>
 #endif
-
-
 
 // Caution:
 // SDL2 might have a macro (depending on the target platform) for the main function!

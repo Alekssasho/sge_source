@@ -20,6 +20,8 @@ struct SGE_ENGINE_API RigidBodyPropertiesConfigurator {
 
 	float mass = 1.f;
 	float friction = 1.f; // TODO: Should we add spinning and rolling friction?
+	float rollingFriction = 0.5f;
+	float spinningFriction = 0.5f;
 	float bounciness = 0.f;
 	bool noMoveX = false;
 	bool noMoveY = false;

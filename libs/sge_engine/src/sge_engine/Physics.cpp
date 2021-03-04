@@ -376,8 +376,8 @@ void RigidBody::create(Actor* const actor, CollisionShape* collisionShapeToBeOwn
 
 	m_collisionObject->setRestitution(0.f);
 	m_collisionObject->setFriction(1.f);
-	m_collisionObject->setRollingFriction(0.f);
-	m_collisionObject->setSpinningFriction(0.f);
+	m_collisionObject->setRollingFriction(0.5f);
+	m_collisionObject->setSpinningFriction(0.5f);
 
 	if (mass == 0.f) {
 		getBulletRigidBody()->setActivationState(ISLAND_SLEEPING);

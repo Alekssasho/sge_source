@@ -473,7 +473,7 @@ GameObject*
 		return nullptr;
 	}
 
-	return deserializeObject(world, parser.getRigidBody(), shouldGenerateNewId, outOriginalId);
+	return deserializeObject(world, parser.getRoot(), shouldGenerateNewId, outOriginalId);
 }
 
 JsonValue* serializeGameWorld(const GameWorld* world, JsonValueBuffer& jvb) {
@@ -559,7 +559,7 @@ bool loadGameWorldFromStream(GameWorld* world, IReadStream* stream, const char* 
 	JsonParser jsonParser;
 	jsonParser.parse(stream);
 
-	const JsonValue* const jWorld = jsonParser.getRigidBody();
+	const JsonValue* const jWorld = jsonParser.getRoot();
 
 	if (!jWorld) {
 		sgeAssert(false);
@@ -570,7 +570,9 @@ bool loadGameWorldFromStream(GameWorld* world, IReadStream* stream, const char* 
 		const JsonValue* jMember = jWorld->getMember(member);
 		if (jMember) {
 			const TypeDesc* td = typeLib().find(typeId);
-			if_checked(td) { deserializeVariable((char*)data, jMember, td); }
+			if (td) {
+				deserializeVariable((char*)data, jMember, td);
+			}
 		}
 	};
 

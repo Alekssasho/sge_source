@@ -211,7 +211,7 @@ namespace Model {
 			// [CAUTION] From this point DO NOT use directly irs
 			// If you want to load a data chunk use LoadDataChunk
 
-			const JsonValue* const jRoot = jsonParser.getRigidBody();
+			const JsonValue* const jRoot = jsonParser.getRoot();
 
 			// Load the data chunk desc.
 			{

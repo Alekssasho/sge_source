@@ -352,6 +352,10 @@ void SGEImGui::render() {
 void SGEImGui::renderDrawLists(ImDrawData* imDrawData) {
 	const int vbNeededBytes = sizeof(SGEImGuiVertex) * imDrawData->TotalVtxCount;
 
+	if(vbNeededBytes == 0) {
+		return;
+	}
+
 	if ((vertBuffer.IsResourceValid() == false) || (vertBuffer->getDesc().sizeBytes < vbNeededBytes)) {
 		vertBuffer = sgecon->getDevice()->requestResource<sge::Buffer>();
 		sge::BufferDesc bd;

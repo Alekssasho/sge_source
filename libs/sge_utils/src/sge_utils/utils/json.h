@@ -251,8 +251,8 @@ public :
 	void Clear();
 
 	bool parse(IReadStream* instream);
-	JsonValue* getRigidBody() { return root; }
-	const JsonValue* getRigidBody() const { return root; }
+	JsonValue* getRoot() { return root; }
+	const JsonValue* getRoot() const { return root; }
 	const char* getErrorMsg() const { return parsingErrorMsg; }
 
 private : 
