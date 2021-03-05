@@ -52,12 +52,15 @@ else()
 			IMPORTED_LOCATION_DEBUG          "${SGE_FBX_SDK_DIR}/lib/${SGE_FBX_SDK_VS_LIB_DIR}/x64/debug/zlib-md.lib")
 	else()
 		# Linux platform.
-			set_target_properties(FBXSDK_TARGET PROPERTIES INTERFACE_INCLUDE_DIRECTORIES    "${SGE_FBX_SDK_DIR}/include")
-			if(CMAKE_BUILD_CONFIG STREQUAL "Debug")
-				set_target_properties(FBXSDK_TARGET PROPERTIES IMPORTED_LOCATION "${SGE_FBX_SDK_DIR}/lib/gcc/x64/release/libfbxsdk.a")
-			else()
-				set_target_properties(FBXSDK_TARGET PROPERTIES IMPORTED_LOCATION "${SGE_FBX_SDK_DIR}/lib/gcc/x64/debug/libfbxsdk.a")
-			endif()
+		set_target_properties(FBXSDK_TARGET PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${SGE_FBX_SDK_DIR}/include")
+		
+		# IMPORTED_LOCATION_<CONFIG> only works on Windows with Visual Studio. For everything else we have to use IMPORTED_LOCATION
+		string(TOLOWER ${CMAKE_BUILD_CONFIG} CMAKE_BUILD_CONFIG_LOWERCASE)
+		if(CMAKE_BUILD_CONFIG_LOWERCASE STREQUAL "debug")
+			set_target_properties(FBXSDK_TARGET PROPERTIES IMPORTED_LOCATION "${SGE_FBX_SDK_DIR}/lib/gcc/x64/release/libfbxsdk.a")
+		else()
+			set_target_properties(FBXSDK_TARGET PROPERTIES IMPORTED_LOCATION "${SGE_FBX_SDK_DIR}/lib/gcc/x64/debug/libfbxsdk.a")
+		endif()
 	endif()
 
 	#############################################################################
@@ -77,9 +80,16 @@ else()
 	if(NOT WIN32)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 		target_link_libraries(mdlconvlib ${CMAKE_PTHREAD_LIBS})
-		find_package(ZLIB) # you'd probably need something like sudo apt install zlib1g-dev
+		
+		# On Linux FBX SDK still depends on zlib and libxml2 however they do not come pre-built like on Windows.
+		# Use the ones alredy installed on the system.
+
+		# To install ZLIB you'd probably need something like: sudo apt install zlib1g-dev
+		# To install LibXml2 you'd probably need something like: sudo apt-get install libxml2-dev
+		find_package(ZLIB REQUIRED) 
 		target_link_libraries(mdlconvlib ZLIB::ZLIB)
-		find_package(LibXml2) # you'd probably need something like sudo apt-get install libxml2-dev
+		
+		find_package(LibXml2 REQUIRED)
 		target_link_libraries(mdlconvlib LibXml2::LibXml2)
 	endif()
 	sgePromoteWarningsOnTarget(mdlconvlib)

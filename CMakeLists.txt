@@ -5,12 +5,17 @@
 cmake_minimum_required(VERSION 3.5)
 project(sge)
 
-# Needed on Liunx
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
+# Needed for Liunx:
 if(NOT WIN32)
-	# By default on Linux, the OS does not look for linked *.so in the current directory or the directory of the object needing that symbol.
-	# By adding -rpath=${'ORIGIN'} we well the OS to look in these directories as well.
+	# This is equivalent to specifying -fPIC to g++. It tells the compiler to use 
+	# relative location in the machine code rather than absolute (for example in jump instructions).
+	# This is needed for *.so linking.
+	set(CMAKE_POSITION_INDEPENDENT_CODE ON) 
+
+	# By default on Linux, the OS does not look for linked *.so in the 
+	# current directory or the directory of the object needing that symbol.
+	# By adding -rpath=${'ORIGIN'} we will tell the OS to look in these directories as well.
+	# We need this to be able to link locally with sge_core, sge_engine and maybe other statically linked shared libraries.
 	set(CMAKE_INSTALL_RPATH "$ORIGIN")
 endif()
 

@@ -30,7 +30,7 @@ endif()
 
 # Runtimes (*.exe, *.dll, *.so and so on)
 INSTALL(TARGETS ${INSTALL_RUNTIME_TARGETS} RUNTIME DESTINATION $<CONFIG>/binaries/)	
-INSTALL(TARGETS ${INSTALL_RUNTIME_TARGETS} LIBRARY DESTINATION $<CONFIG>/binaries/)	
+INSTALL(TARGETS ${INSTALL_RUNTIME_TARGETS} LIBRARY DESTINATION $<CONFIG>/binaries/)	# Not needed on Windows, for Linux these are the *.so files.
 
 # Lib files (*.lib, *.a and so on)
 INSTALL(TARGETS ${INSTALL_LIBRARIES_TARGETS} ARCHIVE DESTINATION $<CONFIG>/lib/)	
