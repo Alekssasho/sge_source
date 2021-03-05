@@ -80,13 +80,13 @@ void BasicModelDraw::drawGeometry_FWDBuildShadowMap(const RenderDestination& rde
 
 	StaticArray<BoundUniform, 8> uniforms;
 
-	shaderPerm.bind(uniforms, uWorld, (void*)&world);
-	shaderPerm.bind(uniforms, uProjView, (void*)&projView);
+	shaderPerm.bind<8>(uniforms, (int)uWorld, (void*)&world);
+	shaderPerm.bind<8>(uniforms, (int)uProjView, (void*)&projView);
 
 	if (generalMods.isShadowMapForPointLight) {
 		vec3f pointLightPositionWs = camPos;
-		shaderPerm.bind(uniforms, uPointLightPositionWs, (void*)&pointLightPositionWs);
-		shaderPerm.bind(uniforms, uPointLightFarPlaneDistance, (void*)&generalMods.shadowMapPointLightDepthRange);
+		shaderPerm.bind<8>(uniforms, uPointLightPositionWs, (void*)&pointLightPositionWs);
+		shaderPerm.bind<8>(uniforms, uPointLightFarPlaneDistance, (void*)&generalMods.shadowMapPointLightDepthRange);
 	}
 
 	// Feed the draw call data to the state group.
@@ -309,75 +309,75 @@ void BasicModelDraw::drawGeometry_FWDShading(const RenderDestination& rdest,
 
 	StaticArray<BoundUniform, 64> uniforms;
 
-	shaderPerm.bind(uniforms, uWorld, (void*)&world);
-	shaderPerm.bind(uniforms, uCameraPositionWs, (void*)camPos.data);
-	shaderPerm.bind(uniforms, uCameraLookDirWs, (void*)camLookDir.data);
-	shaderPerm.bind(uniforms, uProjView, (void*)&projView);
+	shaderPerm.bind<64>(uniforms, uWorld, (void*)&world);
+	shaderPerm.bind<64>(uniforms, uCameraPositionWs, (void*)camPos.data);
+	shaderPerm.bind<64>(uniforms, uCameraLookDirWs, (void*)camLookDir.data);
+	shaderPerm.bind<64>(uniforms, uProjView, (void*)&projView);
 
-	shaderPerm.bind(uniforms, uiHighLightColor, (void*)&generalMods.highlightColor);
+	shaderPerm.bind<64>(uniforms, uiHighLightColor, (void*)&generalMods.highlightColor);
 
-	shaderPerm.bind(uniforms, uColor, (void*)&material.diffuseColor);
+	shaderPerm.bind<64>(uniforms, uColor, (void*)&material.diffuseColor);
 
 	mat4f combinedUVWTransform = mods.uvwTransform * material.uvwTransform;
-	shaderPerm.bind(uniforms, uUVWTransform, (void*)&combinedUVWTransform);
+	shaderPerm.bind<64>(uniforms, uUVWTransform, (void*)&combinedUVWTransform);
 
 	if (optDiffuseColorSrc == kDiffuseColorSrcConstant) {
 		// Nothing, uColor is used here.
 	} else if (optDiffuseColorSrc == kDiffuseColorSrcVertex) {
 		// Nothing.
 	} else if (optDiffuseColorSrc == kDiffuseColorSrcTexture) {
-		shaderPerm.bind(uniforms, uTexDiffuse, (void*)material.diffuseTexture);
+		shaderPerm.bind<64>(uniforms, uTexDiffuse, (void*)material.diffuseTexture);
 #ifdef SGE_RENDERER_D3D11
-		shaderPerm.bind(uniforms, uTexDiffuseSampler, (void*)material.diffuseTexture->getSamplerState());
+		shaderPerm.bind<64>(uniforms, uTexDiffuseSampler, (void*)material.diffuseTexture->getSamplerState());
 #endif
 	} else if (optDiffuseColorSrc == kDiffuseColorSrcTriplanarTex) {
-		shaderPerm.bind(uniforms, uTexDiffuseX, (void*)material.diffuseTextureX);
-		shaderPerm.bind(uniforms, uTexDiffuseY, (void*)material.diffuseTextureY);
-		shaderPerm.bind(uniforms, uTexDiffuseZ, (void*)material.diffuseTextureZ);
+		shaderPerm.bind<64>(uniforms, uTexDiffuseX, (void*)material.diffuseTextureX);
+		shaderPerm.bind<64>(uniforms, uTexDiffuseY, (void*)material.diffuseTextureY);
+		shaderPerm.bind<64>(uniforms, uTexDiffuseZ, (void*)material.diffuseTextureZ);
 #ifdef SGE_RENDERER_D3D11
-		shaderPerm.bind(uniforms, uTexDiffuseXSampler, (void*)material.diffuseTextureX->getSamplerState());
-		shaderPerm.bind(uniforms, uTexDiffuseYSampler, (void*)material.diffuseTextureY->getSamplerState());
-		shaderPerm.bind(uniforms, uTexDiffuseZSampler, (void*)material.diffuseTextureZ->getSamplerState());
+		shaderPerm.bind<64>(uniforms, uTexDiffuseXSampler, (void*)material.diffuseTextureX->getSamplerState());
+		shaderPerm.bind<64>(uniforms, uTexDiffuseYSampler, (void*)material.diffuseTextureY->getSamplerState());
+		shaderPerm.bind<64>(uniforms, uTexDiffuseZSampler, (void*)material.diffuseTextureZ->getSamplerState());
 #endif
-		shaderPerm.bind(uniforms, uTexDiffuseXYZScaling, (void*)&material.diffuseTexXYZScaling);
+		shaderPerm.bind<64>(uniforms, uTexDiffuseXYZScaling, (void*)&material.diffuseTexXYZScaling);
 	} else if (optDiffuseColorSrc == kDiffuseColorSrcFluid) {
-		shaderPerm.bind(uniforms, uGameTime, (void*)&mods.gameTime);
-		shaderPerm.bind(uniforms, uFluidColor0, (void*)&material.fluidColor0.data);
-		shaderPerm.bind(uniforms, uFluidColor1, (void*)&material.fluidColor1.data);
+		shaderPerm.bind<64>(uniforms, uGameTime, (void*)&mods.gameTime);
+		shaderPerm.bind<64>(uniforms, uFluidColor0, (void*)&material.fluidColor0.data);
+		shaderPerm.bind<64>(uniforms, uFluidColor1, (void*)&material.fluidColor1.data);
 	} else {
 		sgeAssert(false);
 	}
 
 	int pbrFlags = 0;
 
-	shaderPerm.bind(uniforms, uMetalness, (void*)&material.metalness);
+	shaderPerm.bind<64>(uniforms, uMetalness, (void*)&material.metalness);
 	if (material.texMetalness != nullptr) {
 		pbrFlags |= kPBRMtl_Flags_HasMetalnessMap;
-		shaderPerm.bind(uniforms, uTexMetalness, (void*)material.texMetalness);
+		shaderPerm.bind<64>(uniforms, uTexMetalness, (void*)material.texMetalness);
 #ifdef SGE_RENDERER_D3D11
-		shaderPerm.bind(uniforms, uTexMetalnessSampler, (void*)material.texMetalness->getSamplerState());
+		shaderPerm.bind<64>(uniforms, uTexMetalnessSampler, (void*)material.texMetalness->getSamplerState());
 #endif
 	}
 
-	shaderPerm.bind(uniforms, uRoughness, (void*)&material.roughness);
+	shaderPerm.bind<64>(uniforms, uRoughness, (void*)&material.roughness);
 	if (material.texRoughness != nullptr) {
 		pbrFlags |= kPBRMtl_Flags_HasRoughnessMap;
-		shaderPerm.bind(uniforms, uTexRoughness, (void*)material.texRoughness);
+		shaderPerm.bind<64>(uniforms, uTexRoughness, (void*)material.texRoughness);
 #ifdef SGE_RENDERER_D3D11
-		shaderPerm.bind(uniforms, uTexRoughnessSampler, (void*)material.texRoughness->getSamplerState());
+		shaderPerm.bind<64>(uniforms, uTexRoughnessSampler, (void*)material.texRoughness->getSamplerState());
 #endif
 	}
 
-	shaderPerm.bind(uniforms, uPBRMtlFlags, (void*)&pbrFlags);
+	shaderPerm.bind<64>(uniforms, uPBRMtlFlags, (void*)&pbrFlags);
 
 	if (optUseNormalMap) {
-		shaderPerm.bind(uniforms, uTexNormalMap, (void*)material.texNormalMap);
+		shaderPerm.bind<64>(uniforms, uTexNormalMap, (void*)material.texNormalMap);
 #ifdef SGE_RENDERER_D3D11
-		shaderPerm.bind(uniforms, uTexNormalMapSampler, (void*)material.texNormalMap->getSamplerState());
+		shaderPerm.bind<64>(uniforms, uTexNormalMapSampler, (void*)material.texNormalMap->getSamplerState());
 #endif
 	}
 
-	shaderPerm.bind(uniforms, uDarkSpotPositonWs, (void*)&generalMods.darkSpotPosition);
+	shaderPerm.bind<64>(uniforms, uDarkSpotPositonWs, (void*)&generalMods.darkSpotPosition);
 
 	// Lights and draw call.
 	const int preLightsNumUnuforms = uniforms.size();
@@ -389,19 +389,19 @@ void BasicModelDraw::drawGeometry_FWDShading(const RenderDestination& rdest,
 		// Do the ambient lighting only with the 1st light.
 		if (optLighting == kLightingShaded) {
 			if (iLight == 0) {
-				shaderPerm.bind(uniforms, uAmbientLightColor, (void*)&generalMods.ambientLightColor);
-				shaderPerm.bind(uniforms, uRimLightColorWWidth, (void*)&generalMods.uRimLightColorWWidth);
+				shaderPerm.bind<64>(uniforms, uAmbientLightColor, (void*)&generalMods.ambientLightColor);
+				shaderPerm.bind<64>(uniforms, uRimLightColorWWidth, (void*)&generalMods.uRimLightColorWWidth);
 			} else {
 				vec4f zeroColor(0.f);
-				shaderPerm.bind(uniforms, uAmbientLightColor, (void*)&zeroColor);
-				shaderPerm.bind(uniforms, uRimLightColorWWidth, (void*)&zeroColor);
+				shaderPerm.bind<64>(uniforms, uAmbientLightColor, (void*)&zeroColor);
+				shaderPerm.bind<64>(uniforms, uRimLightColorWWidth, (void*)&zeroColor);
 			}
 		}
 
 		if (mods.forceNoLighting == false) {
-			shaderPerm.bind(uniforms, uLightPosition, (void*)&shadingLight.lightPositionAndType);
-			shaderPerm.bind(uniforms, uLightSpotDirAndCosAngle, (void*)&shadingLight.lightSpotDirAndCosAngle);
-			shaderPerm.bind(uniforms, uLightColorWFlag, (void*)&shadingLight.lightColorWFlags);
+			shaderPerm.bind<64>(uniforms, (int)uLightPosition, (void*)&shadingLight.lightPositionAndType);
+			shaderPerm.bind<64>(uniforms, (int)uLightSpotDirAndCosAngle, (void*)&shadingLight.lightSpotDirAndCosAngle);
+			shaderPerm.bind<64>(uniforms, (int)uLightColorWFlag, (void*)&shadingLight.lightColorWFlags);
 
 			if (shadingLight.shadowMap != nullptr && shaderPerm.uniformLUT[uLightShadowMap].isNull() == false) {
 				if (shadingLight.lightPositionAndType.w == 0.f) {
@@ -413,8 +413,8 @@ void BasicModelDraw::drawGeometry_FWDShading(const RenderDestination& rdest,
 				}
 			}
 
-			shaderPerm.bind(uniforms, uLightShadowMapProjView, (void*)&shadingLight.shadowMapProjView);
-			shaderPerm.bind(uniforms, uLightShadowRange, (void*)&shadingLight.lightXShadowRange);
+			shaderPerm.bind<64>(uniforms, uLightShadowMapProjView, (void*)&shadingLight.shadowMapProjView);
+			shaderPerm.bind<64>(uniforms, uLightShadowRange, (void*)&shadingLight.lightXShadowRange);
 		}
 
 		if (mods.forceAdditiveBlending) {
@@ -444,12 +444,12 @@ void BasicModelDraw::drawGeometry_FWDShading(const RenderDestination& rdest,
 	// then there were no draw call created. However we need to draw the object
 	// in order for it to affect the z-depth or even get light by the ambient lighting.
 	if (generalMods.lightsCount == 0) {
-		shaderPerm.bind(uniforms, uAmbientLightColor, (void*)&generalMods.ambientLightColor);
-		shaderPerm.bind(uniforms, uRimLightColorWWidth, (void*)&generalMods.uRimLightColorWWidth);
+		shaderPerm.bind<64>(uniforms, uAmbientLightColor, (void*)&generalMods.ambientLightColor);
+		shaderPerm.bind<64>(uniforms, uRimLightColorWWidth, (void*)&generalMods.uRimLightColorWWidth);
 
 		vec4f colorWFlags(0.f);
 		colorWFlags.w = float(kLightFlt_DontLight);
-		shaderPerm.bind(uniforms, uLightColorWFlag, (void*)&colorWFlags);
+		shaderPerm.bind<64>(uniforms, uLightColorWFlag, (void*)&colorWFlags);
 
 		stateGroup.setPrimitiveTopology(PrimitiveTopology::TriangleList);
 		stateGroup.setRenderState(rasterState, getCore()->getGraphicsResources().DSS_default_lessEqual,

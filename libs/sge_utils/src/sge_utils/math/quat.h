@@ -328,7 +328,7 @@ struct quat {
 		const vec3<DATA_TYPE> ra = this->xyz();
 		const vec3<DATA_TYPE> p = ra.dot(normal) * normal;
 
-		quat twist(p, this->w);
+		quat twist(p.x, p.y, p.z, this->w);
 		twist = twist.normalized();
 
 		return twist;
@@ -338,7 +338,7 @@ struct quat {
 		const vec3<DATA_TYPE> ra = this->xyz();
 		const vec3<DATA_TYPE> p = ra.dot(normal) * normal;
 
-		quat twist(p, this->w);
+		quat twist(p.x, p.y, p.z, this->w);
 		twist = twist.normalized();
 
 		quat swing = *this * twist.conjugate();
@@ -350,7 +350,7 @@ struct quat {
 		const vec3<DATA_TYPE> ra = this->xyz();
 		const vec3<DATA_TYPE> p = ra.dot(normal) * normal;
 
-		quat twist(p, this->w);
+		twist = quat(p.x, p.y, p.z, this->w);
 		twist = twist.normalized();
 
 		swing = *this * twist.conjugate();

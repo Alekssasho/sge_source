@@ -299,7 +299,7 @@ struct SGE_ENGINE_API TypeDesc {
 		stdMapSize = [](void* umap) -> size_t { return (*(T*)(umap)).size(); };
 
 		stdMapGetNthPair = [](void* umap, size_t idx, void* outKey, void* outValue) -> void {
-			T::iterator itr = (*(T*)(umap)).begin();
+			typename T::iterator itr = (*(T*)(umap)).begin();
 			while (idx > 0) {
 				++itr;
 				--idx;
@@ -318,13 +318,13 @@ struct SGE_ENGINE_API TypeDesc {
 
 		stdMapGetPointerToValueByKey = [](void* umapPtr, const void* key, void* outValue) -> void {
 			T& umap = (*(T*)(umapPtr));
-			typename const T::key_type& keyRef = *(const typename T::key_type*)(key);
+			const typename T::key_type& keyRef = *(const typename T::key_type*)(key);
 			outValue = &umap[keyRef];
 		};
 
 		stdMapInsert = [](void* umapPtr, const void* key, const void* value) -> void {
 			T& umap = (*(T*)(umapPtr));
-			typename const T::key_type& keyRef = *(const typename T::key_type*)(key);
+			const typename T::key_type& keyRef = *(const typename T::key_type*)(key);
 			typename T::mapped_type& valueRef = *(typename T::mapped_type*)(value);
 			umap[keyRef] = valueRef;
 		};

@@ -800,7 +800,7 @@ void QuickDraw::drawWired_Execute(const mat4f& projView, BlendState* blendState,
 
 	sgeAssert(m_wireframeVerts.size() % 2 == 0);
 
-	stateGroup.setRenderState(rsDefault, dss ? dss : dssLessEqual, blendState);
+	stateGroup.setRenderState(rsDefault, dss ? dss : dssLessEqual.GetPtr(), blendState);
 	stateGroup.setProgram(m_effect3DVertexColored);
 	stateGroup.setVB(0, m_vbWiredGeometry, 0, sizeof(GeomGen::PosColorVert));
 	stateGroup.setVBDeclIndex(vertexDeclIndex_pos3d_rgba_int);

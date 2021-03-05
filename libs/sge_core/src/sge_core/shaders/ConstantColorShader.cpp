@@ -65,9 +65,9 @@ void ConstantColorShader::drawGeometry(
 	stateGroup.setRenderState(rasterState, getCore()->getGraphicsResources().DSS_default_lessEqual_noWrite);
 
 	StaticArray<BoundUniform, 24> uniforms;
-	shaderPerm.bind(uniforms, uWorld, (void*)&world);
-	shaderPerm.bind(uniforms, uProjView, (void*)&projView);
-	shaderPerm.bind(uniforms, uColor, (void*)&shadingColor);
+	shaderPerm.bind<24>(uniforms, uWorld, (void*)&world);
+	shaderPerm.bind<24>(uniforms, uProjView, (void*)&projView);
+	shaderPerm.bind<24>(uniforms, uColor, (void*)&shadingColor);
 
 	// Lights and draw call.
 	dc.setUniforms(uniforms.data(), uniforms.size());

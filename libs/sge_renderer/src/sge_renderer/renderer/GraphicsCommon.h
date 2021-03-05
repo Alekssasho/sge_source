@@ -6,6 +6,7 @@
 #include <string>
 #include <array>
 #include <cfloat>
+#include <cstring>
 #include <type_traits>
 #include <vector>
 

@@ -5,6 +5,15 @@
 cmake_minimum_required(VERSION 3.5)
 project(sge)
 
+# Needed on Liunx
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+if(NOT WIN32)
+	# By default on Linux, the OS does not look for linked *.so in the current directory or the directory of the object needing that symbol.
+	# By adding -rpath=${'ORIGIN'} we well the OS to look in these directories as well.
+	set(CMAKE_INSTALL_RPATH "$ORIGIN")
+endif()
+
 # Enable parallel compilation for MSVC by defult.
 add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
 

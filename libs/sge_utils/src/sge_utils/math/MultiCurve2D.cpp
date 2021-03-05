@@ -3,6 +3,7 @@
 #include "sge_utils/math/Hermite.h"
 #include "sge_utils/math/common.h"
 #include <algorithm>
+#include <cfloat>
 
 namespace sge {
 

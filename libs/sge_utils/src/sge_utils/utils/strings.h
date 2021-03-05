@@ -60,3 +60,5 @@ void string_format(std::string& retval, const char* const fmt_str, ...);
 std::string string_format(const char* const fmt_str, ...);
 
 bool string_endsWith(const std::string& fullString, char* const ending);
+
+int sge_stricmp(const char* a, const char* b);

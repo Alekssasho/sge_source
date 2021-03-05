@@ -20,7 +20,7 @@ struct Optional {
 	bool m_isValid = false;
 
   public:
-	using TNoRef = typename RemoveReference<typename T>::type;
+	using TNoRef = typename RemoveReference<T>::type;
 	static_assert(std::is_reference<T>::value == false, "References aren't supported, use pointers!");
 
 	Optional() = default;

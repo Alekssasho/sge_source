@@ -33,7 +33,7 @@
 #include "sge_utils/utils/FileStream.h"
 #include "sge_utils/utils/common.h"
 #include "sge_utils/utils/json.h"
-#include "sge_utils/utils/path.h"
+#include "sge_utils/utils/Path.h"
 #include "sge_utils/utils/strings.h"
 
 #include "IconsForkAwesome/IconsForkAwesome.h"

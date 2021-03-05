@@ -9,6 +9,7 @@
 // clang-format on
 #else
 #include <cstdio>
+#include "sge_utils/utils/strings.h"
 #endif
 
 #include "FileOpenDialog.h"
@@ -138,7 +139,18 @@ std::string FolderOpenDialog(const char* const prompt, const std::string& initia
 
 	return std::string();
 #else
-#error not implemented
+	std::string zenityCmd = string_format("zenity  --file-selection --title=\"%s\" --directory", prompt);
+
+	// [TODO] Fix this madness...
+	char file[1024] = {0};
+	FILE* const f = popen(zenityCmd.c_str(), "r");
+	sgeAssert(f != nullptr);
+	fgets(file, 1024, f);
+	file[SGE_ARRSZ(file)] = '\0'; // clamp if the filename is too long.
+	std::string s(file);          // [TODO] Zenitiy.
+	s.pop_back();                 // Delete the '\n' printed by zenity.
+	pclose(f);
+	return s;
 #endif
 }
 

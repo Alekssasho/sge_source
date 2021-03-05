@@ -28,7 +28,7 @@ namespace sge {
 AssetsWindow::AssetsWindow(std::string windowName, GameInspector& inspector)
     : m_windowName(std::move(windowName))
     , m_inspector(inspector) {
-	if (mdlconvlibHandler.load("mdlconvlib.dll")) {
+	if (mdlconvlibHandler.loadNoExt("mdlconvlib")) {
 		sgeImportFBXFile = reinterpret_cast<sgeImportFBXFileFn>(mdlconvlibHandler.getProcAdress("sgeImportFBXFile"));
 	}
 
@@ -185,7 +185,7 @@ void AssetsWindow::update_assetImport(SGEContext* const sgecon, const InputState
 				}
 				ImGui::SameLine();
 				char importAs[1024] = {0};
-				strcpy_s(importAs, aid.outputFilename.c_str());
+				sge_strcpy(importAs, aid.outputFilename.c_str());
 				if (ImGui::InputText("##Import As", importAs, SGE_ARRSZ(importAs))) {
 					aid.outputFilename = importAs;
 				}
@@ -374,8 +374,8 @@ void AssetsWindow::update(SGEContext* const sgecon, const InputState& is) {
 										ILFree(pItem);
 									}
 								}
-							}
 #endif
+							}
 
 							ImGui::EndPopup();
 						}

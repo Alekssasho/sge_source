@@ -46,35 +46,18 @@ else()
 		set_target_properties(FBXSDK_ZLIB_TARGET PROPERTIES
 			INTERFACE_INCLUDE_DIRECTORIES "${SGE_FBX_SDK_DIR}/include"
 			
-			IMPORTED_LOCATION_RELEASE        "${SGE_FBX_SDK_DIR}/lib/vs2019/x64/release/zlib-md.lib"
-			IMPORTED_LOCATION_RELWITHDEBINFO "${SGE_FBX_SDK_DIR}/lib/vs2019/x64/release/zlib-md.lib"
-			IMPORTED_LOCATION_NOOPT          "${SGE_FBX_SDK_DIR}/lib/vs2019/x64/release/zlib-md.lib"
-			IMPORTED_LOCATION_DEBUG          "${SGE_FBX_SDK_DIR}/lib/vs2019/x64/debug/zlib-md.lib")
+			IMPORTED_LOCATION_RELEASE        "${SGE_FBX_SDK_DIR}/lib/${SGE_FBX_SDK_VS_LIB_DIR}/x64/release/zlib-md.lib"
+			IMPORTED_LOCATION_RELWITHDEBINFO "${SGE_FBX_SDK_DIR}/lib/${SGE_FBX_SDK_VS_LIB_DIR}/x64/release/zlib-md.lib"
+			IMPORTED_LOCATION_NOOPT          "${SGE_FBX_SDK_DIR}/lib/${SGE_FBX_SDK_VS_LIB_DIR}/x64/release/zlib-md.lib"
+			IMPORTED_LOCATION_DEBUG          "${SGE_FBX_SDK_DIR}/lib/${SGE_FBX_SDK_VS_LIB_DIR}/x64/debug/zlib-md.lib")
 	else()
 		# Linux platform.
-		target_link_libraries(FBXSDK_TARGET PROPERTIES 
-			INTERFACE_INCLUDE_DIRECTORIES "${SGE_FBX_SDK_DIR}/include"
-			
-			IMPORTED_LOCATION_RELEASE        "${SGE_FBX_SDK_DIR}/lib/gcc4/x64/release/libfbxsdk.a"
-			IMPORTED_LOCATION_RELWITHDEBINFO "${SGE_FBX_SDK_DIR}/lib/gcc4/x64/release/libfbxsdk.a"
-			IMPORTED_LOCATION_NOOPT          "${SGE_FBX_SDK_DIR}/lib/gcc4/x64/release/libfbxsdk.a"
-			IMPORTED_LOCATION_DEBUG          "${SGE_FBX_SDK_DIR}/lib/gcc4/x64/debug/libfbxsdk.a")
-
-		set_target_properties(FBXSDK_XML_TARGET PROPERTIES
-			INTERFACE_INCLUDE_DIRECTORIES "${SGE_FBX_SDK_DIR}/include"
-			
-			IMPORTED_LOCATION_RELEASE        "${SGE_FBX_SDK_DIR}/lib/gcc4/x64/release/libxml2.lib"
-			IMPORTED_LOCATION_RELWITHDEBINFO "${SGE_FBX_SDK_DIR}/lib/gcc4/x64/release/libxml2.lib"
-			IMPORTED_LOCATION_NOOPT          "${SGE_FBX_SDK_DIR}/lib/gcc4/x64/release/libxml2.lib"
-			IMPORTED_LOCATION_DEBUG          "${SGE_FBX_SDK_DIR}/lib/gcc4/x64/debug/libxml2.lib")
-			
-		set_target_properties(FBXSDK_ZLIB_TARGET PROPERTIES
-			INTERFACE_INCLUDE_DIRECTORIES "${SGE_FBX_SDK_DIR}/include"
-			
-			IMPORTED_LOCATION_RELEASE        "${SGE_FBX_SDK_DIR}/lib/gcc4/x64/release/libzlib.lib"
-			IMPORTED_LOCATION_RELWITHDEBINFO "${SGE_FBX_SDK_DIR}/lib/gcc4/x64/release/libzlib.lib"
-			IMPORTED_LOCATION_NOOPT          "${SGE_FBX_SDK_DIR}/lib/gcc4/x64/release/libzlib.lib"
-			IMPORTED_LOCATION_DEBUG          "${SGE_FBX_SDK_DIR}/lib/gcc4/x64/debug/libzlib.lib")
+			set_target_properties(FBXSDK_TARGET PROPERTIES INTERFACE_INCLUDE_DIRECTORIES    "${SGE_FBX_SDK_DIR}/include")
+			if(CMAKE_BUILD_CONFIG STREQUAL "Debug")
+				set_target_properties(FBXSDK_TARGET PROPERTIES IMPORTED_LOCATION "${SGE_FBX_SDK_DIR}/lib/gcc/x64/release/libfbxsdk.a")
+			else()
+				set_target_properties(FBXSDK_TARGET PROPERTIES IMPORTED_LOCATION "${SGE_FBX_SDK_DIR}/lib/gcc/x64/debug/libfbxsdk.a")
+			endif()
 	endif()
 
 	#############################################################################
@@ -85,10 +68,19 @@ else()
 	target_compile_definitions(mdlconvlib PRIVATE SGE_MDLCONVLIB_BUILDING_DLL=1)
 	target_include_directories(mdlconvlib PUBLIC "./src")
 	target_link_libraries(mdlconvlib sge_core)
-	target_link_libraries(mdlconvlib FBXSDK_TARGET FBXSDK_XML_TARGET FBXSDK_ZLIB_TARGET)
+	if(WIN32)
+		target_link_libraries(mdlconvlib FBXSDK_TARGET FBXSDK_XML_TARGET FBXSDK_ZLIB_TARGET)
+	else()
+		target_link_libraries(mdlconvlib FBXSDK_TARGET)
+	endif()
+
 	if(NOT WIN32)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 		target_link_libraries(mdlconvlib ${CMAKE_PTHREAD_LIBS})
+		find_package(ZLIB) # you'd probably need something like sudo apt install zlib1g-dev
+		target_link_libraries(mdlconvlib ZLIB::ZLIB)
+		find_package(LibXml2) # you'd probably need something like sudo apt-get install libxml2-dev
+		target_link_libraries(mdlconvlib LibXml2::LibXml2)
 	endif()
 	sgePromoteWarningsOnTarget(mdlconvlib)
 endif()

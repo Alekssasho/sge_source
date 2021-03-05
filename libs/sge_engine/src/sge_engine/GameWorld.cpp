@@ -1,7 +1,6 @@
 #include "GameInspector.h"
 #include <functional>
-
-// Game specific
+#include <thread>
 #include "EngineGlobal.h"
 #include "GameSerialization.h"
 #include "GameWorld.h"

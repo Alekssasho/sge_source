@@ -23,27 +23,27 @@ AssetType assetType_fromExtension(const char* const ext) {
 		return AssetType::None;
 	}
 
-	if (_stricmp(ext, "mdl") == 0) {
+	if (sge_stricmp(ext, "mdl") == 0) {
 		return AssetType::Model;
 	}
 
-	if (_stricmp(ext, "fbx") == 0) {
+	if (sge_stricmp(ext, "fbx") == 0) {
 		return AssetType::Model;
 	}
 
-	if (_stricmp(ext, "dae") == 0) {
+	if (sge_stricmp(ext, "dae") == 0) {
 		return AssetType::Model;
 	}
 
-	if (_stricmp(ext, "obj") == 0) {
+	if (sge_stricmp(ext, "obj") == 0) {
 		return AssetType::Model;
 	}
 
-	if (_stricmp(ext, "png") == 0 || _stricmp(ext, "dds") == 0 || _stricmp(ext, "jpg") == 0) {
+	if (sge_stricmp(ext, "png") == 0 || sge_stricmp(ext, "dds") == 0 || sge_stricmp(ext, "jpg") == 0) {
 		return AssetType::TextureView;
 	}
 
-	if (_stricmp(ext, "txt") == 0) {
+	if (sge_stricmp(ext, "txt") == 0) {
 		return AssetType::Text;
 	}
 

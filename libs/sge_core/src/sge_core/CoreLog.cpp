@@ -1,6 +1,6 @@
 #include "CoreLog.h"
 #include "sge_utils/utils/strings.h"
-#include <varargs.h>
+#include <stdarg.h>
 
 namespace sge {
 

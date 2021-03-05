@@ -328,10 +328,10 @@ struct vec3 {
 	friend vec3 normalized0(const vec3& v) { return v.normalized0(); }
 
 	vec3 reciprocalSafe(DATA_TYPE fallbackIfZero = DATA_TYPE(1e-6f)) const {
-		vec3f v;
-		v.data[0] = fabsf(data[0]) > 1e-6f ? 1 / data[0] : fallbackIfZero;
-		v.data[1] = fabsf(data[1]) > 1e-6f ? 1 / data[1] : fallbackIfZero;
-		v.data[2] = fabsf(data[2]) > 1e-6f ? 1 / data[2] : fallbackIfZero;
+		vec3 v;
+		v.data[0] = fabsf(data[0]) > DATA_TYPE(1e-6f) ? 1 / data[0] : fallbackIfZero;
+		v.data[1] = fabsf(data[1]) > DATA_TYPE(1e-6f) ? 1 / data[1] : fallbackIfZero;
+		v.data[2] = fabsf(data[2]) > DATA_TYPE(1e-6f) ? 1 / data[2] : fallbackIfZero;
 
 		return v;
 	}

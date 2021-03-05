@@ -1,6 +1,8 @@
 #ifndef SGE_MCPP_H
 #define SGE_MCPP_H
 
+#include <stddef.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

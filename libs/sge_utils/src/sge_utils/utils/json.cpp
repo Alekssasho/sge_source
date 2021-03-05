@@ -21,23 +21,24 @@ class JsonParseError {
 
 
 float cstr2float(const char* cstr) {
-	double value;
-	auto res = std::from_chars(cstr, cstr + strlen(cstr), value);
-	if (res.ec == std::errc()) {
-		return float(value);
-	}
-
-	throw JsonParseError("cannot convert string to float");
+	// double value;
+	// auto res = std::from_chars(cstr, cstr + strlen(cstr), value);
+	// if (res.ec == std::errc()) {
+	// 	return float(value);
+	// }
+	//throw JsonParseError("cannot convert string to float");
+	return float(atof(cstr));
 }
 
 int cstr2int(const char* cstr) {
-	int value;
-	auto res = std::from_chars(cstr, cstr + strlen(cstr), value);
-	if (res.ec == std::errc()) {
-		return value;
-	}
+	// int value;
+	// auto res = std::from_chars(cstr, cstr + strlen(cstr), value);
+	// if (res.ec == std::errc()) {
+	// 	return value;
+	// }
+	// throw JsonParseError("cannot convert string to int");
 
-	throw JsonParseError("cannot convert string to int");
+	return atoi(cstr);
 }
 
 /////////////////////////////////////////////////////////////////////////

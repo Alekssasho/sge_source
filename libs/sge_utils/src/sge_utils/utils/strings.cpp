@@ -84,3 +84,14 @@ bool string_endsWith(const std::string& fullString, char* const ending) {
 
 	return false;
 }
+
+int sge_stricmp(const char* a, const char* b)
+{
+#if defined(WIN32)
+	return _stricmp(a, b);
+#else
+	return strcasecmp(a, b);
+#endif
+
+}
+

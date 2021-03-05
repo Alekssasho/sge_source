@@ -1,6 +1,8 @@
 #ifndef SGE_MCPP_FILE_H
 #define SGE_MCPP_FILE_H
 
+#include <stddef.h>
+
 typedef int (*SgeFileLoaderFn)(const char* filename, const char** text, size_t* textNumCharacters, void* userData);
 
 typedef struct SGE_MCPP_FILE_TAG {
