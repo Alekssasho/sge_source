@@ -24,6 +24,7 @@
 #include "sge_core/ui/MultiCurve2DEditor.h"
 #include "sge_engine/EngineGlobal.h"
 #include "sge_engine/GameDrawer.h"
+#include "sge_engine/GameExport.h"
 #include "sge_engine/GameSerialization.h"
 #include "sge_engine/actors/ACRSpline.h"
 #include "sge_engine/actors/ALight.h"
@@ -484,6 +485,13 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 		if (ImGui::BeginMenu(ICON_FK_DOWNLOAD " Run & Export")) {
 			if (ImGui::MenuItem(ICON_FK_PLAY " Run")) {
 				system("start sge_player");
+			}
+
+			if (ImGui::MenuItem(ICON_FK_DOWNLOAD " Export")) {
+				std::string exportFolder = FolderOpenDialog("Pick an Export location:", std::string());
+				if (exportFolder.empty() == false) {
+					exportGame(exportFolder);
+				}
 			}
 
 			ImGui::EndMenu();
