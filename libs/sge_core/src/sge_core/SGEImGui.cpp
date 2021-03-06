@@ -100,7 +100,7 @@ inline void Style() {
 	}
 #endif
 
-	ImGui::StyleColorsLight(&style);
+	// ImGui::StyleColorsLight(&style);
 	// ImGui::StyleColorsDark(&style);
 }
 
@@ -352,7 +352,7 @@ void SGEImGui::render() {
 void SGEImGui::renderDrawLists(ImDrawData* imDrawData) {
 	const int vbNeededBytes = sizeof(SGEImGuiVertex) * imDrawData->TotalVtxCount;
 
-	if(vbNeededBytes == 0) {
+	if (vbNeededBytes == 0) {
 		return;
 	}
 
@@ -1093,6 +1093,14 @@ bool InputText(const char* label, std::string& str, ImGuiInputTextFlags flags, I
 
 SGE_CORE_API void TextTooltip(const char* const text) {
 	if (text != nullptr && ImGui::IsItemHovered()) {
+		ImGui::BeginTooltip();
+		ImGui::Text(text);
+		ImGui::EndTooltip();
+	}
+}
+
+SGE_CORE_API void TextTooltipDelayed(const char* const text, float delay) {
+	if (text != nullptr && ImGui::IsItemHovered() && (GImGui->HoveredIdTimer >= delay)) {
 		ImGui::BeginTooltip();
 		ImGui::Text(text);
 		ImGui::EndTooltip();

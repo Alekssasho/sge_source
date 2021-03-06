@@ -183,6 +183,7 @@ bool actorPicker(const char* label, GameWorld& world, ObjectId& ioValue, std::fu
 			getEngineGlobal()->showNotification("Select a secondary object to be picked!");
 		}
 	}
+	ImGuiEx::TextTooltip("Select a secondary object and click this button to pick it!");
 
 	ImGui::SameLine();
 

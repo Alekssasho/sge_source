@@ -171,6 +171,12 @@ SGE_CORE_API bool InputText(const char* label,
                             ImGuiInputTextCallback callback = nullptr,
                             void* user_data = nullptr);
 
-/// @brief Createa tooltip if the previous item was hovered.
+/// @brief Create a tooltip if the previous item was hovered.
 SGE_CORE_API void TextTooltip(const char* const text);
+
+/// @brief Create a tooltip if the previous item was hovered. The tooltip shows
+/// only after the item was hovered for the @delay amout of seconds.
+/// Caution: See https://github.com/ocornut/imgui/issues/1485
+/// This function works only on some items (like buttons).
+SGE_CORE_API void TextTooltipDelayed(const char* const text, float delay = 1.f);
 } // namespace ImGuiEx

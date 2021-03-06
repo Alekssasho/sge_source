@@ -24,7 +24,7 @@ struct SGE_ENGINE_API AssetProperty {
 
 	void clear() {
 		m_currentAsset.clear();
-		m_modelAsset = nullptr;
+		m_asset = nullptr;
 	}
 
 	void setAsset(std::shared_ptr<Asset>& asset);
@@ -48,7 +48,7 @@ struct SGE_ENGINE_API AssetProperty {
 	std::string m_targetAsset;
 
 	std::string m_currentAsset;
-	std::shared_ptr<Asset> m_modelAsset;
+	std::shared_ptr<Asset> m_asset;
 	std::vector<std::string> m_uiPossibleAssets;
 };
 

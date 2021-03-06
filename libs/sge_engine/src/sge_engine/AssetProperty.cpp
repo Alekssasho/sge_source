@@ -1,6 +1,6 @@
 #include "AssetProperty.h"
-#include "sge_engine/TypeRegister.h"
 #include "sge_core/ICore.h"
+#include "sge_engine/TypeRegister.h"
 
 namespace sge {
 
@@ -10,50 +10,50 @@ bool AssetProperty::update() {
 
 	m_currentAsset = m_targetAsset;
 	if (m_currentAsset.empty() == false) {
-		m_modelAsset = getCore()->getAssetLib()->getAsset(m_assetType, m_currentAsset.c_str(), true);
+		m_asset = getCore()->getAssetLib()->getAsset(m_assetType, m_currentAsset.c_str(), true);
 	} else {
-		m_modelAsset = std::shared_ptr<Asset>();
+		m_asset = std::shared_ptr<Asset>();
 	}
 
 	return true;
 }
 
 AssetModel* AssetProperty::getAssetModel() {
-	if (isAssetLoaded(m_modelAsset) == false || m_modelAsset->getType() != AssetType::Model) {
+	if (isAssetLoaded(m_asset) == false || m_asset->getType() != AssetType::Model) {
 		return nullptr;
 	}
 
-	return m_modelAsset->asModel();
+	return m_asset->asModel();
 }
 
 const AssetModel* AssetProperty::getAssetModel() const {
-	if (isAssetLoaded(m_modelAsset) == false || m_modelAsset->getType() != AssetType::Model) {
+	if (isAssetLoaded(m_asset) == false || m_asset->getType() != AssetType::Model) {
 		return nullptr;
 	}
-	return m_modelAsset->asModel();
+	return m_asset->asModel();
 }
 
 GpuHandle<Texture>* AssetProperty::getAssetTexture() {
-	if (isAssetLoaded(m_modelAsset) == false || m_modelAsset->getType() != AssetType::TextureView) {
+	if (isAssetLoaded(m_asset) == false || m_asset->getType() != AssetType::TextureView) {
 		return nullptr;
 	}
 
-	return m_modelAsset->asTextureView();
+	return m_asset->asTextureView();
 }
 
 const GpuHandle<Texture>* AssetProperty::getAssetTexture() const {
-	if (isAssetLoaded(m_modelAsset) == false || m_modelAsset->getType() != AssetType::TextureView) {
+	if (isAssetLoaded(m_asset) == false || m_asset->getType() != AssetType::TextureView) {
 		return nullptr;
 	}
-	return m_modelAsset->asTextureView();
+	return m_asset->asTextureView();
 }
 
 void AssetProperty::setAsset(std::shared_ptr<Asset>& asset) {
 	if (asset && asset->getType() == m_assetType) {
-		m_modelAsset = asset;
-		m_currentAsset = m_modelAsset->getPath();
-	}
-	else {
+		m_asset = asset;
+		m_targetAsset = asset->getPath();
+		m_currentAsset = m_asset->getPath();
+	} else {
 		sgeAssert(false);
 	}
 }

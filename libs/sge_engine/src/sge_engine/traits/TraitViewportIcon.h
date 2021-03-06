@@ -24,6 +24,13 @@ struct SGE_ENGINE_API TraitViewportIcon : public Trait {
 		}
 	}
 
+	void setTexture(PAsset asset, bool updateNow) {
+		m_assetProperty.setAsset(asset);
+		if (updateNow) {
+			postUpdate();
+		}
+	}
+
 	void setObjectSpaceOffset(const vec3f& offset) {
 		m_objectSpaceIconOffset = offset;
 	}
