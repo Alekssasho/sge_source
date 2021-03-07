@@ -264,7 +264,7 @@ int sge_main(int argc, char** argv) {
 		frs.close();
 	}
 
-	sge::ApplicationHandler::get()->NewWindow<SGEGameWindow>("SGE Editor", windowSize.x, windowSize.y, isMaximized);
+	sge::ApplicationHandler::get()->NewWindow<SGEGameWindow>("SGEEngine Editor", windowSize.x, windowSize.y, isMaximized);
 
 #ifdef __EMSCRIPTEN__
 	emscripten_set_main_loop(main_loop, 0, true);

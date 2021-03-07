@@ -155,6 +155,14 @@ void TimelineWindow::update(SGEContext* const UNUSED(sgecon), const InputState& 
 		timelineRectScreen.Max.y += kTimelineHeightPixels;
 		timelineRectScreen.Max.x += totalTimelineWidthPixels;
 
+		// Workaround:
+		// By default in ImGui if the user holds the left mouse button in a window (but not over widget) the window will be moved.
+		// We do not want that to happen when the users scrubs the timeline. So to workaround that we tell ImGui that the mouse
+		// is interacting with something by setting the active id in the window.
+		if(ImGui::IsMouseHoveringRect(timelineRectScreen.Min, timelineRectScreen.Max) && ImGui::IsAnyMouseDown()) {
+			ImGui::SetActiveID(ImGui::GetID("TimelineFakeID"), ImGui::GetCurrentWindow());
+		}
+
 		ImRect timelineClipBBox;
 		timelineClipBBox = timelineRectScreen;
 		timelineClipBBox.Max.x = timelineClipBBox.Min.x + ImGui::GetContentRegionAvail().x;

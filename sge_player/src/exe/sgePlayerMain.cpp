@@ -216,7 +216,7 @@ int sge_main(int argc, char** argv) {
 	vec2i windowSize(g_playerSettings.windowWidth, g_playerSettings.windowHeight);
 
 	JsonParser jp;
-	sge::ApplicationHandler::get()->NewWindow<SGEGameWindow>("SGE Player", windowSize.x, windowSize.y, false,
+	sge::ApplicationHandler::get()->NewWindow<SGEGameWindow>("SGEEngine Game Player", windowSize.x, windowSize.y, false,
 	                                                         !g_playerSettings.windowIsResizable);
 
 #ifdef __EMSCRIPTEN__

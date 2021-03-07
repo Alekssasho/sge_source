@@ -190,7 +190,7 @@ void EditorWindow::newScene(bool forceKeepSameInspector) {
 		wnd->onNewWorld();
 	}
 
-	m_nativeWindow.setWindowTitle("SGE Editor - Untitled Scene*");
+	m_nativeWindow.setWindowTitle("SGEEngine Editor - Untitled Scene*");
 }
 
 void EditorWindow::loadWorldFromFile(const char* const filename, const char* overrideWorkingFilename, bool forceKeepSameInspector) {
@@ -218,7 +218,7 @@ void EditorWindow::loadWorldFromJson(const char* const json,
 		wnd->onNewWorld();
 	}
 
-	std::string windowTitle = string_format("SGE Editor - %s", workingFileName);
+	std::string windowTitle = string_format("SGEEngine Editor - %s", workingFileName);
 	m_nativeWindow.setWindowTitle(windowTitle.c_str());
 }
 

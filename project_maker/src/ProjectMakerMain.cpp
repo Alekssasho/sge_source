@@ -260,7 +260,7 @@ int sge_main(int argc, char** argv) {
 	g_argv = argv;
 
 
-	sge::ApplicationHandler::get()->NewWindow<SGEGameWindow>("SGE Editor", 800, 600, false, true);
+	sge::ApplicationHandler::get()->NewWindow<SGEGameWindow>("SGEEngine Project Maker", 800, 600, false, true);
 
 #ifdef __EMSCRIPTEN__
 	emscripten_set_main_loop(main_loop, 0, true);
