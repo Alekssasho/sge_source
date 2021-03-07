@@ -32,12 +32,19 @@ __attribute__((visibility("default"))) sge::IPlugin* getInterop() {
 })mainPlugin";
 
 const char* cmakeGameProjectCode =
-    R"cmakeCode(
-
-project(TemplateGame)
-set_property (DIRECTORY PROPERTY VS_STARTUP_PROJECT "INSTALL")
+    R"cmakeCode(project(TemplateGame)
 
 cmake_minimum_required(VERSION 3.14)
+
+# Enable C++17.
+if(UNIX)
+	# [TODO] remove -w, find out what -g means (i think it instructs NOT to strip debug symbols)
+	set(CMAKE_CXX_STANDARD 17)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w -g -fpermissive") #-std=c++14
+endif()
+if(MSVC)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
+endif()
 
 if(WIN32)
 	set(SGE_REND_API "Direct3D11" CACHE STRING "Rendering API")
@@ -93,11 +100,17 @@ if(EXISTS ${SGE_ENGINE_DIR}/RelWithDebInfo)
 	list(APPEND PLUGIN_AVAILABLE_CONFIGS RelWithDebInfo)
 endif()
 
-
 set(CMAKE_CONFIGURATION_TYPES ${PLUGIN_AVAILABLE_CONFIGS})
 
 # The plugin(game) target
 add_library(TemplateGame SHARED src/PluginMain.cpp)
+if(MSVC)
+	# Disable a few warnings:
+	target_compile_options(TemplateGame PRIVATE "/wd4251") # 'type' : class 'type1' needs to have dll-interface to be used by clients of class 'type2'
+	target_compile_options(TemplateGame PRIVATE "/wd4275") # non dll-interface 'type1' used as base for dll-interface 'type2'
+endif()
+
+
 set_target_properties(TemplateGame PROPERTIES SUFFIX ".gll")
 target_include_directories(TemplateGame PUBLIC ${SGE_ENGINE_DIR}/include)
 target_include_directories(TemplateGame PUBLIC ${SGE_ENGINE_DIR}/include/bullet3)
@@ -105,12 +118,15 @@ target_link_directories(TemplateGame PUBLIC ${SGE_ENGINE_DIR}/$<CONFIG>/lib)
 target_link_libraries(TemplateGame PUBLIC BulletCollision)
 target_link_libraries(TemplateGame PUBLIC BulletDynamics)
 target_link_libraries(TemplateGame PUBLIC LinearMath)
-#target_link_libraries(TemplateGame PUBLIC glew)
 target_link_libraries(TemplateGame PUBLIC imgui)
 target_link_libraries(TemplateGame PUBLIC sge_core)
 target_link_libraries(TemplateGame PUBLIC sge_engine)
 target_link_libraries(TemplateGame PUBLIC sge_renderer)
 target_link_libraries(TemplateGame PUBLIC sge_utils)
+
+if(SGE_REND_API STREQUAL "OpenGL")
+	target_link_libraries(TemplateGame PUBLIC glew)
+endif()
 
 
 FILE(MAKE_DIRECTORY ${CMAKE_SOURCE_DIR}/game_bin/) 
@@ -130,5 +146,4 @@ set_target_properties(TemplateGame PROPERTIES
 	
 set_target_properties(TemplateGame PROPERTIES 
     VS_DEBUGGER_COMMAND "${CMAKE_SOURCE_DIR}/game_bin/sge_editor")
-
 )cmakeCode";

@@ -115,10 +115,9 @@ struct SGEGameWindow : public WindowBase {
 
 			ImGui::NewLine();
 			ImGui::NewLine();
-			ImGui::Text("New Project:");
 
 			// Prompt for Project name
-			ImGuiEx::Label("Project Name:");
+			ImGui::Text("Project Name:");
 			ImGuiEx::InputText("##ProjectName", projectName, ImGuiInputTextFlags_CharsNoBlank, nullptr, nullptr, true);
 			ImGui::NewLine();
 			ImGui::NewLine();
@@ -219,6 +218,12 @@ struct SGEGameWindow : public WindowBase {
 					}
 				}
 			}
+
+			ImGui::NewLine();
+
+			ImGui::Text(ICON_FK_EXCLAMATION_TRIANGLE
+			            " After generating the project, build and debug via the INSTALL target.\n"
+			            "This target will assemble all the needed files in one directory \"<GameName>/game_bin\" for the game to run.\n");
 		}
 		ImGui::End();
 
