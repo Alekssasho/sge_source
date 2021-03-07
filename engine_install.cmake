@@ -30,6 +30,9 @@ if(TARGET mdlconvlib)
 endif()
 
 # Runtimes (*.exe, *.dll, *.so and so on)
+# Caution: there seems to be a bug or something in CMake where instead of copying files to $<CONFIG>/binaries/,
+# Cmake generates a file with no extension "binaries" which contains the files to be copied.
+# As a workaround you need to delete that file and run install again.
 INSTALL(TARGETS ${INSTALL_RUNTIME_TARGETS} RUNTIME DESTINATION $<CONFIG>/binaries/)	
 INSTALL(TARGETS ${INSTALL_RUNTIME_TARGETS} LIBRARY DESTINATION $<CONFIG>/binaries/)	# Not needed on Windows, for Linux these are the *.so files.
 
