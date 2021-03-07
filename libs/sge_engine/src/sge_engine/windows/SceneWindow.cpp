@@ -311,10 +311,10 @@ bool SceneWindow::updateToolsAndOverlay(const InputState& is, const GameDrawSets
 			inspector->setTool(&inspector->m_transformTool);
 		}
 		if (is.isKeyCombo(Key::Key_LShift, Key::Key_R)) {
-			inspector->m_transformTool.m_mode = Gizmo3D::Mode_Scaling;
+			inspector->m_transformTool.m_mode = Gizmo3D::Mode_ScaleVolume;
 			inspector->setTool(&inspector->m_transformTool);
 		} else if (is.IsKeyReleased(Key::Key_R)) {
-			inspector->m_transformTool.m_mode = Gizmo3D::Mode_ScaleVolume;
+			inspector->m_transformTool.m_mode = Gizmo3D::Mode_Scaling;
 			inspector->setTool(&inspector->m_transformTool);
 		}
 

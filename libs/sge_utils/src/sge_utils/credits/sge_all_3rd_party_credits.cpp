@@ -5,7 +5,7 @@ namespace sge
 	{
 		return
 R"sge_credits(
-SGE - Simplify Game Engine and all of its libraries
+SGEEngine and all of its libraries:
 
 The MIT License (MIT)
 

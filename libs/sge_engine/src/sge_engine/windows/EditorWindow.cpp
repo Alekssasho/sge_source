@@ -543,7 +543,7 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 		if (m_assets.m_assetPickingIcon && ImGui::ImageButton((*m_assets.m_assetPickingIcon->asTextureView()), ImVec2(24, 24))) {
 			m_sceneInstance.getInspector().setTool(&m_sceneInstance.getInspector().m_selectionTool);
 		}
-		ImGuiEx::TextTooltip("Enables the scene selection tool.");
+		ImGuiEx::TextTooltip("Enables the scene selection tool.\nShortcut: Q");
 
 		ImGui::SameLine();
 
@@ -551,7 +551,7 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 			m_sceneInstance.getInspector().m_transformTool.m_mode = Gizmo3D::Mode_Translation;
 			m_sceneInstance.getInspector().setTool(&m_sceneInstance.getInspector().m_transformTool);
 		}
-		ImGuiEx::TextTooltip("Enables the actor move tool.");
+		ImGuiEx::TextTooltip("Enables the actor move tool.\nShortcut: W");
 
 		ImGui::SameLine();
 
@@ -559,7 +559,7 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 			m_sceneInstance.getInspector().m_transformTool.m_mode = Gizmo3D::Mode_Rotation;
 			m_sceneInstance.getInspector().setTool(&m_sceneInstance.getInspector().m_transformTool);
 		}
-		ImGuiEx::TextTooltip("Enables the actor rotation tool.");
+		ImGuiEx::TextTooltip("Enables the actor rotation tool.\nShortcut: E");
 
 		ImGui::SameLine();
 
@@ -567,7 +567,7 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 			m_sceneInstance.getInspector().m_transformTool.m_mode = Gizmo3D::Mode_Scaling;
 			m_sceneInstance.getInspector().setTool(&m_sceneInstance.getInspector().m_transformTool);
 		}
-		ImGuiEx::TextTooltip("Enables the actor scaling tool.");
+		ImGuiEx::TextTooltip("Enables the actor scaling tool\nShortcut: R.");
 
 		ImGui::SameLine();
 
@@ -575,7 +575,7 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 			m_sceneInstance.getInspector().m_transformTool.m_mode = Gizmo3D::Mode_ScaleVolume;
 			m_sceneInstance.getInspector().setTool(&m_sceneInstance.getInspector().m_transformTool);
 		}
-		ImGuiEx::TextTooltip("Enables the actor box-scaling tool.");
+		ImGuiEx::TextTooltip("Enables the actor box-scaling tool.\nShortcut: Ctrl + R");
 
 		ImGui::SameLine();
 

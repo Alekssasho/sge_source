@@ -105,6 +105,18 @@ struct SGEGameWindow : public WindowBase {
 
 		int windowFlags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse;
 		if (ImGui::Begin("Create Project Window", nullptr, windowFlags)) {
+			ImGui::Text("Welcome SGEEngine Project Maker!");
+			ImGui::NewLine();
+			ImGui::NewLine();
+			ImGui::Text(ICON_FK_EXCLAMATION_TRIANGLE " This little tool will help you to create you game project files!");
+			ImGui::Text(
+			    "However if you dislike this workflow feel free to write your own CMake! It isn't hard.\n"
+			    "For reference you can check the CMake template project in <SGEEngineDir>/TemplateProject!");
+
+			ImGui::NewLine();
+			ImGui::NewLine();
+			ImGui::Text("New Project:");
+
 			// Prompt for Project name
 			ImGuiEx::Label("Project Name:");
 			ImGuiEx::InputText("##ProjectName", projectName, ImGuiInputTextFlags_CharsNoBlank, nullptr, nullptr, true);
