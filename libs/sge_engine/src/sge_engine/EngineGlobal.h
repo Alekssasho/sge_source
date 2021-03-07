@@ -62,6 +62,9 @@ struct IEngineGlobal {
 	/// Retrieves all existing windows EXCEPT the EditorWindow.
 	virtual std::vector<std::unique_ptr<IImGuiWindow>>& getAllWindows() = 0;
 
+	/// @brief Finds the first window with the specified name.
+	virtual IImGuiWindow* findWindowByName(const char* const name) = 0;
+
 	template <typename T>
 	T* findFirstWindowOfType() {
 		for (auto& wnd : getAllWindows()) {

@@ -4,21 +4,17 @@
 #include <memory>
 #include <vector>
 
+#include "sge_core/model/Model.h"
 #include "sge_engine/sge_engine_api.h"
+#include "sge_utils/math/Box.h"
+#include "sge_utils/math/transform.h"
 #include "sge_utils/sge_utils.h"
 
-// Interesting stuff from bullet physics:
-// ContactResultCallback - to check for a overlap without stepping simulation.
 SGE_NO_WARN_BEGIN
 #include <BulletCollision/CollisionShapes/btTriangleMesh.h>
 #include <BulletCollision/CollisionShapes/btTriangleMeshShape.h>
 #include <btBulletDynamicsCommon.h>
 SGE_NO_WARN_END
-
-#include "sge_utils/math/Box.h"
-#include "sge_utils/math/transform.h"
-
-#include "sge_core/model/Model.h"
 
 namespace sge {
 
@@ -39,17 +35,6 @@ inline btQuaternion toBullet(const quatf v) {
 
 inline quatf fromBullet(const btQuaternion& bt) {
 	return quatf(bt.x(), bt.y(), bt.z(), bt.w());
-}
-
-inline mat4f fromBullet_mat4f(const btTransform& transform) {
-	mat4f result = mat4f::getTranslation(transform.getOrigin().x(), transform.getOrigin().y(), transform.getOrigin().z());
-
-	result.data[0] = vec4f(fromBullet(transform.getBasis().getRow(0)), 0.f);
-	result.data[1] = vec4f(fromBullet(transform.getBasis().getRow(1)), 0.f);
-	result.data[2] = vec4f(fromBullet(transform.getBasis().getRow(2)), 0.f);
-	// result.data[3] is already (0,0,0,1) because of the translation above.
-
-	return result;
 }
 
 inline btTransform toBullet(const transf3d& tr) {
@@ -212,13 +197,13 @@ struct SGE_ENGINE_API RigidBody {
 	/// @brief Create a rigid body to be used in the PhysicsWorld
 	/// @param actor the actor represented by this RigidBody, may be nullptr. Having actor being linked to a rigid body will automatically
 	/// update the transformation of the assigned actor, thus multiple rigid bodies cannot be associated with the same actor yet.
-	///        Objects that ARE NOT assigned to any rigid body are useful for sensors.
+	///        Bodies that ARE NOT assigned to any rigid body are useful for sensors.
 	///        Keep in mind that the rigid body WILL NOT track the lifetime of the actor by itself (@TraitRigidBody does this tracking).
 	/// @param collisionShapeToBeOwned A collision shape to be used for the rigid body. This class will take ownership of the allocated
-	/// (with new) collision shape.
+	///        (with new) collision shape.
 	/// @param mass The mass of the object. If 0 the object is going to be static or kinematic.
 	/// @param noResponce True if collision with this object should create any new forces. Bullet will still generate contact manifolds.
-	/// Useful for triggers and collectables.
+	///        Useful for triggers and collectables.
 	void create(Actor* const actor, CollisionShape* collisionShapeToBeOwned, float const mass, bool noResponce);
 	void create(Actor* const actor, const CollsionShapeDesc* shapeDesc, int numShapeDescs, float const mass, bool noResponce);
 	void create(Actor* const actor, CollsionShapeDesc desc, float const mass, bool noResponce);
@@ -382,7 +367,7 @@ SGE_ENGINE_API const Actor*
 
 /// Caution:
 /// As by default Bullet Physics is built with no RTTI support we cannot use dynamic cast.
-/// In order to determin the shape of the object we need to use the enum specifying the type of the shape.
+/// In order to determine the shape of the object we need to use the enum specifying the type of the shape.
 template <typename T>
 T* btCollisionShapeCast(btCollisionShape* const shape, const BroadphaseNativeTypes type) {
 	if (shape && shape->getShapeType() == type) {

@@ -567,7 +567,7 @@ void RigidBody::applyLinearVelocity(const vec3f& v) {
 	btRigidBody* btrb = getBulletRigidBody();
 	if (btrb) {
 		float invMass = btrb->getInvMass();
-		if (invMass) {
+		if (invMass != 0.f) {
 			btrb->applyCentralImpulse(toBullet(v / invMass));
 		}
 	}

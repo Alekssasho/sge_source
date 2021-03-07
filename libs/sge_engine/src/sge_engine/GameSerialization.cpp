@@ -289,7 +289,7 @@ bool deserializeVariable(char* const valueData, const JsonValue* jValue, const T
 		if (jMember == nullptr) {
 			SGE_DEBUG_ERR("[SERIALIZATION] A member is missing %s::%s. This that is going to be skipped and left as it is.\n",
 			              typeDesc->name, mfd.name);
-			sgeAssert(false);
+			//sgeAssert(false);
 			continue;
 		} else {
 			bool succeeded = false;

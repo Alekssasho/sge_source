@@ -24,8 +24,16 @@ typedef vector_map<int, transf3d> vector_map_float_transf3d;
 // clang-format off
 DefineTypeId(vector_map_float_transf3d, 20'03'01'0013);
 DefineTypeId(ATimeline, 20'03'01'0014);
+DefineTypeId(ATimeline::PlaybackMethod, 21'03'07'0001);
 
 ReflBlock() {
+
+	ReflAddType(ATimeline::PlaybackMethod)
+		.addEnumMember(ATimeline::PlaybackMethod::playbackMethod_reset, "Reset")
+		.addEnumMember(ATimeline::PlaybackMethod::playbackMethod_stop, "Stop")
+		.addEnumMember(ATimeline::PlaybackMethod::playbackMethod_flipflop, "Flip-Flop")
+	;
+
 	ReflAddTypeWithName(vector_map_float_transf3d, "vector_map<int, transf3d>")
 	    .member2<vector_map<int, transf3d>, std::vector<int>, &vector_map<int, transf3d>::getAllKeys,
 	             &vector_map<int, transf3d>::serializationSetKeys>("keys")
@@ -36,9 +44,16 @@ ReflBlock() {
 		ReflMember(ATimeline, m_isEnabled)
 		ReflMember(ATimeline, targetActorId)
 		ReflMember(ATimeline, keyFrames)
+		ReflMember(ATimeline, framesPerSecond)
+		ReflMember(ATimeline, frameCount)
+		ReflMember(ATimeline, playbackMethod)
+		ReflMember(ATimeline, m_gameplayEvalTime)
+		ReflMember(ATimeline, m_editingEvaltime)
 		ReflMember(ATimeline, moveObjectsOnTop)
-		ReflMember(ATimeline, playbackSettings)
+		ReflMember(ATimeline, flipFlopDir).addMemberFlag(MFF_NonEditable)
 	;
+
+
 }
 // clang-format on
 
@@ -87,10 +102,24 @@ void TimelineWindow::update(SGEContext* const UNUSED(sgecon), const InputState& 
 		return;
 	}
 
-	timeline->isInEditMode = true;
-	timeline->doesEditModeNeedsUpdate = false;
-
 	if (ImGui::Begin(m_windowName.c_str(), &m_isOpened)) {
+		timeline->isInEditMode = true;
+		timeline->doesEditModeNeedsUpdate = false;
+
+		const vector_map<int, transf3d> oldKeyFrames = timeline->keyFrames;
+
+		// Create the undo/redo based on oldKeyFrames and the inplace modification in timeline->keyFrames.
+		const auto createUndo = [&]() -> void {
+			CmdMemberChange* cmd = new CmdMemberChange();
+			MemberChain chain;
+			chain.add(typeLib().findMember(&ATimeline::keyFrames));
+			cmd->setup(timeline->getId(), chain, &oldKeyFrames, &timeline->keyFrames, nullptr);
+			m_inspector->appendCommand(cmd, false);
+		};
+
+		ImGui::Text(ICON_FK_EXCLAMATION_TRIANGLE
+		            " While editing the gameplay animation will not update. Close this window to let the gameplay animaton to take place");
+		ImGui::Text("Animating %s. %d is 1 second", timeline->getDisplayNameCStr(), timeline->framesPerSecond);
 		ImGuiEx::Label("Frames Count");
 		ImGui::InputInt("##Frame Count", &timeline->frameCount, 1, 1);
 		float kFrameButtonWidthPixels = 32.f;
@@ -178,7 +207,7 @@ void TimelineWindow::update(SGEContext* const UNUSED(sgecon), const InputState& 
 					if (ImGui::IsMouseDown(0)) {
 						// Evaluate the animation at this frame.
 						timeline->doesEditModeNeedsUpdate = true;
-						timeline->editModeFollowState.distanceAlongPath = float(iFrame) * frameLengthSeconds;
+						timeline->m_editingEvaltime = float(iFrame) * frameLengthSeconds;
 					}
 				}
 			}
@@ -194,9 +223,10 @@ void TimelineWindow::update(SGEContext* const UNUSED(sgecon), const InputState& 
 		if (ImGui::BeginPopup("Timeline Frame Right Click Menu")) {
 			const bool hasKeyframe = timeline->keyFrames.find_element_index(m_lastRightClickedFrame) > -1;
 
-			if (ImGui::MenuItem(ICON_FK_PAPERCLIP " New Key")) {
+			if (ImGui::MenuItem(ICON_FK_PAPERCLIP " Set Key")) {
 				const Actor* const targetActor = m_inspector->getWorld()->getActorById(timeline->targetActorId);
 				timeline->keyFrames[m_lastRightClickedFrame] = targetActor->getTransform();
+				createUndo();
 			}
 
 			if (hasKeyframe && ImGui::MenuItem(ICON_FK_FLOPPY_O " Copy")) {
@@ -204,10 +234,19 @@ void TimelineWindow::update(SGEContext* const UNUSED(sgecon), const InputState& 
 			}
 
 			if (hasKeyframe && ImGui::MenuItem(ICON_FK_SCISSORS " Cut")) {
+				m_copiedFrame = timeline->keyFrames[m_lastRightClickedFrame];
+
+				int keyFrameIndex = timeline->keyFrames.find_element_index(m_lastRightClickedFrame);
+				if (keyFrameIndex != -1) {
+					timeline->doesEditModeNeedsUpdate = true;
+					timeline->keyFrames.eraseAtIndex(keyFrameIndex);
+					createUndo();
+				}
 			}
 
 			if (m_copiedFrame.hasValue() && ImGui::MenuItem(ICON_FK_DOWNLOAD " Paste")) {
 				timeline->keyFrames[m_lastRightClickedFrame] = m_copiedFrame.get();
+				createUndo();
 			}
 
 			if (hasKeyframe && ImGui::MenuItem(ICON_FK_TRASH " Delete Key")) {
@@ -215,6 +254,7 @@ void TimelineWindow::update(SGEContext* const UNUSED(sgecon), const InputState& 
 				if (keyFrameIndex != -1) {
 					timeline->doesEditModeNeedsUpdate = true;
 					timeline->keyFrames.eraseAtIndex(keyFrameIndex);
+					createUndo();
 				}
 			}
 
@@ -259,33 +299,65 @@ void ATimeline::postUpdate(const GameUpdateSets& u) {
 		return;
 	}
 
-	PathLengthFollow::State& state = (isInEditMode) ? editModeFollowState : followState;
+	frameCount = std::max(1, frameCount);
+
+	const float frameTime = framesPerSecond != 0 ? 1.f / float(framesPerSecond) : 0.f;
+	const float totalAnimLength = float(frameCount - 1) * frameTime;
 
 	const bool shouldUpdate = (u.isPlaying() && !isInEditMode && m_isEnabled) || (isInEditMode && doesEditModeNeedsUpdate);
 
+	if (playbackMethod != playbackMethod_flipflop) {
+		flipFlopDir = 1.f;
+	}
+
+	if (playbackMethod == playbackMethod_flipflop && m_gameplayEvalTime < 0.f) {
+		m_gameplayEvalTime += std::floor(fabsf(m_gameplayEvalTime) / totalAnimLength) * totalAnimLength;
+		m_gameplayEvalTime *= -1.f;
+		flipFlopDir *= -1.f;
+	}
+
+	if (m_gameplayEvalTime > totalAnimLength) {
+		if (playbackMethod == playbackMethod_reset) {
+			m_gameplayEvalTime -= std::floor(m_gameplayEvalTime / totalAnimLength) * totalAnimLength;
+		} else if (playbackMethod == playbackMethod_flipflop) {
+			m_gameplayEvalTime =
+			    totalAnimLength - (m_gameplayEvalTime - std::floor(m_gameplayEvalTime / totalAnimLength) * totalAnimLength);
+			flipFlopDir *= -1.f;
+		} else {
+			// Assume stop.
+			m_gameplayEvalTime = totalAnimLength;
+		}
+	}
+
 	if (shouldUpdate) {
 		const float deltaTimeForUpdate = shouldUpdate ? u.dt : 0.f;
+		const float evalTimeToUse = isInEditMode ? m_editingEvaltime : m_gameplayEvalTime;
 
-		const float animLengthRaw = getRawAnimationLength();
-		float x = state.distanceAlongPath;
-		state = PathLengthFollow::compute(animLengthRaw, deltaTimeForUpdate, getWorld(), playbackSettings, state);
-		state.distanceAlongPath = x;
+		auto smoothstep = [](float k) -> float { return 3.f * k * k - 2.f * k * k * k; };
+
+		float smoothedLerpTime = (evalTimeToUse / totalAnimLength);
+		smoothedLerpTime = smoothstep(smoothedLerpTime) * totalAnimLength;
 
 		// Find the keys that we need to use to compute the final transform.
 		int iKey = 0;
 		for (int frame = 1; frame < keyFrames.size(); ++frame) {
-			if (keyFrames.getAllKeys()[frame] * frameLengthSeconds >= state.distanceAlongPath) {
+			const bool isLast = (frame + 1) == keyFrames.size();
+
+			if (isLast || (keyFrames.getAllKeys()[frame] * frameLengthSeconds >= smoothedLerpTime)) {
 				iKey = frame - 1;
 				break;
 			}
 		}
 
+		// Interpolate the two nearing keyframes to get the transform for the current settings.
 		const transf3d oldTransform = targetActor->getTransform();
 		transf3d newTransfrom = keyFrames.valueAtIdx(0);
+
 		if (keyFrames.size() > 1) {
 			const float t0 = keyFrames.keyAtIdx(iKey) * frameLengthSeconds;
 			const float t1 = keyFrames.keyAtIdx(iKey + 1) * frameLengthSeconds;
-			const float k = (state.distanceAlongPath - t0) / (t1 - t0);
+			const float k = std::min(1.f, (smoothedLerpTime - t0) / (t1 - t0));
+
 			newTransfrom = lerp(keyFrames.valueAtIdx(iKey), keyFrames.valueAtIdx(iKey + 1), k);
 		}
 
@@ -300,8 +372,10 @@ void ATimeline::postUpdate(const GameUpdateSets& u) {
 				if (!pair.key() || pair.key() == targetActor) {
 					continue;
 				}
+
+
+				TraitRigidBody* const actorTraitRB = getTrait<TraitRigidBody>(pair.key());
 				bool applyRotation = true;
-				const TraitRigidBody* const actorTraitRB = getTrait<TraitRigidBody>(pair.key());
 				if (actorTraitRB) {
 					const btVector3 actorAngFactor = actorTraitRB->getRigidBody()->getBulletRigidBody()->getAngularFactor();
 
@@ -326,6 +400,10 @@ void ATimeline::postUpdate(const GameUpdateSets& u) {
 				targetActor->setTransform(newTransfrom, true);
 			}
 		}
+
+		if (!isInEditMode && m_isEnabled) {
+			m_gameplayEvalTime += u.dt * flipFlopDir;
+		}
 	}
 }
 
@@ -340,13 +418,27 @@ void ATimeline::doAttributeEditor(GameInspector* inspector) {
 	ProperyEditorUIGen::doMemberUI(*inspector, this, chain);
 	chain.pop();
 
-	chain.add(typeLib().findMember(&ATimeline::playbackSettings));
+	chain.add(typeLib().findMember(&ATimeline::framesPerSecond));
+	ProperyEditorUIGen::doMemberUI(*inspector, this, chain);
+	chain.pop();
+
+	chain.add(typeLib().findMember(&ATimeline::playbackMethod));
+	ProperyEditorUIGen::doMemberUI(*inspector, this, chain);
+	chain.pop();
+
+	chain.add(typeLib().findMember(&ATimeline::moveObjectsOnTop));
 	ProperyEditorUIGen::doMemberUI(*inspector, this, chain);
 	chain.pop();
 
 	if (ImGui::Button("Edit")) {
-		editModeFollowState = followState;
-		getEngineGlobal()->addWindow(new TimelineWindow(string_format("Timeline of '%s'", this->getDisplayName().c_str()), this));
+		std::string windowName = string_format(ICON_FK_TIMES " Timeline %s##%d", this->getDisplayName().c_str(), this->getId().id);
+
+		IImGuiWindow* wnd = getEngineGlobal()->findWindowByName(windowName.c_str());
+		if (wnd) {
+			ImGui::SetWindowFocus(wnd->getWindowName());
+		} else {
+			getEngineGlobal()->addWindow(new TimelineWindow(windowName.c_str(), this));
+		}
 	}
 }
 

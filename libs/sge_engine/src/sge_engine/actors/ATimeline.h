@@ -15,6 +15,12 @@ namespace sge {
 // ATimeline
 //--------------------------------------------------------
 struct ATimeline : public Actor, public IActorCustomAttributeEditorTrait {
+	enum PlaybackMethod : int {
+		playbackMethod_reset,
+		playbackMethod_stop,
+		playbackMethod_flipflop,
+	};
+
 	AABox3f getBBoxOS() const override;
 
 	void create() override;
@@ -35,14 +41,16 @@ struct ATimeline : public Actor, public IActorCustomAttributeEditorTrait {
 	bool doesEditModeNeedsUpdate = false;
 
 	bool m_isEnabled = false;
-	PathLengthFollow::Settings playbackSettings;
-	PathLengthFollow::State followState;
-	PathLengthFollow::State editModeFollowState;
-	bool moveObjectsOnTop = true;
+	float m_gameplayEvalTime = 0.f;
+	float m_editingEvaltime = 0;
+	bool moveObjectsOnTop = false;
 
+	PlaybackMethod playbackMethod = playbackMethod_reset;
+	float flipFlopDir = 1.f;
 	ObjectId targetActorId; // The object that we are going to move.
 	int framesPerSecond = 30;
 	int frameCount = 30;
+
 	vector_map<int, transf3d> keyFrames;
 };
 

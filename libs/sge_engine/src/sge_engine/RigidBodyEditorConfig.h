@@ -31,6 +31,10 @@ struct SGE_ENGINE_API RigidBodyPropertiesConfigurator {
 	bool noRotationZ = false;
 	float movementDamping = 0.f;
 	float rotationDamping = 0.f;
+	// True if the gravity should be specified by the @applyProperties() or if it
+	// should be left default to world settings. Having it being default is the common case.
+	bool specifyGravity = false;
+	vec3f gravity = vec3f(0.f, -10.f, 0.f);
 
 	/// @brief If true the editor will not show propeties that affect dynamics (mass, movement restriction, damping and so on).
 	/// The values can still be changed manually via code.

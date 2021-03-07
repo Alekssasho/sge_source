@@ -71,6 +71,7 @@ struct EngineGlobal final : public IEngineGlobal {
 
 	EditorWindow* getEditorWindow() override;
 	std::vector<std::unique_ptr<IImGuiWindow>>& getAllWindows() override;
+	IImGuiWindow* findWindowByName(const char* const name) override;
 
 	// UI Notifications.
 	void showNotification(std::string text) override;
@@ -187,6 +188,20 @@ EditorWindow* EngineGlobal::getEditorWindow() {
 
 std::vector<std::unique_ptr<IImGuiWindow>>& EngineGlobal::getAllWindows() {
 	return m_allActiveWindows;
+}
+
+IImGuiWindow* EngineGlobal::findWindowByName(const char* const name) {
+	if (name == nullptr) {
+		return nullptr;
+	}
+
+	for (std::unique_ptr<IImGuiWindow>& wnd : m_allActiveWindows) {
+		if (wnd && strcmp(wnd->getWindowName(), name) == 0) {
+			return wnd.get();
+		}
+	}
+
+	return nullptr;
 }
 
 void EngineGlobal::showNotification(std::string text) {

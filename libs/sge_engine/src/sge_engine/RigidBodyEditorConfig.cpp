@@ -29,6 +29,8 @@ ReflBlock()
 		ReflMember(RigidBodyPropertiesConfigurator, noRotationZ).setPrettyName("No Z Rotation")
 		ReflMember(RigidBodyPropertiesConfigurator, movementDamping)
 		ReflMember(RigidBodyPropertiesConfigurator, rotationDamping)
+		ReflMember(RigidBodyPropertiesConfigurator, specifyGravity)
+		ReflMember(RigidBodyPropertiesConfigurator, gravity)
 	;
 
 	ReflAddType(RigidBodyConfigurator::ShapeSource)
@@ -64,6 +66,9 @@ void RigidBodyPropertiesConfigurator::applyProperties(RigidBody& rb) const {
 	rb.setCanMove(!noMoveX, !noMoveY, !noMoveZ);
 	rb.setCanRotate(!noRotationX, !noRotationY, !noRotationZ);
 	rb.setDamping(movementDamping, rotationDamping);
+	if (specifyGravity) {
+		rb.setGravity(gravity);
+	}
 }
 
 void RigidBodyPropertiesConfigurator::extractPropsFromRigidBody(const RigidBody& rb) {
@@ -84,6 +89,8 @@ void RigidBodyPropertiesConfigurator::extractPropsFromRigidBody(const RigidBody&
 	noRotationZ = !noRotationZ;
 
 	rb.getDamping(movementDamping, rotationDamping);
+
+	gravity = rb.getGravity();
 }
 
 //---------------------------------------------------------------------
@@ -205,6 +212,11 @@ void edit_RigidBodyPropertiesConfigurator(GameInspector& inspector, GameObject* 
 		doMemberUIFn(sgeFindMember(RigidBodyPropertiesConfigurator, noRotationZ));
 		doMemberUIFn(sgeFindMember(RigidBodyPropertiesConfigurator, movementDamping));
 		doMemberUIFn(sgeFindMember(RigidBodyPropertiesConfigurator, rotationDamping));
+
+		doMemberUIFn(sgeFindMember(RigidBodyPropertiesConfigurator, specifyGravity));
+		if (rbpc.specifyGravity) {
+			doMemberUIFn(sgeFindMember(RigidBodyPropertiesConfigurator, gravity));
+		}
 	}
 
 	if (ImGui::Button(ICON_FK_CHECK " Apply")) {
@@ -237,6 +249,8 @@ SGE_ENGINE_API void edit_RigidBodyConfigurator(GameInspector& inspector, GameObj
 	}
 
 	doMemberUIFn(sgeFindMember(RigidBodyConfigurator, friction));
+	doMemberUIFn(sgeFindMember(RigidBodyConfigurator, rollingFriction));
+	doMemberUIFn(sgeFindMember(RigidBodyConfigurator, spinningFriction));
 	doMemberUIFn(sgeFindMember(RigidBodyConfigurator, bounciness));
 
 	if (rbec.dontShowDynamicProperties == false) {
@@ -248,6 +262,11 @@ SGE_ENGINE_API void edit_RigidBodyConfigurator(GameInspector& inspector, GameObj
 		doMemberUIFn(sgeFindMember(RigidBodyConfigurator, noRotationZ));
 		doMemberUIFn(sgeFindMember(RigidBodyConfigurator, movementDamping));
 		doMemberUIFn(sgeFindMember(RigidBodyConfigurator, rotationDamping));
+
+		doMemberUIFn(sgeFindMember(RigidBodyConfigurator, specifyGravity));
+		if (rbec.specifyGravity) {
+			doMemberUIFn(sgeFindMember(RigidBodyConfigurator, gravity));
+		}
 	}
 
 
