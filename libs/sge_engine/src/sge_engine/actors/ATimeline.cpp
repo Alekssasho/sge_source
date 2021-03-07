@@ -19,10 +19,10 @@
 
 namespace sge {
 
-typedef vector_map<int, transf3d> vector_map_float_transf3d;
+typedef vector_map<int, transf3d> vector_map_int_transf3d;
 
 // clang-format off
-DefineTypeId(vector_map_float_transf3d, 20'03'01'0013);
+DefineTypeId(vector_map_int_transf3d, 20'03'01'0013);
 DefineTypeId(ATimeline, 20'03'01'0014);
 DefineTypeId(ATimeline::PlaybackMethod, 21'03'07'0001);
 
@@ -34,11 +34,14 @@ ReflBlock() {
 		.addEnumMember(ATimeline::PlaybackMethod::playbackMethod_flipflop, "Flip-Flop")
 	;
 
-	ReflAddTypeWithName(vector_map_float_transf3d, "vector_map<int, transf3d>")
-	    .member2<vector_map<int, transf3d>, std::vector<int>, &vector_map<int, transf3d>::getAllKeys,
-	             &vector_map<int, transf3d>::serializationSetKeys>("keys")
-	    .member2<vector_map<int, transf3d>, std::vector<transf3d>, &vector_map<int, transf3d>::getAllValues,
-	             &vector_map<int, transf3d>::serializationSetValues>("values");
+	ReflAddTypeWithName(vector_map_int_transf3d, "vector_map<int, transf3d>")
+		ReflMember(vector_map_int_transf3d, keys)
+		ReflMember(vector_map_int_transf3d, values)
+	;
+	    //.member2<vector_map<int, transf3d>, std::vector<int>, &vector_map<int, transf3d>::getAllKeys,
+	    //         &vector_map<int, transf3d>::serializationSetKeys>("keys")
+	    //.member2<vector_map<int, transf3d>, std::vector<transf3d>, &vector_map<int, transf3d>::getAllValues,
+	    //         &vector_map<int, transf3d>::serializationSetValues>("values");
 
 	ReflAddActor(ATimeline)
 		ReflMember(ATimeline, m_isEnabled)
@@ -50,10 +53,9 @@ ReflBlock() {
 		ReflMember(ATimeline, m_gameplayEvalTime)
 		ReflMember(ATimeline, m_editingEvaltime)
 		ReflMember(ATimeline, moveObjectsOnTop)
+		ReflMember(ATimeline, useLinearInterpolation)
 		ReflMember(ATimeline, flipFlopDir).addMemberFlag(MFF_NonEditable)
 	;
-
-
 }
 // clang-format on
 
@@ -64,15 +66,11 @@ struct TimelineWindow final : public IImGuiWindow {
 	TimelineWindow(std::string windowName, ATimeline* const timeline)
 	    : m_windowName(std::move(windowName)) {
 		if (timeline) {
+			timelineActorId = timeline->getId();
 			m_inspector = timeline->getWorld()->getInspector();
-			animatorId = timeline->getId();
-			if (timeline->keyFrames.size() > 0) {
-				newKeyTime = timeline->keyFrames.getAllKeys().back() + 1.f;
-			}
 		}
 	}
 
-	void initialize(const ATimeline* const animator);
 	bool isClosed() override { return !m_isOpened; }
 	void update(SGEContext* const sgecon, const InputState& is) override;
 	const char* getWindowName() const override { return m_windowName.c_str(); }
@@ -82,12 +80,14 @@ struct TimelineWindow final : public IImGuiWindow {
 	GameInspector* m_inspector = nullptr;
 	std::string m_windowName;
 
-
-
-	ObjectId animatorId;
-	float newKeyTime = 0.f;
+	ObjectId timelineActorId;
 	int m_lastRightClickedFrame = -1;
 	Optional<transf3d> m_copiedFrame;
+
+	// Temp variables, that could be novrmal variables, but exists to
+	// reducce the number of allocations:
+	std::string frameNumText;
+	vector_map<int, transf3d> oldKeyFrames;
 };
 
 
@@ -96,7 +96,12 @@ void TimelineWindow::update(SGEContext* const UNUSED(sgecon), const InputState& 
 		return;
 	}
 
-	ATimeline* const timeline = (ATimeline*)m_inspector->getWorld()->getActorById(animatorId);
+	if (m_inspector == nullptr) {
+		m_isOpened = false;
+		return;
+	}
+
+	ATimeline* const timeline = (ATimeline*)m_inspector->getWorld()->getActorById(timelineActorId);
 	if (timeline == nullptr) {
 		m_isOpened = false;
 		return;
@@ -106,7 +111,7 @@ void TimelineWindow::update(SGEContext* const UNUSED(sgecon), const InputState& 
 		timeline->isInEditMode = true;
 		timeline->doesEditModeNeedsUpdate = false;
 
-		const vector_map<int, transf3d> oldKeyFrames = timeline->keyFrames;
+		oldKeyFrames = timeline->keyFrames;
 
 		// Create the undo/redo based on oldKeyFrames and the inplace modification in timeline->keyFrames.
 		const auto createUndo = [&]() -> void {
@@ -126,9 +131,7 @@ void TimelineWindow::update(SGEContext* const UNUSED(sgecon), const InputState& 
 		float kTimelineHeightPixels = 64.f;
 		const float kScrollBarHeigth = 24.f;
 		const float totalTimelineWidthPixels = kFrameButtonWidthPixels * float(timeline->frameCount);
-
-		const float FPS = float(timeline->framesPerSecond);
-		const float frameLengthSeconds = 1.f / FPS;
+		const float frameLengthSeconds = 1.f / float(timeline->framesPerSecond);
 
 		// Caution:
 		// ImDrawList uses screen coordinates not window space,
@@ -189,9 +192,9 @@ void TimelineWindow::update(SGEContext* const UNUSED(sgecon), const InputState& 
 
 			// Draw the number of the frame.
 			{
-				std::string frameNum = string_format("%d", iFrame);
-				ImVec2 textSize = ImGui::CalcTextSize(frameNum.c_str());
-				drawList->AddText(frameBBoxMinScreen + ImVec2(textSize.x * 0.5f, 0), 0xff000000, frameNum.c_str());
+				string_format(frameNumText, "%d", iFrame);
+				ImVec2 textSize = ImGui::CalcTextSize(frameNumText.c_str());
+				drawList->AddText(frameBBoxMinScreen + ImVec2(textSize.x * 0.5f, 0), 0xff000000, frameNumText.c_str());
 			}
 
 			// Highlight the hovered frame if we aren't already interacting with another frame.
@@ -333,10 +336,10 @@ void ATimeline::postUpdate(const GameUpdateSets& u) {
 		const float deltaTimeForUpdate = shouldUpdate ? u.dt : 0.f;
 		const float evalTimeToUse = isInEditMode ? m_editingEvaltime : m_gameplayEvalTime;
 
-		auto smoothstep = [](float k) -> float { return 3.f * k * k - 2.f * k * k * k; };
-
 		float smoothedLerpTime = (evalTimeToUse / totalAnimLength);
-		smoothedLerpTime = smoothstep(smoothedLerpTime) * totalAnimLength;
+		if (useLinearInterpolation == false) {
+			smoothedLerpTime = smoothstep(smoothedLerpTime) * totalAnimLength;
+		}
 
 		// Find the keys that we need to use to compute the final transform.
 		int iKey = 0;

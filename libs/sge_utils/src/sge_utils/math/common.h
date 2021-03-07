@@ -235,5 +235,10 @@ template <class T>
 inline T sign(const T& f) {
 	return (f < (T)(0)) ? -(T)(1) : T(1);
 }
+/// @brief Returns a sigmoid like remapping of the specified variable.
+/// @k is expected to be in [0;1] range.
+inline float smoothstep(float k) {
+	return 3.f * k * k - 2.f * k * k * k;
+}
 
 } // namespace sge
