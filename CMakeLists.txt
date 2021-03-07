@@ -184,6 +184,7 @@ add_subdirectory(./libs/mdlconvlib)
 add_subdirectory(./libs/sge_engine)
 add_subdirectory(./sge_editor)
 add_subdirectory(./sge_player)
+add_subdirectory(./project_maker)
 
 set(CMAKE_DEBUG_POSTFIX "" CACHE STRING "" FORCE)
 set(CMAKE_NOOPT_POSTFIX "" CACHE STRING "" FORCE)
