@@ -33,6 +33,13 @@ endif()
 # Caution: there seems to be a bug or something in CMake where instead of copying files to $<CONFIG>/binaries/,
 # Cmake generates a file with no extension "binaries" which contains the files to be copied.
 # As a workaround you need to delete that file and run install again.
+# To fight this phenomenon we manuallu create (not during install unfortunatly) the config directories,
+# hoping that users would not encounter this issue.
+FILE(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/Debug/binaries/)
+FILE(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/NoOpt/binaries/)
+FILE(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/RelWithDebInfo/binaries/)
+FILE(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/Relase/binaries/)
+
 INSTALL(TARGETS ${INSTALL_RUNTIME_TARGETS} RUNTIME DESTINATION $<CONFIG>/binaries/)	
 INSTALL(TARGETS ${INSTALL_RUNTIME_TARGETS} LIBRARY DESTINATION $<CONFIG>/binaries/)	# Not needed on Windows, for Linux these are the *.so files.
 
