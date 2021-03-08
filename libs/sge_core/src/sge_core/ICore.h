@@ -92,6 +92,8 @@ struct SGE_CORE_API ICore {
 #else
 #define SGE_DEBUG_LOG(_str_msg_, ...) \
 	{}
+#define SGE_DEBUG_CHECK(_str_msg_, ...) \
+	{}
 #define SGE_DEBUG_ERR(_str_msg_, ...) \
 	{}
 #define SGE_DEBUG_WAR(_str_msg_, ...) \
