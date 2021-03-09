@@ -41,7 +41,11 @@ FILE(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/RelWithDebInfo/binaries/)
 FILE(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/Release/binaries/)
 
 INSTALL(TARGETS ${INSTALL_RUNTIME_TARGETS} RUNTIME DESTINATION $<CONFIG>/binaries/)	
-INSTALL(TARGETS ${INSTALL_RUNTIME_TARGETS} LIBRARY DESTINATION $<CONFIG>/binaries/)	# Not needed on Windows, for Linux these are the *.so files.
+if(NOT WIN32)
+	# Not needed on Windows DLL go with RUNTIME. For Linux these are the *.so files.
+	# https://cmake.org/cmake/help/latest/command/install.html#targets
+	INSTALL(TARGETS ${INSTALL_RUNTIME_TARGETS} LIBRARY DESTINATION $<CONFIG>/binaries/)	
+endif()
 
 # Lib files (*.lib, *.a and so on)
 INSTALL(TARGETS ${INSTALL_LIBRARIES_TARGETS} ARCHIVE DESTINATION $<CONFIG>/lib/)	

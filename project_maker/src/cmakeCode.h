@@ -84,19 +84,19 @@ STRING(REPLACE "/O2" "/Od" CMAKE_CXX_FLAGS_NOOPT ${CMAKE_CXX_FLAGS_NOOPT})
 
 add_compile_options($<$<CONFIG:NoOpt>:/MD>)
 
-if(EXISTS ${SGE_ENGINE_DIR}/Debug)
+if(EXISTS ${SGE_ENGINE_DIR}/Debug/lib)
 	list(APPEND PLUGIN_AVAILABLE_CONFIGS Debug)
 endif()
 
-if(EXISTS ${SGE_ENGINE_DIR}/NoOpt)
+if(EXISTS ${SGE_ENGINE_DIR}/NoOpt/lib)
 	list(APPEND PLUGIN_AVAILABLE_CONFIGS NoOpt)
 endif()
 
-if(EXISTS ${SGE_ENGINE_DIR}/Release)
+if(EXISTS ${SGE_ENGINE_DIR}/Release/lib)
 	list(APPEND PLUGIN_AVAILABLE_CONFIGS Release)
 endif()
 
-if(EXISTS ${SGE_ENGINE_DIR}/RelWithDebInfo)
+if(EXISTS ${SGE_ENGINE_DIR}/RelWithDebInfo/lib)
 	list(APPEND PLUGIN_AVAILABLE_CONFIGS RelWithDebInfo)
 endif()
 
