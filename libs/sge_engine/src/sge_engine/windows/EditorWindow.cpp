@@ -694,7 +694,41 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 	}
 	ImGui::EndChild();
 
-	ImGui::DockSpace(ImGui::GetID("SGE_CentralDock"), ImVec2(0.f, 0.f), ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode);
+	ImGuiID dockSpaceID = ImGui::GetID("SGE_CentralDock");
+
+	// Check if ImGui loaded any layout from the imgui_layout_cache.ini file.
+	// If so we assume that this is not the 1st run of the editor and the user has configured the windows
+	// the way they like. Otherwise, we assume this is first use and load the default layout.
+	if (ImGui::DockBuilderGetNode(dockSpaceID) == NULL) {
+		const ImVec2 avilableSpace = ImGui::GetContentRegionAvail();
+
+		ImGui::DockBuilderRemoveNode(dockSpaceID); // clear any previous layout
+		ImGui::DockBuilderAddNode(dockSpaceID, ImGuiDockNodeFlags_DockSpace);
+		ImGui::DockBuilderSetNodeSize(dockSpaceID, avilableSpace);
+
+		auto dock_id_left = ImGui::DockBuilderSplitNode(dockSpaceID, ImGuiDir_Left, 0.2f, nullptr, &dockSpaceID);
+		auto dock_id_left_down = ImGui::DockBuilderSplitNode(dock_id_left, ImGuiDir_Down, 0.2f, nullptr, &dock_id_left);
+		auto dock_id_down = ImGui::DockBuilderSplitNode(dockSpaceID, ImGuiDir_Down, 0.25f, nullptr, &dockSpaceID);
+		auto dock_id_right = ImGui::DockBuilderSplitNode(dockSpaceID, ImGuiDir_Right, 0.25f, nullptr, &dockSpaceID);
+
+		ImGui::DockBuilderDockWindow(ICON_FK_GLOBE " Scene", dockSpaceID);
+
+		ImGui::DockBuilderDockWindow(ICON_FK_FILE " Assets", dock_id_down);
+		ImGui::DockBuilderDockWindow("Prefabs", dock_id_down);
+		ImGui::DockBuilderDockWindow("Actor Create", dock_id_down);
+		ImGui::DockBuilderDockWindow(ICON_FK_LIST " Log", dock_id_down);
+
+		ImGui::DockBuilderDockWindow(ICON_FK_SEARCH " Outliner", dock_id_left);
+		ImGui::DockBuilderDockWindow("Tool Settings", dock_id_left_down);
+
+		ImGui::DockBuilderDockWindow(ICON_FK_COGS " World Settings", dock_id_right);
+		ImGui::DockBuilderDockWindow(ICON_FK_COG " Property Editor", dock_id_right);
+
+		ImGui::DockBuilderFinish(dockSpaceID);
+	} else {
+		ImGui::DockSpace(dockSpaceID, ImVec2(0.f, 0.f), ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode);
+	}
+
 	ImGui::End();
 
 	if (m_isWelcomeWindowOpened && ImGui::Begin("Welcome Window", &m_isWelcomeWindowOpened,
