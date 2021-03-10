@@ -193,7 +193,7 @@ void SGEImGui::initialize(SGEContext* sgecon_arg, FrameTarget* frameTarget, cons
 
 	// io.Fonts->AddFontDefault();
 
-	{ io.Fonts->AddFontFromFileTTF("assets/editor/fonts/UbuntuMono-Regular.ttf", 16.0f); }
+	{ io.Fonts->AddFontFromFileTTF("assets/editor/fonts/UbuntuMono-Regular.ttf", 32.0f); }
 
 	// merge in icons from Font Awesome
 	{
@@ -201,10 +201,10 @@ void SGEImGui::initialize(SGEContext* sgecon_arg, FrameTarget* frameTarget, cons
 		ImFontConfig icons_config;
 		icons_config.MergeMode = true;
 		icons_config.PixelSnapH = true;
-		io.Fonts->AddFontFromFileTTF("assets/editor/fonts/" FONT_ICON_FILE_NAME_FK, 16.0f, &icons_config, icons_ranges);
+		io.Fonts->AddFontFromFileTTF("assets/editor/fonts/" FONT_ICON_FILE_NAME_FK, 32.0f, &icons_config, icons_ranges);
 	}
 
-
+	io.FontGlobalScale = 0.5f;
 
 	// use FONT_ICON_FILE_NAME_FAR if you want regular instead of solid
 

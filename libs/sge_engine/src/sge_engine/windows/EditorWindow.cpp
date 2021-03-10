@@ -734,9 +734,11 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 	if (m_isWelcomeWindowOpened && ImGui::Begin("Welcome Window", &m_isWelcomeWindowOpened,
 	                                            ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar |
 	                                                ImGuiWindowFlags_AlwaysAutoResize)) {
-		ImGui::TextColored(ImVec4(0.25f, 1.f, 0.63f, 1.f), "Welcome to SGE Editor");
-		ImGui::NewLine();
 
+		ImGui::SetWindowFontScale(2.f);
+		ImGui::TextColored(ImVec4(0.25f, 1.f, 0.63f, 1.f), "Welcome to SGEEditor");
+		ImGui::SetWindowFontScale(1.f);
+		ImGui::NewLine();
 
 		if (m_rescentOpenedSceneFiles.empty()) {
 			ImGui::Text("Your reascenlty opened scene files will show here!");

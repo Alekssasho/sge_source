@@ -651,7 +651,7 @@ void PropertyEditorWindow::update(SGEContext* const UNUSED(sgecon), const InputS
 		return;
 	}
 
-	if (ImGui::Begin(m_windowName.c_str(), &m_isOpened)) {
+	if (ImGui::Begin(m_windowName.c_str(), &m_isOpened, ImGuiWindowFlags_AlwaysVerticalScrollbar)) {
 		GameObject* gameObject =
 		    !m_inspector.m_selection.empty() ? m_inspector.getWorld()->getObjectById(m_inspector.m_selection[0].objectId) : nullptr;
 		if (gameObject == nullptr) {

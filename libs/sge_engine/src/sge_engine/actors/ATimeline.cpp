@@ -159,9 +159,8 @@ void TimelineWindow::update(SGEContext* const UNUSED(sgecon), const InputState& 
 		// By default in ImGui if the user holds the left mouse button in a window (but not over widget) the window will be moved.
 		// We do not want that to happen when the users scrubs the timeline. So to workaround that we tell ImGui that the mouse
 		// is interacting with something by setting the active id in the window.
-		if(ImGui::IsMouseHoveringRect(timelineRectScreen.Min, timelineRectScreen.Max) && ImGui::IsAnyMouseDown()) {
-			ImGui::SetActiveID(ImGui::GetID("TimelineFakeID"), ImGui::GetCurrentWindow());
-		}
+
+		ImGui::InvisibleButton("Timeline invisible Button", ImVec2(totalTimelineWidthPixels, kTimelineHeightPixels));
 
 		ImRect timelineClipBBox;
 		timelineClipBBox = timelineRectScreen;
@@ -234,10 +233,12 @@ void TimelineWindow::update(SGEContext* const UNUSED(sgecon), const InputState& 
 		if (ImGui::BeginPopup("Timeline Frame Right Click Menu")) {
 			const bool hasKeyframe = timeline->keyFrames.find_element_index(m_lastRightClickedFrame) > -1;
 
-			if (ImGui::MenuItem(ICON_FK_PAPERCLIP " Set Key")) {
+			if (ImGui::MenuItem(ICON_FK_KEY " Set Key")) {
 				const Actor* const targetActor = m_inspector->getWorld()->getActorById(timeline->targetActorId);
-				timeline->keyFrames[m_lastRightClickedFrame] = targetActor->getTransform();
-				createUndo();
+				if (targetActor) {
+					timeline->keyFrames[m_lastRightClickedFrame] = targetActor->getTransform();
+					createUndo();
+				}
 			}
 
 			if (hasKeyframe && ImGui::MenuItem(ICON_FK_FLOPPY_O " Copy")) {
