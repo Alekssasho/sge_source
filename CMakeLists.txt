@@ -214,4 +214,7 @@ sge_mark_external_target(mcpp)
 sge_mark_external_target(HLSLParser)
 
 include(engine_install.cmake)
+include(copy_engine_helper.cmake)
 
+# Samples
+add_subdirectory(samples/Demo)
