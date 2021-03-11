@@ -125,12 +125,12 @@ void EngineGlobal::update(float dt) {
 }
 
 void EngineGlobal::changeActivePlugin(IPlugin* pPlugin) {
-	m_activePlugin = pPlugin;
+	m_activePlugin = pPlugin; 
 	m_propertyEditorUIGenFuncs.clear();
 
 	for (auto& fn : getPluginRegisterFunctions()) {
 		if (fn) {
-			fn();
+			fn(); 
 		}
 	}
 

@@ -10,5 +10,5 @@ target_link_libraries(Demo PUBLIC sge_engine)
 target_link_libraries(Demo PUBLIC sge_renderer)
 target_link_libraries(Demo PUBLIC sge_utils)
 
-game_post_build_assemble(Demo ${CMAKE_SOURCE_DIR}/output/Demo)
+sge_generate_assemble_and_debug_target_for_game(Demo ${CMAKE_SOURCE_DIR}/output/Demo)
 

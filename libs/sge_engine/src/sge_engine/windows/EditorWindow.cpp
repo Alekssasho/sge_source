@@ -87,11 +87,11 @@ EditorWindow::EditorWindow(WindowBase& nativeWindow, std::string windowName)
     , m_windowName(std::move(windowName)) {
 	m_gameDrawer.reset(getEngineGlobal()->getActivePlugin()->allocateGameDrawer());
 
-	getEngineGlobal()->subscribeOnPluginChange([this]() -> void { onGamePluginChanged(); });
-
-	sgeAssert(m_gameDrawer != nullptr);
-
-	newScene();
+	getEngineGlobal()->subscribeOnPluginChange([this]() -> void { onGamePluginChanged(); }).abandon();
+	 
+	sgeAssert(m_gameDrawer != nullptr);   
+	 
+	newScene(); 
 
 	getEngineGlobal()->addWindow(new AssetsWindow(ICON_FK_FILE " Assets", m_sceneInstance.getInspector()));
 	getEngineGlobal()->addWindow(new OutlinerWindow(ICON_FK_SEARCH " Outliner", m_sceneInstance.getInspector()));

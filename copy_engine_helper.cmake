@@ -1,38 +1,55 @@
-macro(game_post_build_assemble target_name target_output_dir)
 
-	add_custom_command(TARGET ${target_name} POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${target_name}> ${target_output_dir}/
+# Generates a target that aseembles the game plugin specfied by @target_name
+# and the game engine libraries in a single dirrectory.
+
+# Assembling ideally could be done in the ${target_name} target, however in Visual Studio
+# if a project (exe/dll/lib) is already built, Visual Studio will not run the post build step.
+# This results in a very tedious behavior where if a dependancy of the game is changed, for example sge_engine,
+# but the game isn't, tne post build step will not get executed, thus the sge_engine will not get copied
+# and we will be debugging some old version of sge_engine.
+# ... SO ...
+# To work around this an additional target is make named ${target_name}_VSAseembleAndDebug
+# By being an "Utility Target" Visual Studio will execute its post build step everytime.
+#
+# So for the best debugging experience set your start-up project in Visual Studio to be
+# ${target_name}_VSAseembleAndDebug and just hit F5 (or Ctrl+F5) and debug happily!
+macro(sge_generate_assemble_and_debug_target_for_game target_name target_output_dir)
+	add_custom_target(${target_name}_VSAseembleAndDebug ALL DEPENDS ${target_name})
+
+	add_dependencies(${target_name}_VSAseembleAndDebug ${target_name})
+
+	add_custom_command(TARGET ${target_name}_VSAseembleAndDebug PRE_BUILD
+		COMMAND ${CMAKE_COMMAND} -E remove $<TARGET_FILE:${target_name}> ${target_output_dir}/$<TARGET_FILE:${target_name}>
 	)
 
-	add_custom_command(TARGET ${target_name} POST_BUILD
+	add_custom_command(TARGET ${target_name}_VSAseembleAndDebug POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:sge_editor> ${target_output_dir}/
 	)
 	
-	add_custom_command(TARGET ${target_name} POST_BUILD
+	add_custom_command(TARGET ${target_name}_VSAseembleAndDebug POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:sge_core> ${target_output_dir}/
 	)
 	
-	add_custom_command(TARGET ${target_name} PRE_BUILD
+	add_custom_command(TARGET ${target_name}_VSAseembleAndDebug POST_BUILD
 					   COMMAND ${CMAKE_COMMAND} -E copy_directory
                        ${CMAKE_SOURCE_DIR}/libs/sge_core/core_shaders/ ${target_output_dir}/core_shaders)
 	
-	add_custom_command(TARGET ${target_name} POST_BUILD
+	add_custom_command(TARGET ${target_name}_VSAseembleAndDebug POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:sge_engine> ${target_output_dir}/
 	)
 	
-	add_custom_command(TARGET ${target_name} POST_BUILD
+	add_custom_command(TARGET ${target_name}_VSAseembleAndDebug POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:SDL2> ${target_output_dir}/
 	)
 	
-	add_custom_command(TARGET ${target_name} PRE_BUILD
+	add_custom_command(TARGET ${target_name}_VSAseembleAndDebug POST_BUILD
 					   COMMAND ${CMAKE_COMMAND} -E copy_directory
                        ${CMAKE_SOURCE_DIR}/libs/sge_engine/assets/ ${target_output_dir}/assets)
 					   
 	# Visual Studio Debugging
-	set_target_properties(${target_name} PROPERTIES 
+	set_target_properties(${target_name}_VSAseembleAndDebug PROPERTIES 
 		VS_DEBUGGER_WORKING_DIRECTORY "${target_output_dir}")
 		
-	set_target_properties(${target_name} PROPERTIES 
+	set_target_properties(${target_name}_VSAseembleAndDebug PROPERTIES 
 		VS_DEBUGGER_COMMAND "${target_output_dir}/$<TARGET_FILE_NAME:sge_editor>")
-
 endmacro()

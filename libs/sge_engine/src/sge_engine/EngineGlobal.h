@@ -42,7 +42,7 @@ struct IEngineGlobal {
 	virtual void changeActivePlugin(IPlugin* pPlugin) = 0; 
 	virtual IPlugin* getActivePlugin() = 0;
 	virtual void notifyOnPluginPreUnload() = 0;
-	virtual EventSubscription subscribeOnPluginChange(std::function<void()> fn) = 0;
+	virtual [[nodiscard]] EventSubscription subscribeOnPluginChange(std::function<void()> fn) = 0;
 	virtual EventSubscription subscribeOnPluginPreUnload(std::function<void()> fn) = 0;
 
 	///
