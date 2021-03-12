@@ -41,6 +41,7 @@ struct ATimeline : public Actor, public IActorCustomAttributeEditorTrait {
 	bool doesEditModeNeedsUpdate = false;
 
 	bool m_isEnabled = false;
+	bool m_useSmoothInterpolation = false;
 	float m_gameplayEvalTime = 0.f;
 	float m_editingEvaltime = 0;
 	bool moveObjectsOnTop = false;

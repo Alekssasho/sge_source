@@ -62,11 +62,10 @@ void ModelPreviewWidget::doWidget(SGEContext* const sgecon, const InputState& is
 
 	QuickDraw& debugDraw = getCore()->getQuickDraw();
 
-	debugDraw.changeRenderDest(sgecon, m_frameTarget, m_frameTarget->getViewport());
 
 	debugDraw.drawWired_Clear();
 	debugDraw.drawWiredAdd_Grid(vec3f(0), vec3f::getAxis(0), vec3f::getAxis(2), 5, 5, 0xFF333733);
-	debugDraw.drawWired_Execute(proj * lookAt, nullptr);
+	debugDraw.drawWired_Execute(rdest, proj * lookAt, nullptr);
 
 	GeneralDrawMod mods;
 	InstanceDrawMods imods;
@@ -160,8 +159,6 @@ void ModelPreviewWindow::update(SGEContext* const sgecon, const InputState& is) 
 			m_frameTarget = sgecon->getDevice()->requestResource<FrameTarget>();
 			m_frameTarget->create2D(64, 64);
 		}
-
-		RenderDestination rdest(sgecon, m_frameTarget);
 
 		ImGui::Columns(2);
 		ImGui::BeginChild("sidebar_wnd");
@@ -268,11 +265,10 @@ void ModelPreviewWindow::update(SGEContext* const sgecon, const InputState& is) 
 
 			QuickDraw& debugDraw = getCore()->getQuickDraw();
 
-			debugDraw.changeRenderDest(sgecon, m_frameTarget, m_frameTarget->getViewport());
+			RenderDestination rdest(sgecon, m_frameTarget, m_frameTarget->getViewport());
 
-			debugDraw.drawWired_Clear();
 			debugDraw.drawWiredAdd_Grid(vec3f(0), vec3f::getAxis(0), vec3f::getAxis(2), 5, 5, 0xFF333733);
-			debugDraw.drawWired_Execute(proj * lookAt, nullptr);
+			debugDraw.drawWired_Execute(rdest, proj * lookAt, nullptr);
 
 			getCore()->getModelDraw().draw(rdest, camera.eyePosition(), -camera.orbitPoint.normalized0(), proj * lookAt,
 			                               mat4f::getIdentity(), GeneralDrawMod(), m_eval, InstanceDrawMods());

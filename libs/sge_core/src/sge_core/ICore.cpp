@@ -157,122 +157,10 @@ void Core::setup(SGEDevice* const sgedev) {
 		m_graphicsResources.BS_addativeColor = sgedev->requestBlendState(BlendStateDesc::getColorAdditiveBlending());
 	}
 
-#if 0
-	auto createShadingProgram = [&sgedev](const char* wholeProgramCode) -> ShadingProgram*
-	{
-		ShadingProgram* result = sgedev->requestResource<ShadingProgram>();
-		result->create(false, wholeProgramCode, wholeProgramCode);
-		return result;
-	};
-#endif
-
-	m_quickDraw.initialize(sgedev->getContext(), sgedev->getWindowFrameTarget(), sgedev->getWindowFrameTarget()->getViewport());
+	m_quickDraw.initialize(sgedev->getContext());
 	m_debugDraw.initialze(sgedev);
 	return;
 }
-
-#if 0
-void Global::UpdateAndDraw()
-{
-	// Create the menu 
-	if (ImGui::BeginMainMenuBar())
-	{
-		for(const auto& menu : m_menuItems)
-		{
-			if(ImGui::BeginMenu(menu.first.c_str()))
-			{
-				for(const auto& menuItem : menu.second)
-				{
-					if(ImGui::MenuItem(menuItem.first.c_str())) menuItem.second();
-				}
-				ImGui::EndMenu();
-			}
-		}
-
-		if(ImGui::BeginMenu("Engine"))
-		{
-			if(ImGui::MenuItem("ModelPreviewWnd2")) addFloatingWindow(new ModelPreviewWnd2, "mdl preview");
-			if(ImGui::MenuItem("Info")) addFloatingWindow(new WindowInfo, "Info");
-			if(ImGui::MenuItem("Clean Unused Assets")) {
-				sgeAssert(false && "Not implemented!");
-				//m_pAssetManager->DoCleanUp();
-			}
-			if(ImGui::MenuItem("Rescan Assets")) {
-				m_assetLibrary->scanForAvailableAssets("assets");
-			}
-			if(ImGui::MenuItem("Toggle VSync")) {
-				
-				getDevice()->setVsync(getDevice()->getVsync() == false);
-			}
-
-			ImGui::EndMenu();
-		}
-
-		ImGui::EndMainMenuBar();
-	}
-
-
-	if(state.texturesWindowDisplayed) {
-		if(ImGui::Begin("Textures", &state.texturesWindowDisplayed, ImGuiWindowFlags_AlwaysAutoResize))
-		{
-			static int activeTxtureIdx=-1;
-
-			ChunkContainer<TextureImpl>* textures;
-			SGEDevice* sgedev = getCore()->getAssetLib()->getDevice();
-			SGEDeviceImpl* const nativeDevice = (SGEDeviceImpl*)sgedev;
-			
-			nativeDevice->GetContainerForResource<TextureImpl>(&textures);
-
-			ImGui::BeginChild("Textures", ImVec2(320, 256));
-
-			int numTextureOnSameLine=0;
-			for(int t=0; t < textures->get_highest_count(); ++t)
-			{
-				if(textures->is_in_freelist(t)) continue;
-
-				Texture tex = Texture((*textures)[t]);
-				if(tex.isValid() && tex.getDesc().textureType == TextureDesc::Texture2D && TextureUsage::CanBeShaderResource(tex.getDesc().usage))
-				{
-					if(ImGui::ImageButton(tex.ptr, ImVec2(48, 48)))
-					{
-						activeTxtureIdx = t;
-					}
-
-					if(numTextureOnSameLine == 4)
-					{
-						numTextureOnSameLine=0;
-					}
-					else
-					{
-						numTextureOnSameLine++;
-						ImGui::SameLine();
-					}
-				}
-			}
-
-			ImGui::EndChild();
-
-			ImGui::SameLine();
-
-			ImGui::BeginChild("Texture", ImVec2(256, 256));
-			if(activeTxtureIdx != -1 && textures->is_in_freelist(activeTxtureIdx) == false)
-			{
-				TextureImpl* activeTxture = textures->at(activeTxtureIdx);
-
-				if(activeTxture && activeTxture->IsValid()) {
-					float ratio = (float)activeTxture->GetDesc().texture2D.width / activeTxture->GetDesc().texture2D.height;
-					ImGui::Text("Resolution: %dx%d\nReferences: %d", activeTxture->GetDesc().texture2D.width, activeTxture->GetDesc().texture2D.height, activeTxture->GetProxyCount());
-
-					ImGui::Image(activeTxture, ImVec2(256, 256 / ratio));
-				}
-			}
-			ImGui::EndChild();
-
-		}
-		ImGui::End();
-	}
-}
-#endif
 
 void Core::drawGizmo(const RenderDestination& rdest, const Gizmo3D& gizmo, const mat4f& projView) {
 	if (gizmo.getMode() == Gizmo3D::Mode_Rotation)
@@ -289,9 +177,6 @@ void Core::drawGizmo(const RenderDestination& rdest, const Gizmo3D& gizmo, const
 }
 
 void Core::drawTranslationGizmo(const RenderDestination& rdest, const Gizmo3DTranslation& gizmo, const mat4f& projView) {
-	m_quickDraw.setFrameTarget(rdest.frameTarget);
-	m_quickDraw.setViewport(rdest.viewport);
-
 	const mat4f world = mat4f::getTranslation(gizmo.getEditedTranslation()) * mat4f::getScaling(gizmo.getDisplayScale());
 	const mat4f pvw = projView * world;
 
@@ -323,7 +208,7 @@ void Core::drawTranslationGizmo(const RenderDestination& rdest, const Gizmo3DTra
 	addArrow(axes[1], axes[2], actionMask.only_y() ? Gizmo_ActiveColor : Gizmo_BaseTransp + 0x00ff00);
 	addArrow(axes[2], axes[1], actionMask.only_z() ? Gizmo_ActiveColor : Gizmo_BaseTransp + 0xff0000);
 
-	m_quickDraw.drawWired_Execute(pvw, getGraphicsResources().BS_backToFrontAlpha);
+	m_quickDraw.drawWired_Execute(rdest, pvw, getGraphicsResources().BS_backToFrontAlpha);
 
 	// Draw the planar translation triangles.
 	const auto addQuad = [&](const vec3f o, const vec3f e1, const vec3f e2, const int color) {
@@ -341,15 +226,12 @@ void Core::drawTranslationGizmo(const RenderDestination& rdest, const Gizmo3DTra
 	addQuad(axes[0] * quadOffset + axes[1] * quadOffset, axes[0] * quadLength, axes[1] * quadLength,
 	        actionMask.only_xy() ? Gizmo_ActiveColor : Gizmo_BaseTransp + 0xff0000);
 
-	m_quickDraw.drawSolid_Execute(pvw, false, getGraphicsResources().BS_backToFrontAlpha);
+	m_quickDraw.drawSolid_Execute(rdest, pvw, false, getGraphicsResources().BS_backToFrontAlpha);
 
 	return;
 }
 
 void Core::drawRotationGizmo(const RenderDestination& rdest, const Gizmo3DRotation& gizmo, const mat4f& projView) {
-	m_quickDraw.setFrameTarget(rdest.frameTarget);
-	m_quickDraw.setViewport(rdest.viewport);
-
 	mat4f const rotation = mat4f::getRotationQuat(gizmo.getEditedRotation());
 	mat4f const world = mat4f::getTranslation(gizmo.getInitialTranslation()) * rotation * mat4f::getScaling(gizmo.getDisplayScale());
 	mat4f const pvw = projView * world;
@@ -379,7 +261,7 @@ void Core::drawRotationGizmo(const RenderDestination& rdest, const Gizmo3DRotati
 			prevVert = circleVert;
 		}
 
-		m_quickDraw.drawSolid_Execute(pvw, false, this->m_graphicsResources.BS_backToFrontAlpha);
+		m_quickDraw.drawSolid_Execute(rdest, pvw, false, this->m_graphicsResources.BS_backToFrontAlpha);
 	}
 
 	// Draw the wires.
@@ -412,14 +294,11 @@ void Core::drawRotationGizmo(const RenderDestination& rdest, const Gizmo3DRotati
 
 		m_quickDraw.drawWiredAdd_Basis(mat4f::getDiagonal(0.5f));
 
-		m_quickDraw.drawWired_Execute(pvw, getGraphicsResources().BS_backToFrontAlpha);
+		m_quickDraw.drawWired_Execute(rdest, pvw, getGraphicsResources().BS_backToFrontAlpha);
 	}
 }
 
 void Core::drawScaleGizmo(const RenderDestination& rdest, const Gizmo3DScale& gizmo, const mat4f& projView) {
-	m_quickDraw.setFrameTarget(rdest.frameTarget);
-	m_quickDraw.setViewport(rdest.viewport);
-
 	const mat4f world = mat4f::getTRS(gizmo.getInitialTranslation(), gizmo.getInitalRotation(), vec3f(gizmo.getDisplayScale()));
 	const mat4f pvw = projView * world;
 
@@ -430,7 +309,7 @@ void Core::drawScaleGizmo(const RenderDestination& rdest, const Gizmo3DScale& gi
 	m_quickDraw.drawWiredAdd_Line(vec3f(0.f), vec3f::getAxis(1), actionMask.only_y() ? 0xff00ffff : 0xff00ff00);
 	m_quickDraw.drawWiredAdd_Line(vec3f(0.f), vec3f::getAxis(2), actionMask.only_z() ? 0xff00ffff : 0xffff0000);
 
-	m_quickDraw.drawWired_Execute(pvw, getGraphicsResources().BS_backToFrontAlpha);
+	m_quickDraw.drawWired_Execute(rdest, pvw, getGraphicsResources().BS_backToFrontAlpha);
 
 	// Draw the planar sclaing trapezoids.
 	const auto addTrapezoid = [&](const vec3f& ax0, const vec3f& ax1, const int color) {
@@ -453,13 +332,10 @@ void Core::drawScaleGizmo(const RenderDestination& rdest, const Gizmo3DScale& gi
 	m_quickDraw.drawSolidAdd_Triangle(vec3f(0.f), 0.22f * vec3f::getAxis(0), 0.22f * vec3f::getAxis(1),
 	                                  actionMask.only_xyz() ? Gizmo_BaseTransp + 0x00bbbb : Gizmo_BaseTransp + 0xbbbbbb);
 
-	m_quickDraw.drawSolid_Execute(pvw, false, getGraphicsResources().BS_backToFrontAlpha);
+	m_quickDraw.drawSolid_Execute(rdest, pvw, false, getGraphicsResources().BS_backToFrontAlpha);
 }
 
 void Core::drawScaleVolumeGizmo(const RenderDestination& rdest, const Gizmo3DScaleVolume& gizmo, const mat4f& projView) {
-	m_quickDraw.setFrameTarget(rdest.frameTarget);
-	m_quickDraw.setViewport(rdest.viewport);
-
 	const mat4f os2ws = gizmo.getEditedTrasform().toMatrix();
 	const AABox3f boxOs = gizmo.getInitialBBoxOS();
 	const float handleSizeWS = gizmo.getHandleRadiusWS();
@@ -487,11 +363,11 @@ void Core::drawScaleVolumeGizmo(const RenderDestination& rdest, const Gizmo3DSca
 		const vec3f e2 = quat_mul_pos(gizmo.getInitialTransform().r, vec3f::getAxis((iAxis + 2) % 3)) * handleSizeWS;
 
 		m_quickDraw.drawSolidAdd_QuadCentered(handlePosWs, e1, e2, actionMask.hasOnly(SignedAxis(iAxis)) ? activeColor : axisColors[iAxis]);
-		m_quickDraw.drawSolid_Execute(projView, false, this->m_graphicsResources.BS_backToFrontAlpha);
+		m_quickDraw.drawSolid_Execute(rdest, projView, false, this->m_graphicsResources.BS_backToFrontAlpha);
 	}
 
 	m_quickDraw.drawWiredAdd_Box(os2ws, gizmo.getInitialBBoxOS(), 0xffffffff);
-	m_quickDraw.drawWired_Execute(projView);
+	m_quickDraw.drawWired_Execute(rdest, projView);
 }
 
 Core g_moduleLocalCore;

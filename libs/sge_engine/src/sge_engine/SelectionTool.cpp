@@ -233,7 +233,7 @@ void SelectionTool::drawOverlay(const GameDrawSets& drawSets) {
 		rect.expand(m_lastUpdateCursorPos);
 
 		BlendStateDesc const bsd = BlendStateDesc::GetDefaultBackToFrontAlpha();
-		drawSets.quickDraw->drawRect(rect.min.x, rect.min.y, rect.size().x, rect.size().y, vec4f(0.f, 0.f, 0.f, 0.6f),
+		drawSets.quickDraw->drawRect(drawSets.rdest, rect.min.x, rect.min.y, rect.size().x, rect.size().y, vec4f(0.f, 0.f, 0.f, 0.6f),
 		                             sgedev->requestBlendState(bsd));
 	}
 }

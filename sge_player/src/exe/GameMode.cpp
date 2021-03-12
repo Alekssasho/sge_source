@@ -39,8 +39,6 @@ void GameMode::draw(const RenderDestination& rdest) {
 	drawSets.gameCamera = gameCamera;
 	drawSets.gameDrawer = m_gameDrawer;
 
-	drawSets.quickDraw->changeRenderDest(drawSets.rdest);
-
 	// Draw.
 	m_gameDrawer->prepareForNewFrame();
 	m_gameDrawer->updateShadowMaps(drawSets);

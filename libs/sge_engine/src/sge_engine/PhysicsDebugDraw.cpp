@@ -7,12 +7,7 @@ namespace sge {
 void BulletPhysicsDebugDraw::preDebugDraw(const mat4f& projView, QuickDraw* const debugDraw, const RenderDestination& rdest) {
 	m_projView = projView;
 	m_quickDraw = debugDraw;
-
-	sgeAssert(m_quickDraw != nullptr);
-	if (m_quickDraw) {
-		m_quickDraw->drawWired_Clear();
-		m_quickDraw->changeRenderDest(rdest.sgecon, rdest.frameTarget, rdest.viewport);
-	}
+	cachedRdest = rdest;
 }
 
 void BulletPhysicsDebugDraw::postDebugDraw() {
@@ -21,7 +16,10 @@ void BulletPhysicsDebugDraw::postDebugDraw() {
 		return;
 	}
 
-	m_quickDraw->drawWired_Execute(m_projView);
+	m_quickDraw->drawWired_Execute(cachedRdest, m_projView);
+
+	// Clear the result in order to not debug any strange crashes with invalidated pointers.
+	cachedRdest = RenderDestination();
 }
 
 void BulletPhysicsDebugDraw::reportErrorWarning([[maybe_unused]] const char* warningString) {

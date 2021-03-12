@@ -87,12 +87,11 @@ void SceneWindow::update(SGEContext* const sgecon, const InputState& isOriginal)
 		drawSets.gameCamera = gameCamera;
 
 		if (world->gridShouldDraw) {
-			drawSets.quickDraw->changeRenderDest(drawSets.rdest);
 			drawSets.quickDraw->drawWired_Clear();
 			drawSets.quickDraw->drawWiredAdd_Grid(vec3f(0.f), vec3f::getAxis(0, world->gridSegmentsSpacing),
 			                                      vec3f::getAxis(2, world->gridSegmentsSpacing), world->gridNumSegments.x,
 			                                      world->gridNumSegments.y, 0xFF888888);
-			drawSets.quickDraw->drawWired_Execute(drawSets.drawCamera->getProjView(),
+			drawSets.quickDraw->drawWired_Execute(drawSets.rdest, drawSets.drawCamera->getProjView(),
 			                                      getCore()->getGraphicsResources().BS_backToFrontAlpha);
 		}
 

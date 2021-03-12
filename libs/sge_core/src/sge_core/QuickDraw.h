@@ -1,10 +1,10 @@
 #pragma once
 
-#include "sgecore_api.h"
+#include "sge_renderer/renderer/renderer.h"
 #include "sge_utils/math/Box.h"
 #include "sge_utils/math/mat4.h"
 #include "sge_utils/math/primitives.h"
-#include "sge_renderer/renderer/renderer.h"
+#include "sgecore_api.h"
 #include <stb_truetype.h>
 
 #include "GeomGen.h"
@@ -55,23 +55,24 @@ struct SGE_CORE_API QuickDraw {
 		sge::vec2f uv;
 	};
 
-	QuickDraw()
-	    : m_frameTarget(nullptr) {}
+	QuickDraw() = default;
 
-	bool initialize(SGEContext* context, FrameTarget* frameTarget, const Rect2s& viewport);
-
-	void setContext(SGEContext* context);
-	void setViewport(const Rect2s& viewport);
-	void setFrameTarget(FrameTarget* frameTarget);
-	void changeRenderDest(SGEContext* context, FrameTarget* frameTarget, const Rect2s& viewport);
-	void changeRenderDest(const RenderDestination& rdest) { changeRenderDest(rdest.sgecon, rdest.frameTarget, rdest.viewport); }
+	bool initialize(SGEContext* context);
 
 	// 2D and Text drawing.
-	void drawRect(const AABox2f& boxPixels, const vec4f& rgba, BlendState* blendState = nullptr);
-	void drawRect(float xPixels, float yPixels, float width, float height, const vec4f& rgba, BlendState* blendState = nullptr);
-	void drawTriLeft(const AABox2f& boxPixels, float rotation, const vec4f& rgba, BlendState* blendState = nullptr);
+	void drawRect(const RenderDestination& rdest, const AABox2f& boxPixels, const vec4f& rgba, BlendState* blendState = nullptr);
+	void drawRect(const RenderDestination& rdest,
+	              float xPixels,
+	              float yPixels,
+	              float width,
+	              float height,
+	              const vec4f& rgba,
+	              BlendState* blendState = nullptr);
+	void drawTriLeft(
+	    const RenderDestination& rdest, const AABox2f& boxPixels, float rotation, const vec4f& rgba, BlendState* blendState = nullptr);
 
-	void drawRectTexture(float xPixels,
+	void drawRectTexture(const RenderDestination& rdest,
+	                     float xPixels,
 	                     float yPixels,
 	                     float width,
 	                     float height,
@@ -82,7 +83,8 @@ struct SGE_CORE_API QuickDraw {
 	                     float alphaMult = 1.f);
 
 
-	void drawRectTexture(const AABox2f& boxPixels,
+	void drawRectTexture(const RenderDestination& rdest,
+	                     const AABox2f& boxPixels,
 	                     Texture* texture,
 	                     BlendState* blendState = nullptr,
 	                     vec2f topUV = vec2f(0),
@@ -90,6 +92,7 @@ struct SGE_CORE_API QuickDraw {
 	                     float alphaMult = 1.f);
 
 	void drawTexture(
+	    const RenderDestination& rdest,
 	    float xPixels,
 	    float yPixels,
 	    float width,
@@ -100,8 +103,13 @@ struct SGE_CORE_API QuickDraw {
 	    float alphaMult = 1.f); // Draws a textured quad using width and auto picking width based on the aspect ratio of the image.
 
 	/// @param [in] posPixels the position of the 1st letter bottom left corner.
-	void drawTextLazy(
-	    DebugFont& font, vec2f posPixels, const vec4f& rgba, const char* text, float height = -1.f, const Rect2s* scissors = nullptr);
+	void drawTextLazy(const RenderDestination& rdest,
+	                  DebugFont& font,
+	                  vec2f posPixels,
+	                  const vec4f& rgba,
+	                  const char* text,
+	                  float height = -1.f,
+	                  const Rect2s* scissors = nullptr);
 
 	// These methods add the specified primitive to the rendering queue.
 	// The queue is executed(and then cleared by) drawWired_Execute
@@ -126,17 +134,23 @@ struct SGE_CORE_API QuickDraw {
 
 	// Removes all curretly queued primitives for drawing.
 	void drawWired_Clear();
-	void drawWired_Execute(const mat4f& projViewWorld, BlendState* blendState = nullptr, DepthStencilState* dss = nullptr);
+	void drawWired_Execute(const RenderDestination& rdest,
+	                       const mat4f& projViewWorld,
+	                       BlendState* blendState = nullptr,
+	                       DepthStencilState* dss = nullptr);
 
 	void drawSolidAdd_Triangle(const vec3f a, const vec3f b, const vec3f c, const uint32 rgba);
 	void drawSolidAdd_Quad(const vec3f& origin, const vec3f& ex, const vec3f& ey, const uint32 rgba);
 	void drawSolidAdd_QuadCentered(const vec3f& center, const vec3f& exHalf, const vec3f& eyHalf, const uint32 rgba);
 
-	void drawSolid_Execute(const mat4f& projViewWorld, bool shouldUseCulling = true, BlendState* blendState = nullptr);
+	void drawSolid_Execute(const RenderDestination& rdest,
+	                       const mat4f& projViewWorld,
+	                       bool shouldUseCulling = true,
+	                       BlendState* blendState = nullptr);
 
   private:
-	void initalize2DDrawResources();
-	void initalize3DDrawResources();
+	void initalize2DDrawResources(SGEContext* context);
+	void initalize3DDrawResources(SGEContext* context);
 
 	//------------------------------------------------------
 	// Common
@@ -147,10 +161,6 @@ struct SGE_CORE_API QuickDraw {
 	int uvRegion_strIdx = 0;
 	int color_strIdx = 0;
 	int alphaMult_strIdx = 0;
-
-	SGEContext* m_sgecon = nullptr;
-	FrameTarget* m_frameTarget = nullptr;
-	Rect2s m_viewport;
 
 	GpuHandle<DepthStencilState> dssLessEqual;
 	GpuHandle<RasterizerState> rsDefault;

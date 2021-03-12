@@ -197,10 +197,6 @@ void DefaultGameDrawer::updateShadowMaps(const GameDrawSets& drawSets) {
 			drawShadowSets.quickDraw = &getCore()->getQuickDraw();
 			drawShadowSets.shadowMapBuildInfo = &lsi.buildInfo;
 
-			getCore()->getQuickDraw().drawWired_Clear();
-			getCore()->getQuickDraw().setFrameTarget(rendDest.frameTarget);
-			getCore()->getQuickDraw().setViewport(rendDest.viewport);
-
 			drawWorld(drawShadowSets, drawReason_gameplayShadow);
 		};
 
@@ -816,9 +812,9 @@ void DefaultGameDrawer::drawANavMesh(ANavMesh* navMesh,
 			drawSets.quickDraw->drawWiredAdd_triangle(a, b, c, buildMeshColorInt);
 		}
 
-		drawSets.quickDraw->drawSolid_Execute(drawSets.drawCamera->getProjView(), false,
+		drawSets.quickDraw->drawSolid_Execute(drawSets.rdest, drawSets.drawCamera->getProjView(), false,
 		                                      getCore()->getGraphicsResources().BS_backToFrontAlpha);
-		drawSets.quickDraw->drawWired_Execute(drawSets.drawCamera->getProjView());
+		drawSets.quickDraw->drawWired_Execute(drawSets.rdest, drawSets.drawCamera->getProjView());
 	}
 }
 
@@ -908,7 +904,7 @@ void DefaultGameDrawer::drawActorLegacy(Actor* actor,
 				                                                   coneHeight, coneRadius, 6);
 			}
 
-			drawSets.quickDraw->drawWired_Execute(drawSets.drawCamera->getProjView());
+			drawSets.quickDraw->drawWired_Execute(drawSets.rdest, drawSets.drawCamera->getProjView());
 		}
 	}
 	if (actorType == sgeTypeId(ABlockingObstacle) && editMode == editMode_actors) {
@@ -1057,7 +1053,7 @@ void DefaultGameDrawer::drawActorLegacy(Actor* actor,
 					for (int t = 0; t < SGE_ARRSZ(lines); t += 2) {
 						drawSets.quickDraw->drawWiredAdd_Line(lines[t], lines[t + 1], wireframeColorInt);
 					}
-					drawSets.quickDraw->drawWired_Execute(drawSets.drawCamera->getProjView());
+					drawSets.quickDraw->drawWired_Execute(drawSets.rdest, drawSets.drawCamera->getProjView());
 				}
 			}
 		}
@@ -1069,9 +1065,6 @@ void DefaultGameDrawer::drawActorLegacy(Actor* actor,
 			mat4f const obj2world = spline->getTransformMtx();
 
 			const int color = useWireframe ? 0xFF0055FF : 0xFFFFFFFF;
-
-			getCore()->getQuickDraw().drawWired_Clear();
-			getCore()->getQuickDraw().changeRenderDest(drawSets.rdest.sgecon, drawSets.rdest.frameTarget, drawSets.rdest.viewport);
 
 			const int numSegments = spline->getNumSegments();
 			for (int iSegment = 0; iSegment < numSegments; ++iSegment) {
@@ -1093,15 +1086,14 @@ void DefaultGameDrawer::drawActorLegacy(Actor* actor,
 				}
 			}
 
-			getCore()->getQuickDraw().drawWired_Execute(drawSets.drawCamera->getProjView(), nullptr);
+			getCore()->getQuickDraw().drawWired_Execute(drawSets.rdest, drawSets.drawCamera->getProjView(), nullptr);
 		} else if (editMode == editMode_points) {
 			mat4f const tr = spline->getTransformMtx();
 
 			getCore()->getQuickDraw().drawWired_Clear();
-			getCore()->getQuickDraw().changeRenderDest(drawSets.rdest.sgecon, drawSets.rdest.frameTarget, drawSets.rdest.viewport);
 			getCore()->getQuickDraw().drawWiredAdd_Sphere(tr * mat4f::getTranslation(spline->points[itemIndex]),
 			                                              useWireframe ? 0x550055FF : 0xFFFFFFFF, 0.2f, 3);
-			getCore()->getQuickDraw().drawWired_Execute(drawSets.drawCamera->getProjView(), nullptr);
+			getCore()->getQuickDraw().drawWired_Execute(drawSets.rdest, drawSets.drawCamera->getProjView(), nullptr);
 		}
 	}
 	if (actorType == sgeTypeId(ACRSpline) && drawReason_IsEditOrSelection(drawReason)) {
@@ -1116,7 +1108,6 @@ void DefaultGameDrawer::drawActorLegacy(Actor* actor,
 			const float lenPerLine = 1.f;
 
 			getCore()->getQuickDraw().drawWired_Clear();
-			getCore()->getQuickDraw().changeRenderDest(drawSets.rdest.sgecon, drawSets.rdest.frameTarget, drawSets.rdest.viewport);
 
 			vec3f p0;
 			spline->evaluateAtDistance(&p0, nullptr, 0.f);
@@ -1137,13 +1128,12 @@ void DefaultGameDrawer::drawActorLegacy(Actor* actor,
 					getCore()->getQuickDraw().drawWiredAdd_Sphere(mat4f::getTranslation(worldPos), color, pointScale, 3);
 			}
 
-			getCore()->getQuickDraw().drawWired_Execute(drawSets.drawCamera->getProjView(), nullptr);
+			getCore()->getQuickDraw().drawWired_Execute(drawSets.rdest, drawSets.drawCamera->getProjView(), nullptr);
 		} else if (editMode == editMode_points) {
 			getCore()->getQuickDraw().drawWired_Clear();
-			getCore()->getQuickDraw().changeRenderDest(drawSets.rdest.sgecon, drawSets.rdest.frameTarget, drawSets.rdest.viewport);
 			getCore()->getQuickDraw().drawWiredAdd_Sphere(tr * mat4f::getTranslation(spline->points[itemIndex]),
 			                                              useWireframe ? 0x550055FF : 0xFFFFFFFF, pointScale, 3);
-			getCore()->getQuickDraw().drawWired_Execute(drawSets.drawCamera->getProjView(), nullptr);
+			getCore()->getQuickDraw().drawWired_Execute(drawSets.rdest, drawSets.drawCamera->getProjView(), nullptr);
 		}
 	}
 
@@ -1152,7 +1142,7 @@ void DefaultGameDrawer::drawActorLegacy(Actor* actor,
 			drawSets.quickDraw->drawWired_Clear();
 			drawSets.quickDraw->drawWiredAdd_Basis(actor->getTransformMtx());
 			drawSets.quickDraw->drawWiredAdd_Box(actor->getTransformMtx(), wireframeColorInt);
-			drawSets.quickDraw->drawWired_Execute(drawSets.drawCamera->getProjView());
+			drawSets.quickDraw->drawWired_Execute(drawSets.rdest, drawSets.drawCamera->getProjView());
 		}
 	}
 
@@ -1197,7 +1187,7 @@ void DefaultGameDrawer::drawActorLegacy(Actor* actor,
 
 			// Dreaw the location of the bone.
 			drawSets.quickDraw->drawWiredAdd_Sphere(bone->getTransformMtx(), wireframeColorInt, boneLength / 12.f, 6);
-			drawSets.quickDraw->drawWired_Execute(drawSets.drawCamera->getProjView(), nullptr,
+			drawSets.quickDraw->drawWired_Execute(drawSets.rdest, drawSets.drawCamera->getProjView(), nullptr,
 			                                      getCore()->getGraphicsResources().DSS_always_noTest);
 		}
 	}
@@ -1206,7 +1196,7 @@ void DefaultGameDrawer::drawActorLegacy(Actor* actor,
 		if (editMode == editMode_actors) {
 			drawSets.quickDraw->drawWired_Clear();
 			drawSets.quickDraw->drawWiredAdd_Box(actor->getTransformMtx(), actor->getBBoxOS(), wireframeColorInt);
-			drawSets.quickDraw->drawWired_Execute(drawSets.drawCamera->getProjView());
+			drawSets.quickDraw->drawWired_Execute(drawSets.rdest, drawSets.drawCamera->getProjView());
 		}
 	}
 
@@ -1220,7 +1210,7 @@ void DefaultGameDrawer::drawActorLegacy(Actor* actor,
 			                                       wireframeColorInt);
 			drawSets.quickDraw->drawWiredAdd_Grid(actor->getPosition(), actor->getDirX() * scale, actor->getDirZ() * scale, 1, 1,
 			                                      wireframeColorInt);
-			drawSets.quickDraw->drawWired_Execute(drawSets.drawCamera->getProjView());
+			drawSets.quickDraw->drawWired_Execute(drawSets.rdest, drawSets.drawCamera->getProjView());
 		}
 	}
 }

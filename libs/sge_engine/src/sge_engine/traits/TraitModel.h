@@ -10,11 +10,24 @@ namespace sge {
 
 /// @brief TraitModel is a trait designed to be attached in an Actor.
 /// It provides a simple way to assign a renderable 3D Model to the game object (both animated and static).
-/// The trait is not automatically updateable, the user needs to manually call @update() method in their objects.
+/// The trait is not automatically updateable, the user needs to manually call @postUpdate() method in their objects.
 /// This is because not all game object need this complication of auto updating.
-/// TODO: Better documentation, for now please take a look at how this class is used in the source.\
-/// In short if your object is set to use only one model and this model cannot be changed form UI just use
-/// TraitModel::setModel(pathToAsset, true) to initialize it once in Actor::create() method.
+///
+/// For Example:
+///
+///    Lets say that you have a actor that is some collectable, a coin from Super Mario.
+///    That coin 3D model is never going to change, you know that the game object is only going to use
+///    that one specfic 3D model that you can set in @Actor::create method with @TraitModel::setModel() and forget about it.
+///    You do not need any upadates on it, nor you want to be able to change the 3D model from the Property Editor Window.
+///    In this situation you just add the trait, set the model and you are done.
+///
+///    The situation where the 3D model might change is for example with some Decore.
+///    Lets say that your 3D artist has prepared a grass and bush models that you want to scatter around the level.
+///    It would be thedious to have a separate game object for each 3D model.
+///    Instead you might do what the @AStaticObstacle does, have the model be changed via Propery Editor Window.
+///    In that way you have I generic actor type that could be configured to your desiers.
+///    In order for the game object to take into account the change you need in your Actor::postUpdate to
+///    to update the trait, see if the model has been changed and maybe update the rigid body for that actor.
 DefineTypeIdExists(TraitModel);
 struct SGE_ENGINE_API TraitModel : public Trait {
 	SGE_TraitDecl_Full(TraitModel);
@@ -29,10 +42,16 @@ struct SGE_ENGINE_API TraitModel : public Trait {
 		}
 	}
 
-	void setModel(std::shared_ptr<Asset>& asset) { m_assetProperty.setAsset(asset); }
+	void setModel(std::shared_ptr<Asset>& asset, bool updateNow) {
+		m_assetProperty.setAsset(asset);
+		if (updateNow) {
+			postUpdate();
+		}
+	}
 
-	// Updates the working model.
-	// Returns true if the model has been changed (no matter if it is valid or not).
+	/// Not called automatically see the class comment above.
+	/// Updates the working model.
+	/// Returns true if the model has been changed (no matter if it is valid or not).
 	bool postUpdate() { return m_assetProperty.update(); }
 
 	void clear() { m_assetProperty.clear(); }

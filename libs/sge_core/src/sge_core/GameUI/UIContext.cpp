@@ -216,7 +216,6 @@ void UIContext::update(const InputState& is, const vec2i& canvasSize, const floa
 }
 
 void UIContext::draw(const UIDrawSets& drawSets) {
-	drawSets.quickDraw->changeRenderDest(drawSets.rdest);
 	std::function<void(const std::shared_ptr<IWidget>&)> drawWidget = [&](const std::shared_ptr<IWidget>& w) {
 		if (w->isSuspended()) {
 			return;
@@ -234,7 +233,7 @@ void UIContext::draw(const UIDrawSets& drawSets) {
 
 	if (auto gamepadTarget = getGamepadTarget(); m_isUsingGamepad && gamepadTarget && !gamepadTarget->isSuspended()) {
 		AABox2f bb = gamepadTarget->getBBoxPixels();
-		drawSets.quickDraw->drawRect(bb, vec4f(1.f, 1.f, 0.f, 0.33f), getCore()->getGraphicsResources().BS_backToFrontAlpha);
+		drawSets.quickDraw->drawRect(drawSets.rdest, bb, vec4f(1.f, 1.f, 0.f, 0.33f), getCore()->getGraphicsResources().BS_backToFrontAlpha);
 	}
 }
 

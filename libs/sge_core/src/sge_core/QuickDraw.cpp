@@ -215,14 +215,10 @@ void DebugFont::Destroy() {
 //////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////
-bool QuickDraw::initialize(SGEContext* context, FrameTarget* frameTarget, const Rect2s& viewport) {
-	sgeAssert(context);
+bool QuickDraw::initialize(SGEContext* sgecon) {
+	sgeAssert(sgecon);
 
-	m_sgecon = context;
-	m_frameTarget = frameTarget;
-	m_viewport = viewport;
-
-	SGEDevice* device = context->getDevice();
+	SGEDevice* device = sgecon->getDevice();
 
 	// Initialize the uniform string indices.
 	projViewWorld_strIdx = device->getStringIndex("projViewWorld");
@@ -232,36 +228,21 @@ bool QuickDraw::initialize(SGEContext* context, FrameTarget* frameTarget, const 
 	color_strIdx = device->getStringIndex("color");
 	alphaMult_strIdx = device->getStringIndex("alphaMult");
 
-	initalize2DDrawResources();
-	initalize3DDrawResources();
+	initalize2DDrawResources(sgecon);
+	initalize3DDrawResources(sgecon);
 
 	// Create the depth stencil states
 	DepthStencilDesc dssDesc;
 	dssDesc.comparisonFunc = DepthComparisonFunc::LessEqual;
-	dssLessEqual = m_sgecon->getDevice()->requestResource<DepthStencilState>();
+	dssLessEqual = sgecon->getDevice()->requestResource<DepthStencilState>();
 	dssLessEqual->create(dssDesc);
 
 	return true;
 }
 
-void QuickDraw::setContext(SGEContext* context) {
-	m_sgecon = context;
-}
-void QuickDraw::setViewport(const Rect2s& viewport) {
-	m_viewport = viewport;
-}
-void QuickDraw::setFrameTarget(FrameTarget* frameTarget) {
-	m_frameTarget = frameTarget;
-}
 
-void QuickDraw::changeRenderDest(SGEContext* context, FrameTarget* frameTarget, const Rect2s& viewport) {
-	setContext(context);
-	setViewport(viewport);
-	setFrameTarget(frameTarget);
-}
-
-void QuickDraw::initalize2DDrawResources() {
-	SGEDevice* sgedev = m_sgecon->getDevice();
+void QuickDraw::initalize2DDrawResources(SGEContext* context) {
+	SGEDevice* sgedev = context->getDevice();
 
 	std::vector<Vertex2D> vbData;
 	vbData.reserve(16);
@@ -382,8 +363,8 @@ void QuickDraw::initalize2DDrawResources() {
 	vertexDeclIndex_pos2d_uv = sgedev->getVertexDeclIndex(vtxDecl_pos2d_uv, SGE_ARRSZ(vtxDecl_pos2d_uv));
 }
 
-void QuickDraw::initalize3DDrawResources() {
-	SGEDevice* sgedev = m_sgecon->getDevice();
+void QuickDraw::initalize3DDrawResources(SGEContext* context) {
+	SGEDevice* sgedev = context->getDevice();
 
 	m_effect3DVertexColored = sgedev->requestResource<ShadingProgram>();
 	m_effect3DVertexColored->create(EFFECT_3D_VERTEX_COLOR, EFFECT_3D_VERTEX_COLOR);
@@ -423,16 +404,17 @@ void QuickDraw::initalize3DDrawResources() {
 	vertexDeclIndex_pos3d_rgba_int = sgedev->getVertexDeclIndex(vtxDecl_pos3d_rgba_int, SGE_ARRSZ(vtxDecl_pos3d_rgba_int));
 }
 
-void QuickDraw::drawRect(const AABox2f& boxPixels, const vec4f& rgba, BlendState* blendState) {
+void QuickDraw::drawRect(const RenderDestination& rdest, const AABox2f& boxPixels, const vec4f& rgba, BlendState* blendState) {
 	const vec2f boxSize = boxPixels.size();
-	drawRect(boxPixels.min.x, boxPixels.min.y, boxSize.x, boxSize.y, rgba, blendState);
+	drawRect(rdest, boxPixels.min.x, boxPixels.min.y, boxSize.x, boxSize.y, rgba, blendState);
 }
 
-void QuickDraw::drawRect(float xPixels, float yPixels, float width, float height, const vec4f& rgba, BlendState* blendState) {
+void QuickDraw::drawRect(
+    const RenderDestination& rdest, float xPixels, float yPixels, float width, float height, const vec4f& rgba, BlendState* blendState) {
 	const mat4f sizeScaling = mat4f::getScaling(width / 2.f, height / 2.f, 1.f);
 	const mat4f transl = mat4f::getTranslation(xPixels + width / 2.f, yPixels + height / 2.f, 0.f);
 	const mat4f world = transl * sizeScaling;
-	const mat4f ortho = mat4f::getOrthoRH(m_viewport.width, m_viewport.height, 0.f, 1000.f, kIsTexcoordStyleD3D);
+	const mat4f ortho = mat4f::getOrthoRH(rdest.viewport.width, rdest.viewport.height, 0.f, 1000.f, kIsTexcoordStyleD3D);
 	const mat4f transf = ortho * world;
 	float alphaMult = 1.f;
 
@@ -455,16 +437,16 @@ void QuickDraw::drawRect(float xPixels, float yPixels, float width, float height
 	dc.setStateGroup(&stateGroup);
 	dc.draw(m_rect2DShapeInfo.numPoints, m_rect2DShapeInfo.vertexOffset);
 
-	m_sgecon->executeDrawCall(dc, m_frameTarget, &m_viewport);
+	rdest.sgecon->executeDrawCall(dc, rdest.frameTarget, &rdest.viewport);
 }
 
-void QuickDraw::drawTriLeft(const AABox2f& boxPixels, float rotation, const vec4f& rgba, BlendState* blendState) {
+void QuickDraw::drawTriLeft(const RenderDestination& rdest, const AABox2f& boxPixels, float rotation, const vec4f& rgba, BlendState* blendState) {
 	const vec2f size = boxPixels.size();
 
 	const mat4f sizeScaling = mat4f::getScaling(size.x / 2.f, size.y / 2.f, 1.f);
 	const mat4f transl = mat4f::getTranslation(boxPixels.min.x + size.x / 2.f, boxPixels.min.y + size.y / 2.f, 0.f);
 	const mat4f world = transl * mat4f::getRotationZ(rotation) * sizeScaling;
-	const mat4f ortho = mat4f::getOrthoRH(m_viewport.width, m_viewport.height, 0.f, 1000.f, kIsTexcoordStyleD3D);
+	const mat4f ortho = mat4f::getOrthoRH(rdest.viewport.width, rdest.viewport.height, 0.f, 1000.f, kIsTexcoordStyleD3D);
 	const mat4f transf = ortho * world;
 	float alphaMult = 1.f;
 
@@ -487,10 +469,11 @@ void QuickDraw::drawTriLeft(const AABox2f& boxPixels, float rotation, const vec4
 	dc.setStateGroup(&stateGroup);
 	dc.draw(m_triLeftShapeInfo.numPoints, m_triLeftShapeInfo.vertexOffset);
 
-	m_sgecon->executeDrawCall(dc, m_frameTarget, &m_viewport);
+	rdest.executeDrawCall(dc);
 }
 
-void QuickDraw::drawRectTexture(float xPixels,
+void QuickDraw::drawRectTexture(const RenderDestination& rdest,
+                                float xPixels,
                                 float yPixels,
                                 float width,
                                 float height,
@@ -508,7 +491,7 @@ void QuickDraw::drawRectTexture(float xPixels,
 	const mat4f sizeScaling = mat4f::getScaling(width / 2.f, height / 2.f, 1.f);
 	const mat4f transl = mat4f::getTranslation(xPixels + width / 2.f, yPixels + height / 2.f, 0.f);
 	const mat4f world = transl * sizeScaling;
-	const mat4f ortho = mat4f::getOrthoRH(m_viewport.width, m_viewport.height, 0.f, 1000.f, kIsTexcoordStyleD3D);
+	const mat4f ortho = mat4f::getOrthoRH(rdest.viewport.width, rdest.viewport.height, 0.f, 1000.f, kIsTexcoordStyleD3D);
 	const mat4f transf = ortho * world;
 
 	stateGroup.setRenderState(rsDefault, dssLessEqual, blendState);
@@ -531,17 +514,29 @@ void QuickDraw::drawRectTexture(float xPixels,
 	dc.setStateGroup(&stateGroup);
 	dc.draw(m_rect2DShapeInfo.numPoints, m_rect2DShapeInfo.vertexOffset);
 
-	m_sgecon->executeDrawCall(dc, m_frameTarget, &m_viewport);
+	rdest.sgecon->executeDrawCall(dc, rdest.frameTarget, &rdest.viewport);
 }
 
-void QuickDraw::drawRectTexture(
-    const AABox2f& boxPixels, Texture* texture, BlendState* blendState, vec2f topUV, vec2f bottomUV, float alphaMult) {
+void QuickDraw::drawRectTexture(const RenderDestination& rdest,
+                                const AABox2f& boxPixels,
+                                Texture* texture,
+                                BlendState* blendState,
+                                vec2f topUV,
+                                vec2f bottomUV,
+                                float alphaMult) {
 	vec2f size = boxPixels.size();
-	drawRectTexture(boxPixels.min.x, boxPixels.min.y, size.x, size.y, texture, blendState, topUV, bottomUV, alphaMult);
+	drawRectTexture(rdest, boxPixels.min.x, boxPixels.min.y, size.x, size.y, texture, blendState, topUV, bottomUV, alphaMult);
 }
 
-void QuickDraw::drawTexture(
-    float xPixels, float yPixels, float width, Texture* texture, BlendState* blendState, vec2f topUV, vec2f bottomUV, float alphaMult) {
+void QuickDraw::drawTexture(const RenderDestination& rdest,
+                            float xPixels,
+                            float yPixels,
+                            float width,
+                            Texture* texture,
+                            BlendState* blendState,
+                            vec2f topUV,
+                            vec2f bottomUV,
+                            float alphaMult) {
 	if (!texture || !texture->isValid()) {
 		return;
 	}
@@ -559,10 +554,11 @@ void QuickDraw::drawTexture(
 
 	const float height = floorf(width / aspectRatio);
 
-	drawRectTexture(xPixels, yPixels, width, height, texture, blendState, topUV, bottomUV, alphaMult);
+	drawRectTexture(rdest, xPixels, yPixels, width, height, texture, blendState, topUV, bottomUV, alphaMult);
 }
 
-void QuickDraw::drawTextLazy(DebugFont& font, vec2f posPixels, const vec4f& rgba, const char* text, float height, const Rect2s* scissors) {
+void QuickDraw::drawTextLazy(
+    const RenderDestination& rdest, DebugFont& font, vec2f posPixels, const vec4f& rgba, const char* text, float height, const Rect2s* scissors) {
 	float alphaMult = 1.f;
 
 	RasterizerState* rs = scissors == nullptr ? rsDefault : rsNoCullUseScissors;
@@ -573,7 +569,7 @@ void QuickDraw::drawTextLazy(DebugFont& font, vec2f posPixels, const vec4f& rgba
 	stateGroup.setVBDeclIndex(vertexDeclIndex_pos2d_uv);
 	stateGroup.setPrimitiveTopology(PrimitiveTopology::TriangleList);
 
-	const mat4f ortho = mat4f::getOrthoRH(m_viewport.width, m_viewport.height, 0.f, 1000.f, kIsTexcoordStyleD3D);
+	const mat4f ortho = mat4f::getOrthoRH(rdest.viewport.width, rdest.viewport.height, 0.f, 1000.f, kIsTexcoordStyleD3D);
 
 	const float textureWidth = (float)font.texture->getDesc().texture2D.width;
 	const float textureHeight = (float)font.texture->getDesc().texture2D.height;
@@ -627,8 +623,7 @@ void QuickDraw::drawTextLazy(DebugFont& font, vec2f posPixels, const vec4f& rgba
 			dc.setStateGroup(&stateGroup);
 			dc.draw(m_rect2DShapeInfo.numPoints, m_rect2DShapeInfo.vertexOffset);
 
-
-			m_sgecon->executeDrawCall(dc, m_frameTarget, &m_viewport, scissors);
+			rdest.executeDrawCall(dc, scissors);
 		}
 
 		x += sizeScaling * font.cdata[*text].xadvance; // advance to the start point of the next character...
@@ -721,8 +716,7 @@ void QuickDraw::drawWiredAdd_Basis(const mat4f& world) {
 	GeomGen::wiredBasis(m_wireframeVerts, world);
 }
 
-void QuickDraw::drawWiredAdd_Bone(const mat4f& n2w, float length, float radius, const vec4f& color)
-{
+void QuickDraw::drawWiredAdd_Bone(const mat4f& n2w, float length, float radius, const vec4f& color) {
 	const int startVertex = int(m_wireframeVerts.size());
 
 	int intColor = colorToIntRgba(color);
@@ -770,7 +764,7 @@ void QuickDraw::drawWiredAdd_Bone(const mat4f& n2w, float length, float radius, 
 	m_wireframeVerts.push_back(GeomGen::PosColorVert(vec3f(length, 0.f, 0.f), intColor));
 
 	// Now transform vertices to world space using the provide matrix.
-	for(int t = startVertex; t < int(m_wireframeVerts.size()); ++t) {
+	for (int t = startVertex; t < int(m_wireframeVerts.size()); ++t) {
 		m_wireframeVerts[t].pt = mat_mul_pos(n2w, m_wireframeVerts[t].pt);
 	}
 }
@@ -793,7 +787,7 @@ void QuickDraw::drawWired_Clear() {
 	m_wireframeVerts.clear();
 }
 
-void QuickDraw::drawWired_Execute(const mat4f& projView, BlendState* blendState, DepthStencilState* dss) {
+void QuickDraw::drawWired_Execute(const RenderDestination& rdest, const mat4f& projView, BlendState* blendState, DepthStencilState* dss) {
 	if (m_wireframeVerts.size() == 0) {
 		return;
 	}
@@ -816,9 +810,9 @@ void QuickDraw::drawWired_Execute(const mat4f& projView, BlendState* blendState,
 	while (m_wireframeVerts.size()) {
 		const uint32 numVertsToCopy = (m_wireframeVerts.size() > vbSizeVerts) ? vbSizeVerts : uint32(m_wireframeVerts.size());
 
-		GeomGen::PosColorVert* const vbdata = (GeomGen::PosColorVert*)m_sgecon->map(m_vbWiredGeometry, Map::WriteDiscard);
+		GeomGen::PosColorVert* const vbdata = (GeomGen::PosColorVert*)rdest.sgecon->map(m_vbWiredGeometry, Map::WriteDiscard);
 		std::copy(m_wireframeVerts.begin(), m_wireframeVerts.begin() + numVertsToCopy, vbdata);
-		m_sgecon->unMap(m_vbWiredGeometry);
+		rdest.sgecon->unMap(m_vbWiredGeometry);
 
 		m_wireframeVerts.erase(m_wireframeVerts.begin(), m_wireframeVerts.begin() + numVertsToCopy);
 
@@ -827,8 +821,11 @@ void QuickDraw::drawWired_Execute(const mat4f& projView, BlendState* blendState,
 		dc.setUniforms(uniforms, SGE_ARRSZ(uniforms));
 		dc.setStateGroup(&stateGroup);
 		dc.draw(numVertsToCopy, 0);
-		m_sgecon->executeDrawCall(dc, m_frameTarget, &m_viewport);
+
+		rdest.executeDrawCall(dc);
 	}
+
+	drawWired_Clear();
 }
 
 void QuickDraw::drawSolidAdd_Triangle(const vec3f a, const vec3f b, const vec3f c, const uint32 rgba) {
@@ -846,7 +843,7 @@ void QuickDraw::drawSolidAdd_QuadCentered(const vec3f& center, const vec3f& exHa
 	drawSolidAdd_Quad(center - exHalf - eyHalf, 2.f * exHalf, 2.f * eyHalf, rgba);
 }
 
-void QuickDraw::drawSolid_Execute(const mat4f& projViewWorld, bool shouldUseCulling, BlendState* blendState) {
+void QuickDraw::drawSolid_Execute(const RenderDestination& rdest, const mat4f& projViewWorld, bool shouldUseCulling, BlendState* blendState) {
 	if (m_solidColorVerts.size() == 0) {
 		return;
 	}
@@ -875,9 +872,9 @@ void QuickDraw::drawSolid_Execute(const mat4f& projViewWorld, bool shouldUseCull
 
 		sgeAssert(numVertsToCopy % 3 == 0);
 
-		GeomGen::PosColorVert* const vbdata = (GeomGen::PosColorVert*)m_sgecon->map(m_vbSolidColorGeometry, Map::WriteDiscard);
+		GeomGen::PosColorVert* const vbdata = (GeomGen::PosColorVert*)rdest.sgecon->map(m_vbSolidColorGeometry, Map::WriteDiscard);
 		std::copy(m_solidColorVerts.begin(), m_solidColorVerts.begin() + numVertsToCopy, vbdata);
-		m_sgecon->unMap(m_vbSolidColorGeometry);
+		rdest.sgecon->unMap(m_vbSolidColorGeometry);
 
 		m_solidColorVerts.erase(m_solidColorVerts.begin(), m_solidColorVerts.begin() + numVertsToCopy);
 
@@ -887,7 +884,7 @@ void QuickDraw::drawSolid_Execute(const mat4f& projViewWorld, bool shouldUseCull
 		dc.setStateGroup(&stateGroup);
 		dc.draw(numVertsToCopy, 0);
 
-		m_sgecon->executeDrawCall(dc, m_frameTarget, &m_viewport);
+		rdest.executeDrawCall(dc);
 	}
 }
 

@@ -90,12 +90,9 @@ void GamePlayWindow::update(SGEContext* const sgecon, const InputState& isOrigin
 		drawSets.drawCamera = gameCamera;
 		drawSets.gameCamera = gameCamera;
 
-		getCore()->getQuickDraw().setContext(sgecon);
-		getCore()->getQuickDraw().setFrameTarget(m_frameTarget);
-		getCore()->getQuickDraw().setViewport(m_frameTarget->getViewport());
 		getCore()->getQuickDraw().drawWired_Clear();
 		getCore()->getQuickDraw().drawWiredAdd_Grid(vec3f(0.f), vec3f::getAxis(0) * 1.f, vec3f::getAxis(2) * 1.f, 10, 10, 0x33FFFFFF);
-		getCore()->getQuickDraw().drawWired_Execute(drawSets.drawCamera->getProjView(),
+		getCore()->getQuickDraw().drawWired_Execute(drawSets.rdest, drawSets.drawCamera->getProjView(),
 		                                            getCore()->getGraphicsResources().BS_backToFrontAlpha);
 
 		// Draw the game world.

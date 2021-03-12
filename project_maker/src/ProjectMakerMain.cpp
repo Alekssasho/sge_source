@@ -36,8 +36,6 @@ struct SGEGameWindow : public WindowBase {
 				const WE_Resize_Data& data = *(const WE_Resize_Data*)eventData;
 				getCore()->getDevice()->resizeBackBuffer(data.width, data.height);
 				SGEImGui::setViewport(Rect2s(short(data.width), short(data.height)));
-				getCore()->getQuickDraw().changeRenderDest(device->getContext(), device->getWindowFrameTarget(),
-				                                           device->getWindowFrameTarget()->getViewport());
 			}
 		}
 

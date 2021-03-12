@@ -45,6 +45,7 @@ ReflBlock() {
 
 	ReflAddActor(ATimeline)
 		ReflMember(ATimeline, m_isEnabled)
+		ReflMember(ATimeline, m_useSmoothInterpolation)
 		ReflMember(ATimeline, targetActorId)
 		ReflMember(ATimeline, keyFrames)
 		ReflMember(ATimeline, framesPerSecond)
@@ -427,6 +428,10 @@ void ATimeline::doAttributeEditor(GameInspector* inspector) {
 	chain.pop();
 
 	chain.add(typeLib().findMember(&ATimeline::m_isEnabled));
+	ProperyEditorUIGen::doMemberUI(*inspector, this, chain);
+	chain.pop();
+
+	chain.add(typeLib().findMember(&ATimeline::m_useSmoothInterpolation));
 	ProperyEditorUIGen::doMemberUI(*inspector, this, chain);
 	chain.pop();
 

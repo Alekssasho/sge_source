@@ -17,6 +17,8 @@ struct SGE_ENGINE_API BulletPhysicsDebugDraw : public btIDebugDraw {
 	mat4f m_projView = mat4f::getIdentity();
 	QuickDraw* m_quickDraw = nullptr;
 
+	RenderDestination cachedRdest;
+
   public:
 	// bt*World::debugDraw* should be called between these two.
 	void preDebugDraw(const mat4f& projView, QuickDraw* const debugDraw, const RenderDestination& rdest);
