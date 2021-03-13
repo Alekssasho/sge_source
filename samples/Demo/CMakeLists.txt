@@ -2,7 +2,8 @@ project(Demo)
 
 cmake_minimum_required(VERSION 3.14)
 
-add_library(Demo SHARED src/PluginMain.cpp)
+add_dir_rec_2(DEMO_SOURCES "./src" 3)
+add_library(Demo SHARED ${DEMO_SOURCES})
 set_target_properties(Demo PROPERTIES SUFFIX ".gll")
 
 target_link_libraries(Demo PUBLIC sge_core)
