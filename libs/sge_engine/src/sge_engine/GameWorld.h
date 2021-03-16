@@ -86,9 +86,6 @@ struct SGE_ENGINE_API GameWorld {
 
 	void create();
 
-  private:
-	void create_scripting();
-
   public:
 	void clear();
 

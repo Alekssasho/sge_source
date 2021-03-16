@@ -3,6 +3,7 @@
 #include "sge_core/SGEImGui.h"
 #include "sge_engine/EngineGlobal.h"
 #include "sge_utils/tiny/FileOpenDialog.h"
+#include <filesystem>
 
 namespace sge {
 ProjectSettingsWindow::ProjectSettingsWindow(std::string windowName)
@@ -27,7 +28,8 @@ void ProjectSettingsWindow::update(SGEContext* const UNUSED(sgecon), const Input
 
 		ImGuiEx::Label("Initial Level");
 		if (ImGui::Button(ICON_FK_FOLDER_OPEN)) {
-			std::string pickedLevel = FileOpenDialog("Select a the Initial level when the game is launched...", true, "*.lvl\0*.lvl\0", "./assets/levels");
+			std::string pickedLevel =
+			    FileOpenDialog("Select a the Initial level when the game is launched...", true, "*.lvl\0*.lvl\0", "./assets/levels");
 			if (pickedLevel.empty() == false) {
 				m_gamePlayerSetting.initalLevel = pickedLevel;
 			}
@@ -37,6 +39,7 @@ void ProjectSettingsWindow::update(SGEContext* const UNUSED(sgecon), const Input
 		ImGuiEx::InputText("##Inital Level input text", m_gamePlayerSetting.initalLevel);
 
 		if (ImGui::Button(ICON_FK_FLOPPY_O " Save")) {
+			std::filesystem::create_directories("appdata");
 			m_gamePlayerSetting.saveToJsonFile("appdata/game_project_settings.json");
 		}
 	}

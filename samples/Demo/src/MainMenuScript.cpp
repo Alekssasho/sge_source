@@ -10,7 +10,7 @@ namespace sge {
 
 using namespace gamegui;
 
-struct MainMenuScript : public IWorldScript {
+struct MainMenuScript final : public IWorldScript {
 	gamegui::UIContext uiContext;
 	DebugFont font;
 	std::shared_ptr<gamegui::InvisibleWidget> rootMenuWidget;
@@ -28,9 +28,8 @@ struct MainMenuScript : public IWorldScript {
 		rootMenuWidget = std::make_shared<gamegui::InvisibleWidget>(uiContext, Pos(0_f, 0_f), Size(1_f, 1_f));
 		std::shared_ptr<ButtonWidget> btn = std::make_shared<ButtonWidget>(uiContext, Pos(0.5_f, 0.5_f), Size(60_px, 0.06_hf));
 		btn->setText("New Game");
-		eventSubs.push_back(btn->subscribe_onRelease([&]{
-			// Callback when pressed.
-			}));
+		eventSubs.push_back(btn->subscribe_onRelease(
+		    [&] { getWorld()->addPostSceneTask(new PostSceneUpdateTaskLoadWorldFormFile("assets/levels/level0.lvl", true)); }));
 
 		rootMenuWidget->addChild(btn);
 

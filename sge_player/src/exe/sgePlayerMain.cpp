@@ -14,7 +14,6 @@ __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 #include <emscripten.h>
 #endif
 
-#include "../exe/DummyPlugin.h"
 #include "GameMode.h"
 #include "sge_core/AssetLibrary.h"
 #include "sge_core/ICore.h"
@@ -54,17 +53,10 @@ struct SGEGameWindow : public WindowBase {
 	DLLHandler m_dllHandler;
 	IPlugin* m_pluginInst = nullptr;
 	IGameDrawer* m_pGameDrawer = nullptr;
-	InteropPreviousState m_dllState;
-
-	DummyPlugin dummyPlugin;
 
 	vec2i cachedWindowSize = vec2i(0);
 
 	void HandleEvent(const WindowEvent event, const void* const eventData) final {
-		if (m_pluginInst) {
-			m_pluginInst->handleEvent(this, event, eventData);
-		}
-
 		if (event == WE_Create) {
 			OnCreate();
 		}
@@ -115,9 +107,6 @@ struct SGEGameWindow : public WindowBase {
 		getCore()->setup(device);
 		getCore()->getAssetLib()->scanForAvailableAssets("assets");
 
-		m_dllState.argv = g_argv;
-		m_dllState.argc = g_argc;
-
 		for (auto const& entry : std::filesystem::directory_iterator("./")) {
 			if (std::filesystem::is_regular_file(entry) && entry.path().extension() == ".gll") {
 				pluginName = entry.path().string();
@@ -125,8 +114,7 @@ struct SGEGameWindow : public WindowBase {
 		}
 
 		if (pluginName.empty()) {
-			m_pluginInst = &dummyPlugin;
-			getEngineGlobal()->changeActivePlugin(&dummyPlugin);
+			return;
 		} else {
 			loadPlugin();
 		}

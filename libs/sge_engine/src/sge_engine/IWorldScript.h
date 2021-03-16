@@ -7,6 +7,7 @@ namespace sge {
 struct GameUpdateSets;
 struct GameDrawSets;
 
+SGE_NO_WARN_BEGIN
 /// @brief An interface for getting getting callbacks on world events.
 /// The object needs to be attached to the world in order to work.
 struct IWorldScript : public Script {
@@ -14,11 +15,12 @@ struct IWorldScript : public Script {
 	~IWorldScript() = default;
 
 	/// @brief Called before the world starts update all game objects.
-	virtual void onPreUpdate(const GameUpdateSets& u) = 0;
+	virtual void onPreUpdate(const GameUpdateSets& u) {}
 	/// @brief Called after all game object have been updated.
-	virtual void onPostUpdate(const GameUpdateSets& u) = 0;
+	virtual void onPostUpdate(const GameUpdateSets& u) {}
 	/// @brief Called when rendering the world has finished.
-	virtual void onPostDraw(const GameDrawSets& drawSets) = 0;
+	virtual void onPostDraw(const GameDrawSets& drawSets) {}
 };
+SGE_NO_WARN_END
 
 } // namespace sge

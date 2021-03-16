@@ -506,6 +506,8 @@ JsonValue* serializeGameWorld(const GameWorld* world, JsonValueBuffer& jvb) {
 	jWorld->setMember("defaultGravity", serializeVariableT(world->m_defaultGravity, jvb));
 	jWorld->setMember("physicsSimNumSubSteps", serializeVariableT(world->m_physicsSimNumSubSteps, jvb));
 
+	jWorld->setMember("worldScripts", serializeVariableT(world->m_scriptObjects, jvb));
+
 	// Hierarchical relationships.
 	// Do not serialize the m_parentOf as we can restore it by using this information.
 	JsonValue* const jHierarchy = jWorld->setMember("hierarchy", jvb(JID_ARRAY));
@@ -622,6 +624,7 @@ bool loadGameWorldFromStream(GameWorld* world, IReadStream* stream, const char* 
 	}
 
 	deserializeWorldMember(&world->m_physicsSimNumSubSteps, "physicsSimNumSubSteps", sgeTypeId(decltype(world->m_physicsSimNumSubSteps)));
+	deserializeWorldMember(&world->m_scriptObjects, "worldScripts", sgeTypeId(decltype(world->m_scriptObjects)));
 
 	// Load the playing objects.
 	const JsonValue* const jActors = jWorld->getMember("actors");

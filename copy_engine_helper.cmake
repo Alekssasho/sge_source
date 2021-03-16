@@ -18,10 +18,10 @@ macro(sge_generate_assemble_and_debug_target_for_game target_name target_output_
 
 	add_dependencies(${target_name}_AseembleAndDebug ${target_name})
 	
-	#
-	#add_custom_command(TARGET ${target_name}_AseembleAndDebug PRE_BUILD
-	#	COMMAND ${CMAKE_COMMAND} -E remove $<TARGET_FILE:${target_name}> ${target_output_dir}/$<TARGET_FILE:${target_name}>
-	#)
+	
+	add_custom_command(TARGET ${target_name}_AseembleAndDebug PRE_BUILD
+		COMMAND ${CMAKE_COMMAND} -E remove ${target_output_dir}/$<TARGET_FILE:${target_name}>
+	)
 	
 	add_custom_command(TARGET ${target_name}_AseembleAndDebug POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${target_name}> ${target_output_dir}/
@@ -30,6 +30,11 @@ macro(sge_generate_assemble_and_debug_target_for_game target_name target_output_
 	# sge_editor
 	add_custom_command(TARGET ${target_name}_AseembleAndDebug POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:sge_editor> ${target_output_dir}/
+	)
+	
+	# sge_player
+	add_custom_command(TARGET ${target_name}_AseembleAndDebug POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:sge_player> ${target_output_dir}/
 	)
 	
 	# sge_core

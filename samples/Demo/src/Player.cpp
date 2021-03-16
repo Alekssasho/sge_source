@@ -17,7 +17,7 @@ struct Player : public Actor
 
 	virtual AABox3f getBBoxOS() const {
 		return AABox3f();
-	}
+	} 
 
 	void create() 
 	{
