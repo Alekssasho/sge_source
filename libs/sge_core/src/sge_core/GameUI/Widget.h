@@ -32,19 +32,13 @@ struct UIDrawSets;
 struct UIContext;
 struct ILayout;
 
-//----------------------------------------------------
-// IWidget
-//----------------------------------------------------
+/// @brief IWidget is the base interface for all widget.
 struct SGE_CORE_API IWidget : public std::enable_shared_from_this<IWidget> {
-	//static std::atomic<int> count;
-
 	friend UIContext;
 
 	IWidget(UIContext& owningContext)
-	    : m_owningContext(owningContext) {
-		//count++;
-	}
-	virtual ~IWidget() {/* count--; */}
+	    : m_owningContext(owningContext) {}
+	virtual ~IWidget() {}
 
 	virtual bool isGamepadTargetable() { return false; }
 
@@ -126,45 +120,33 @@ struct SGE_CORE_API IWidget : public std::enable_shared_from_this<IWidget> {
 	std::unique_ptr<ILayout> m_layout = nullptr;
 };
 
-//----------------------------------------------------
-// CanvasWidget
-//----------------------------------------------------
-struct SGE_CORE_API CanvasWidget : public IWidget {
-	CanvasWidget(UIContext& owningContext)
-	    : IWidget(owningContext) {}
 
-	virtual void draw(const UIDrawSets& UNUSED(drawSets)) override {}
-};
-
-//----------------------------------------------------
-// EmptyWidget
-//----------------------------------------------------
-struct SGE_CORE_API EmptyWidget final : public IWidget {
-	EmptyWidget(UIContext& owningContext, Pos position, Size size)
+/// @brief InvisibleWidget is just an invisible widget with size and position
+/// useful for position and aligning objects or root widget for menus.
+struct SGE_CORE_API InvisibleWidget final : public IWidget {
+	InvisibleWidget(UIContext& owningContext, Pos position, Size size)
 	    : IWidget(owningContext) {
 		setPosition(position);
 		setSize(size);
 	}
 
-	static std::shared_ptr<EmptyWidget> create(UIContext& owningContext, Pos position, Size size) {
-		std::shared_ptr<EmptyWidget> w = std::make_shared<EmptyWidget>(owningContext, position, size);
+	static std::shared_ptr<InvisibleWidget> create(UIContext& owningContext, Pos position, Size size) {
+		std::shared_ptr<InvisibleWidget> w = std::make_shared<InvisibleWidget>(owningContext, position, size);
 		return w;
 	}
 
 	virtual void draw(const UIDrawSets& UNUSED(drawSets)) override {}
 };
 
-//----------------------------------------------------
-// PanelWidget
-//----------------------------------------------------
-struct SGE_CORE_API PanelWidget final : public IWidget {
-	PanelWidget(UIContext& owningContext, Pos position, Size size)
+/// @brief ColoredWidget is non-interactable widget with a constant color.
+struct SGE_CORE_API ColoredWidget final : public IWidget {
+	ColoredWidget(UIContext& owningContext, Pos position, Size size)
 	    : IWidget(owningContext) {
 		setPosition(position);
 		setSize(size);
 	}
 
-	static std::shared_ptr<PanelWidget> create(UIContext& owningContext, Pos position, Size size);
+	static std::shared_ptr<ColoredWidget> create(UIContext& owningContext, Pos position, Size size);
 
 	virtual void draw(const UIDrawSets& drawSets) override;
 
@@ -213,9 +195,7 @@ struct SGE_CORE_API TextWidget final : public IWidget {
 	std::string m_text;
 };
 
-//----------------------------------------------------
-// ImageWidget
-//----------------------------------------------------
+/// ImageWidget is a widget that display a texture.
 struct SGE_CORE_API ImageWidget final : public IWidget {
 	ImageWidget(UIContext& owningContext, Pos position, Size size)
 	    : IWidget(owningContext) {
@@ -273,14 +253,15 @@ struct SGE_CORE_API ButtonWidget final : public IWidget {
 		return true;
 	}
 
-	virtual void onRelease(bool wasReleaseInside) {
+	void onRelease(bool wasReleaseInside) override {
 		m_isPressed = false;
 		if (wasReleaseInside) {
 			m_onReleaseListeners();
 		}
 	}
 
-	EventSubscription onRelease(std::function<void()> fn) { return m_onReleaseListeners.subscribe(std::move(fn)); }
+	/// @brief Adds a function to get called when the button has been released (cursor over the widget) or when interacted with the gamepad.
+	[[nodiscard]] EventSubscription subscribe_onRelease(std::function<void()> fn) { return m_onReleaseListeners.subscribe(std::move(fn)); }
 
   private:
 	EventEmitter<> m_onReleaseListeners;

@@ -161,7 +161,7 @@ bool AssetsWindow::importAsset(AssetImportData& aid) {
 
 void AssetsWindow::update_assetImport(SGEContext* const sgecon, const InputState& is) {
 	if (ImGui::Button(ICON_FK_PLUS " Add Asset")) {
-		std::string filename = FileOpenDialog("Import 3D Model", true, "*.fbx\0*.fbx\0*.dae\0*.dae\0*.obj\0*.obj\0*.*\0*.*\0");
+		std::string filename = FileOpenDialog("Import 3D Model", true, "*.fbx\0*.fbx\0*.dae\0*.dae\0*.obj\0*.obj\0*.*\0*.*\0", nullptr);
 		if (filename.empty() == false) {
 			openAssetImport(filename);
 		}
@@ -181,7 +181,7 @@ void AssetsWindow::update_assetImport(SGEContext* const sgecon, const InputState
 			ImGuiEx::BeginGroupPanel(groupPanelName.c_str());
 			{
 				if (ImGui::Button("Import As")) {
-					aid.outputFilename = FileSaveDialog("Import 3D Model As", "*.mdl\0*.mdl", "mdl");
+					aid.outputFilename = FileSaveDialog("Import 3D Model As", "*.mdl\0*.mdl", "mdl", nullptr);
 				}
 				ImGui::SameLine();
 				char importAs[1024] = {0};
@@ -390,7 +390,7 @@ void AssetsWindow::update(SGEContext* const sgecon, const InputState& is) {
 								// If this is still true then the popup has just been opened.
 								// Initialize it with the information about the asset we are about to import.
 								m_importAssetToImportInPopup = AssetImportData();
-								m_importAssetToImportInPopup.filename = FileOpenDialog("Pick a file to import", true, "*.*\0*.*\0");
+								m_importAssetToImportInPopup.filename = FileOpenDialog("Pick a file to import", true, "*.*\0*.*\0", nullptr);
 								m_importAssetToImportInPopup.assetType =
 								    assetType_fromExtension(extractFileExtension(m_importAssetToImportInPopup.filename.c_str()).c_str());
 

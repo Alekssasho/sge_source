@@ -91,6 +91,14 @@ ObjectId GameInspector::getPrimarySelection() const {
 	return m_selection[0].objectId;
 }
 
+ObjectId GameInspector::getSecondarySelection() const {
+	if (m_selection.size() < 2) {
+		return ObjectId();
+	}
+
+	return m_selection[1].objectId;
+}
+
 ObjectId GameInspector::getSecondarySelectedActor() const {
 	if (m_selection.size() < 2) {
 		return ObjectId();

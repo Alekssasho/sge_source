@@ -1,22 +1,24 @@
-#include "sge_engine/IPlugin.h"
+#include "sge_core/ICore.h"
+#include "sge_core/SGEImGui.h"
 #include "sge_core/shaders/modeldraw.h"
 #include "sge_engine/DefaultGameDrawer.h"
+#include "sge_engine/IPlugin.h"
 
-namespace sge
-{
-	struct PluginGame final : public IPlugin {
-		virtual IGameDrawer* allocateGameDrawer() {
-			return new DefaultGameDrawer();
-		}
+namespace sge {
+struct PluginGame final : public IPlugin {
+	virtual IGameDrawer* allocateGameDrawer() { return new DefaultGameDrawer(); }
 
-		virtual void onLoaded(const InteropPreviousState& prevState, ImGuiContext* imguiCtx, WindowBase* window, ICore* global) {}
-		virtual void onUnload(InteropPreviousState& outState) {  }
-		virtual void run() {}
-		virtual void handleEvent(WindowBase* window, const WindowEvent event, const void* const eventData) {}
-	};
-}
+	void onLoaded(ImGuiContext* imguiCtx, ICore* global) override {
+		ImGui::SetCurrentContext(imguiCtx);
+		setCore(global);
+	}
 
-extern "C" { 
+	void onUnload() {}
+	void run() {}
+};
+} // namespace sge
+
+extern "C" {
 #ifdef WIN32
 __declspec(dllexport) sge::IPlugin* getInterop() {
 	return new sge::PluginGame();

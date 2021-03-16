@@ -31,6 +31,7 @@ __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 #include "sge_utils/utils/FileStream.h"
 #include "sge_utils/utils/Path.h"
 #include "sge_utils/utils/json.h"
+#include "sge_utils/utils/DLLHandler.h"
 #include <filesystem>
 #include <thread>
 
@@ -47,17 +48,12 @@ struct SGEGameWindow : public WindowBase {
 	DLLHandler m_dllHandler;
 	sint64 m_workingDLLModTime = 0;
 	IPlugin* m_pluginInst = nullptr;
-	InteropPreviousState m_dllState;
 
 	DummyPlugin dummyPlugin;
 
 	vec2i cachedWindowSize = vec2i(0);
 
 	void HandleEvent(const WindowEvent event, const void* const eventData) final {
-		if (m_pluginInst) {
-			m_pluginInst->handleEvent(this, event, eventData);
-		}
-
 		if (event == WE_Create) {
 			OnCreate();
 		}
@@ -123,9 +119,6 @@ struct SGEGameWindow : public WindowBase {
 		getCore()->setup(device);
 		getCore()->getAssetLib()->scanForAvailableAssets("assets");
 
-		m_dllState.argv = g_argv;
-		m_dllState.argc = g_argc;
-
 		for (auto const& entry : std::filesystem::directory_iterator("./")) {
 			if (std::filesystem::is_regular_file(entry) && entry.path().extension() == ".gll") {
 				pluginName = entry.path().string();
@@ -148,7 +141,6 @@ struct SGEGameWindow : public WindowBase {
 		const sint64 modtime = FileReadStream::getFileModTime(pluginName.c_str());
 
 		if (!pluginName.empty() && (modtime > m_workingDLLModTime || m_workingDLLModTime == 0)) {
-			m_dllState.isInitializationState = (m_workingDLLModTime == 0);
 			if (m_workingDLLModTime != 0) {
 				// DialogYesNo("Realod DLL", "Game DLL is about to be reloaded!");
 			}
@@ -166,7 +158,7 @@ struct SGEGameWindow : public WindowBase {
 			// Notify that we are about to unload the plugin.
 			getEngineGlobal()->notifyOnPluginPreUnload();
 			if (m_pluginInst) {
-				m_pluginInst->onUnload(m_dllState);
+				m_pluginInst->onUnload();
 				delete m_pluginInst;
 				m_pluginInst = nullptr;
 			}
@@ -187,7 +179,7 @@ struct SGEGameWindow : public WindowBase {
 			getEngineGlobal()->changeActivePlugin(m_pluginInst);
 
 			if (m_pluginInst) {
-				m_pluginInst->onLoaded(m_dllState, ImGui::GetCurrentContext(), this, getCore());
+				m_pluginInst->onLoaded(ImGui::GetCurrentContext(), getCore());
 				typeLib().performRegistration();
 				getEngineGlobal()->initialize();
 				if (shouldCurrentWorldBeReloaded) {

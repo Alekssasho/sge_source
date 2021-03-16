@@ -11,7 +11,7 @@ namespace sge {
 /// @param [in] pPole is an optional value (may be null). The point is in the same space as @inoutPoints and defines direction where each
 /// join should point at after being solved - For example, in a leg, this is the point where you want the knee to point at.
 /// @param [in] maxIterations the maxium amount of interations that the solver should perform.
-/// @param [in] earlyExitDelta if last point is withing this distance to the @endAffector then the algorithm will early exit.
+/// @param [in] earlyExitDelta if last point is within this distance to the @endAffector then the algorithm will early exit.
 void FABRIKSolver(const int numPoints,
                   vec3f inoutPoints[],
                   const float linkLengths[],

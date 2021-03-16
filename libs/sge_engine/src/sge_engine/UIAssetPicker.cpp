@@ -153,7 +153,11 @@ bool assetPicker(
 	return wasAssetPicked;
 }
 
-bool actorPicker(const char* label, GameWorld& world, ObjectId& ioValue, std::function<bool(const GameObject&)> filter) {
+bool actorPicker(const char* label,
+                 GameWorld& world,
+                 ObjectId& ioValue,
+                 std::function<bool(const GameObject&)> filter,
+                 bool pickPrimarySelection) {
 	GameInspector* inspector = world.getInspector();
 
 	if (!inspector) {
@@ -161,9 +165,14 @@ bool actorPicker(const char* label, GameWorld& world, ObjectId& ioValue, std::fu
 	}
 
 	if (ImGui::Button(ICON_FK_EYEDROPPER)) {
-		if (inspector->m_selection.size() >= 2) {
-			ObjectId newPick = inspector->m_selection[1].objectId;
+		ObjectId newPick;
+		if (pickPrimarySelection) {
+			newPick = inspector->getPrimarySelection();
+		} else {
+			newPick = inspector->getSecondarySelection();
+		}
 
+		if (newPick.isNull() == false) {
 			if (filter) {
 				GameObject* obj = world.getObjectById(ioValue);
 				if (obj) {
@@ -180,11 +189,19 @@ bool actorPicker(const char* label, GameWorld& world, ObjectId& ioValue, std::fu
 
 			return true;
 		} else {
-			getEngineGlobal()->showNotification("Select a secondary object to be picked!");
+			if (pickPrimarySelection) {
+				getEngineGlobal()->showNotification("Select an object to be picked!");
+			} else {
+				getEngineGlobal()->showNotification("Select a secondary object to be picked!");
+			}
 		}
 	}
-	ImGuiEx::TextTooltip("Select a secondary object and click this button to pick it!");
 
+	if (pickPrimarySelection) {
+		ImGuiEx::TextTooltip("Select an object and click this button to pick it!");
+	} else {
+		ImGuiEx::TextTooltip("Select a secondary object and click this button to pick it!");
+	}
 	ImGui::SameLine();
 
 	const GameObject* const initalObject = world.getObjectById(ioValue);

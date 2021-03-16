@@ -16,10 +16,10 @@ void FABRIKSolver(const int numPoints,
 	sgeAssert(linkLengths != nullptr);
 	maxIterations = maxOf(1, maxIterations);
 
-	const vec3f startPosWs = inoutPoints[0];
+	const vec3f startPos = inoutPoints[0];
 
 	for (int iIteration = 0; iIteration < maxIterations; ++iIteration) {
-		if (distance(startPosWs, endAffector) <= earlyExitDelta) {
+		if (distance(startPos, endAffector) <= earlyExitDelta) {
 			break;
 		}
 
@@ -38,7 +38,7 @@ void FABRIKSolver(const int numPoints,
 
 		// forwards step.
 		{
-			inoutPoints[0] = startPosWs;
+			inoutPoints[0] = startPos;
 			for (int iPoint = 1; iPoint < numPoints; ++iPoint) {
 				const vec3f staticPoint = inoutPoints[iPoint - 1];
 				vec3f& pointToMove = inoutPoints[iPoint];
@@ -50,23 +50,24 @@ void FABRIKSolver(const int numPoints,
 		}
 	}
 
+	// If pole is specified rotate all the points around the like that forms from the previous and next points
+	// to the point is oriented towards the pole.
 	if (pPole != nullptr) {
-		vec3f pole = *pPole;
 		for (int t = 1; t < numPoints - 1; ++t) {
 			vec3f planeNormal = (inoutPoints[t + 1] - inoutPoints[t - 1]).normalized0();
 			if (planeNormal.lengthSqr() < 1e-6f) {
 				continue;
 			}
 
-			vec3f planePosition = inoutPoints[t - 1];
+			const vec3f planePosition = inoutPoints[t - 1];
 
 			const Plane p = Plane::FromPosAndDir(planePosition, planeNormal);
 
-			vec3f poleOnPlane = (p.Project(pole) - planePosition).normalized0();
-			vec3f pointOnPlane = (p.Project(inoutPoints[t]) - planePosition).normalized0();
+			const vec3f poleOnPlane = (p.Project(*pPole) - planePosition).normalized0();
+			const vec3f pointOnPlane = (p.Project(inoutPoints[t]) - planePosition).normalized0();
 
-			float dotProd = dot(poleOnPlane, pointOnPlane);
-			float angle = acosf(clamp(dotProd, -1.f, 1.f));
+			const float dotProd = dot(poleOnPlane, pointOnPlane);
+			float angle = acosUnorm(dotProd);
 			vec3f crossProd = cross(pointOnPlane, poleOnPlane);
 
 			if (crossProd.lengthSqr() < 1e-5f && isEpsEqual(dotProd, 0.f)) {
@@ -77,7 +78,7 @@ void FABRIKSolver(const int numPoints,
 				angle = -angle;
 			}
 
-			vec3f pt = quat_mul_pos(quatf::getAxisAngle(planeNormal, angle), (inoutPoints[t] - planePosition)) + planePosition;
+			const vec3f pt = quat_mul_pos(quatf::getAxisAngle(planeNormal, angle), (inoutPoints[t] - planePosition)) + planePosition;
 			inoutPoints[t] = pt;
 		}
 	}

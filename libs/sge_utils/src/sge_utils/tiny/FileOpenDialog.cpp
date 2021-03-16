@@ -27,7 +27,7 @@ bool DialogYesNo(const char* caption, const char* message) {
 #endif
 }
 
-std::string FileOpenDialog(const std::string& prompt, bool fileMustExists, const char* fileFilter) {
+std::string FileOpenDialog(const std::string& prompt, bool fileMustExists, const char* fileFilter, const char* initialDir) {
 #ifdef WIN32
 
 	static std::mutex mtx;
@@ -46,6 +46,7 @@ std::string FileOpenDialog(const std::string& prompt, bool fileMustExists, const
 		ofns.nMaxFile = BUFSIZE;
 		ofns.lpstrTitle = prompt.c_str();
 		ofns.lpstrFilter = fileFilter ? fileFilter : "All Files\0*.*\0";
+		ofns.lpstrInitialDir = initialDir;
 
 		if (fileMustExists) {
 			ofns.Flags |= OFN_FILEMUSTEXIST;
@@ -77,7 +78,7 @@ std::string FileOpenDialog(const std::string& prompt, bool fileMustExists, const
 #endif
 }
 
-std::string FileSaveDialog(const std::string& prompt, const char* fileFilter, const char* defaultExtension) {
+std::string FileSaveDialog(const std::string& prompt, const char* fileFilter, const char* defaultExtension, const char* initialDir) {
 #ifdef WIN32
 
 	static std::mutex mtx;
@@ -90,18 +91,19 @@ std::string FileSaveDialog(const std::string& prompt, const char* fileFilter, co
 
 	// GetOpenFileName changes the current directory. We do not want that so we revert it back to what it was.
 	if (GetCurrentDirectory(ARRAYSIZE(currentDir), currentDir) != 0) {
-		OPENFILENAME ofns = {0};
+		OPENFILENAMEA ofns = {0};
 		ofns.lStructSize = sizeof(ofns);
 		ofns.lpstrFile = buffer;
 		ofns.nMaxFile = BUFSIZE;
 		ofns.lpstrTitle = prompt.c_str();
 		ofns.lpstrDefExt = defaultExtension;
 		ofns.lpstrFilter = fileFilter ? fileFilter : "All Files\0*.*\0";
+		ofns.lpstrInitialDir = initialDir;
 		ofns.Flags |= OFN_FILEMUSTEXIST;
 
 		const BOOL okClicked = GetSaveFileNameA(&ofns);
 
-		SetCurrentDirectory(currentDir);
+		SetCurrentDirectoryA(currentDir);
 	} else {
 		sgeAssert(false);
 	}
@@ -118,13 +120,13 @@ std::string FolderOpenDialog(const char* const prompt, const std::string& initia
 #ifdef WIN32
 	CHAR resultPath[MAX_PATH];
 
-	BROWSEINFO browseInfo = {0};
+	BROWSEINFOA browseInfo = {0};
 	browseInfo.lpszTitle = prompt ? prompt : "Pick a Folder:";
 	browseInfo.ulFlags = BIF_RETURNONLYFSDIRS | BIF_NEWDIALOGSTYLE;
 	browseInfo.lpfn = nullptr;
 	browseInfo.lParam = initialPath.empty() ? LPARAM(0) : (LPARAM)initialPath.c_str();
 
-	const LPITEMIDLIST pickedFolderID = SHBrowseForFolder(&browseInfo);
+	const LPITEMIDLIST pickedFolderID = SHBrowseForFolderA(&browseInfo);
 
 	if (pickedFolderID != 0) {
 		SHGetPathFromIDListA(pickedFolderID, resultPath);

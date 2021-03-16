@@ -26,7 +26,7 @@ void WorldSettingsWindow::update(SGEContext* const UNUSED(sgecon), const InputSt
 				ImGui::PushID(t);
 
 				string_format(label, "Script %d", t);
-				actorPicker(label.c_str(), *world, world->m_scriptObjects[t]);
+				actorPicker(label.c_str(), *world, world->m_scriptObjects[t], nullptr, true);
 
 				if (ImGui::Button(ICON_FK_TRASH)) {
 					indexToDelete = t;

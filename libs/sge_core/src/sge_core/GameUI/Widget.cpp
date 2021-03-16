@@ -80,14 +80,14 @@ Rect2s IWidget::getScissorRect() const {
 }
 
 //----------------------------------------------------
-// PanelWidget
+// ColoredWidget
 //----------------------------------------------------
-std::shared_ptr<PanelWidget> PanelWidget::create(UIContext& owningContext, Pos position, Size size) {
-	auto panel = std::make_shared<PanelWidget>(owningContext, position, size);
+std::shared_ptr<ColoredWidget> ColoredWidget::create(UIContext& owningContext, Pos position, Size size) {
+	auto panel = std::make_shared<ColoredWidget>(owningContext, position, size);
 	return panel;
 }
 
-void PanelWidget::draw(const UIDrawSets& drawSets) {
+void ColoredWidget::draw(const UIDrawSets& drawSets) {
 	const AABox2f bboxScissorsSS = getScissorBoxSS();
 	drawSets.quickDraw->drawRect(drawSets.rdest, bboxScissorsSS.min.x, bboxScissorsSS.min.y, bboxScissorsSS.size().x,
 	                             bboxScissorsSS.size().y, m_color, getCore()->getGraphicsResources().BS_backToFrontAlpha);
@@ -226,8 +226,8 @@ std::shared_ptr<HorizontalComboBox> HorizontalComboBox::create(UIContext& owning
 	hcombo->m_leftBtn = leftBtn;
 	hcombo->m_rightBtn = rightBtn;
 
-	hcombo->m_leftPressSub = leftBtn->onRelease([hcombo] { hcombo->leftPressed(); });
-	hcombo->m_rightPressSub = rightBtn->onRelease([hcombo] { hcombo->rightPressed(); });
+	hcombo->m_leftPressSub = leftBtn->subscribe_onRelease([hcombo] { hcombo->leftPressed(); });
+	hcombo->m_rightPressSub = rightBtn->subscribe_onRelease([hcombo] { hcombo->rightPressed(); });
 
 	hcombo->addChild(leftBtn);
 	hcombo->addChild(rightBtn);

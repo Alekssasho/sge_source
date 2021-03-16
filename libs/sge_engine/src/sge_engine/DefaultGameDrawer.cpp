@@ -1,6 +1,20 @@
+#include "sge_engine/DefaultGameDrawer.h"
 #include "sge_core/DebugDraw.h"
 #include "sge_core/ICore.h"
 #include "sge_core/QuickDraw.h"
+#include "sge_engine/GameInspector.h"
+#include "sge_engine/GameWorld.h"
+#include "sge_engine/IWorldScript.h"
+#include "sge_engine/Physics.h"
+#include "sge_engine/actors/ABlockingObstacle.h"
+#include "sge_engine/actors/ACRSpline.h"
+#include "sge_engine/actors/ACamera.h"
+#include "sge_engine/actors/AInfinitePlaneObstacle.h"
+#include "sge_engine/actors/AInvisibleRigidObstacle.h"
+#include "sge_engine/actors/ALight.h"
+#include "sge_engine/actors/ALine.h"
+#include "sge_engine/actors/ALocator.h"
+#include "sge_engine/actors/ANavMesh.h"
 #include "sge_engine/materials/Material.h"
 #include "sge_engine/traits/TraitModel.h"
 #include "sge_engine/traits/TraitMultiModel.h"
@@ -10,22 +24,6 @@
 #include "sge_engine/traits/TraitViewportIcon.h"
 #include "sge_utils/math/Frustum.h"
 #include "sge_utils/math/color.h"
-
-#include "sge_engine/GameInspector.h"
-#include "sge_engine/GameWorld.h"
-#include "sge_engine/Physics.h"
-#include "sge_engine/actors/ABlockingObstacle.h"
-#include "sge_engine/actors/ACRSpline.h"
-#include "sge_engine/actors/ACamera.h"
-#include "sge_engine/actors/AInfinitePlaneObstacle.h"
-#include "sge_engine/actors/ALight.h"
-#include "sge_engine/actors/ALine.h"
-#include "sge_engine/actors/ALocator.h"
-#include "sge_engine/actors/ANavMesh.h"
-
-#include "sge_engine/actors/AInvisibleRigidObstacle.h"
-
-#include "sge_engine/DefaultGameDrawer.h"
 #include "sge_utils/utils/FileStream.h"
 
 // Caution:
@@ -507,6 +505,12 @@ void DefaultGameDrawer::drawWorld(const GameDrawSets& drawSets, const DrawReason
 	}
 
 	getCore()->getDebugDraw().draw(drawSets.rdest, drawSets.drawCamera->getProjView());
+
+	for (ObjectId scriptObj : getWorld()->m_scriptObjects) {
+		if (IWorldScript* script = dynamic_cast<IWorldScript*>(getWorld()->getObjectById(scriptObj))) {
+			script->onPostDraw(drawSets);
+		}
+	}
 }
 
 void DefaultGameDrawer::drawActor(

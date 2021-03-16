@@ -14,7 +14,7 @@ namespace sge {
 static void promptForModel(std::shared_ptr<Asset>& asset) {
 	AssetLibrary* const assetLib = getCore()->getAssetLib();
 
-	const std::string filename = FileOpenDialog("Pick a model", true, "*.mdl\0*.mdl\0");
+	const std::string filename = FileOpenDialog("Pick a model", true, "*.mdl\0*.mdl\0", nullptr);
 	if (!filename.empty()) {
 		asset = assetLib->getAsset(AssetType::Model, filename.c_str(), true);
 	}

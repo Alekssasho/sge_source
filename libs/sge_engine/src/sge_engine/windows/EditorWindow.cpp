@@ -31,9 +31,9 @@
 #include "sge_engine/actors/ALine.h"
 #include "sge_utils/tiny/FileOpenDialog.h"
 #include "sge_utils/utils/FileStream.h"
+#include "sge_utils/utils/Path.h"
 #include "sge_utils/utils/common.h"
 #include "sge_utils/utils/json.h"
-#include "sge_utils/utils/Path.h"
 #include "sge_utils/utils/strings.h"
 
 #include "IconsForkAwesome/IconsForkAwesome.h"
@@ -88,10 +88,10 @@ EditorWindow::EditorWindow(WindowBase& nativeWindow, std::string windowName)
 	m_gameDrawer.reset(getEngineGlobal()->getActivePlugin()->allocateGameDrawer());
 
 	getEngineGlobal()->subscribeOnPluginChange([this]() -> void { onGamePluginChanged(); }).abandon();
-	 
-	sgeAssert(m_gameDrawer != nullptr);   
-	 
-	newScene(); 
+
+	sgeAssert(m_gameDrawer != nullptr);
+
+	newScene();
 
 	getEngineGlobal()->addWindow(new AssetsWindow(ICON_FK_FILE " Assets", m_sceneInstance.getInspector()));
 	getEngineGlobal()->addWindow(new OutlinerWindow(ICON_FK_SEARCH " Outliner", m_sceneInstance.getInspector()));
@@ -227,7 +227,10 @@ void EditorWindow::saveWorldToFile(bool forceAskForFilename) {
 	if (!forceAskForFilename && m_sceneInstance.getWorld().m_workingFilePath.empty() == false) {
 		filename = m_sceneInstance.getWorld().m_workingFilePath;
 	} else {
-		filename = FileSaveDialog("Save GameWorld to file...", "*.lvl\0*.lvl\0", "lvl");
+		// In order for the File Save dialog to point to the default assets/levels directory
+		// the directory must exist.
+		std::filesystem::create_directories("./assets/levels");
+		filename = FileSaveDialog("Save GameWorld to file...", "*.lvl\0*.lvl\0", "lvl", "./assets/levels");
 		if (filename.empty() == false) {
 			if (extractFileExtension(filename.c_str()).empty()) {
 				filename += ".lvl";
@@ -305,7 +308,10 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 
 			if (ImGui::MenuItem(ICON_FK_FOLDER_OPEN " Open Scene")) {
 				if (DialogYesNo("Open GameWorld", "Are you sure? All unsaved data WILL BE LOST?")) {
-					const std::string filename = FileOpenDialog("Load GameWorld form file...", true, "*.lvl\0*.lvl\0");
+					// In order for the file save dialong to be opned in the default assets/levels directory
+					// the directory must exist.
+					std::filesystem::create_directories("./assets/levels");
+					const std::string filename = FileOpenDialog("Load GameWorld form file...", true, "*.lvl\0*.lvl\0", "./assets/levels");
 
 					if (!filename.empty()) {
 						loadWorldFromFile(filename.c_str());
@@ -326,12 +332,15 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 					}
 				}
 
-				for (const auto& levelFile : levelsList) {
-					if (ImGui::MenuItem(levelFile.c_str())) {
-						loadWorldFromFile(levelFile.c_str());
+				if (levelsList.empty()) {
+					ImGui::Text(ICON_FK_EXCLAMATION_TRIANGLE" No files in assets/levels.");
+				} else {
+					for (const auto& levelFile : levelsList) {
+						if (ImGui::MenuItem(levelFile.c_str())) {
+							loadWorldFromFile(levelFile.c_str());
+						}
 					}
 				}
-
 				ImGui::EndMenu();
 			}
 
@@ -734,7 +743,6 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 	if (m_isWelcomeWindowOpened && ImGui::Begin("Welcome Window", &m_isWelcomeWindowOpened,
 	                                            ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar |
 	                                                ImGuiWindowFlags_AlwaysAutoResize)) {
-
 		ImGui::SetWindowFontScale(2.f);
 		ImGui::TextColored(ImVec4(0.25f, 1.f, 0.63f, 1.f), "Welcome to SGEEditor");
 		ImGui::SetWindowFontScale(1.f);

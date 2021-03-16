@@ -17,7 +17,7 @@ ILayout::ILayout(std::weak_ptr<IWidget> ownerWidget)
 
 ColumnLayout::ColumnLayout(std::weak_ptr<IWidget> ownerWidget, Pos pos, Size size)
     : ILayout(ownerWidget) {
-	m_columnContainer = std::make_shared<EmptyWidget>(getOwner()->getContext(), pos, size);
+	m_columnContainer = std::make_shared<InvisibleWidget>(getOwner()->getContext(), pos, size);
 	getOwner()->addChild(m_columnContainer);
 	m_spacing = Unit::fromFrac(0.01f);
 }

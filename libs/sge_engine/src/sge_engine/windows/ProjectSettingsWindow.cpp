@@ -27,7 +27,7 @@ void ProjectSettingsWindow::update(SGEContext* const UNUSED(sgecon), const Input
 
 		ImGuiEx::Label("Initial Level");
 		if (ImGui::Button(ICON_FK_FOLDER_OPEN)) {
-			std::string pickedLevel = FileOpenDialog("Select a the Initial level when the game is launched...", true, "*.lvl\0*.lvl\0");
+			std::string pickedLevel = FileOpenDialog("Select a the Initial level when the game is launched...", true, "*.lvl\0*.lvl\0", "./assets/levels");
 			if (pickedLevel.empty() == false) {
 				m_gamePlayerSetting.initalLevel = pickedLevel;
 			}

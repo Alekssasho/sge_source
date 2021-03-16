@@ -9,7 +9,7 @@
 namespace sge::gamegui {
 
 struct IWidget;
-struct EmptyWidget;
+struct InvisibleWidget;
 
 //----------------------------------------------------
 // ILayout
@@ -42,7 +42,7 @@ struct SGE_CORE_API ColumnLayout : public ILayout {
 	Unit m_spacing;
 
 	std::vector<std::shared_ptr<IWidget>> m_widgets;
-	std::shared_ptr<EmptyWidget> m_columnContainer;
+	std::shared_ptr<InvisibleWidget> m_columnContainer;
 };
 
 } // namespace sge::gamegui

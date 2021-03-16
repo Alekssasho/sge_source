@@ -1,8 +1,6 @@
-##########################################################################################################
-# Project SGEEngine
-##########################################################################################################
+# SGEEngine root CMake file.
 
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.14)
 project(sge)
 
 # Needed for Liunx:
@@ -19,8 +17,33 @@ if(NOT WIN32)
 	set(CMAKE_INSTALL_RPATH "$ORIGIN")
 endif()
 
+# CAUTION: In order to "Support" Window 7...
+# https://msdn.microsoft.com/en-us/library/6sehtctf.aspx
+if(WIN32)
+	add_definitions(-DWINVER=0x0601)
+	add_definitions(-D_WIN32_WINNT=0x0601)
+endif()
+
 # Enable parallel compilation for MSVC by defult.
 add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
+
+# Enable C++17. Add other compiler specific options.
+if(UNIX)
+	# [TODO] remove -w, find out what -g means (i think it instructs NOT to strip debug symbols)
+	set(CMAKE_CXX_STANDARD 17)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w -g -fpermissive") #-std=c++14
+endif()
+
+if(MSVC)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
+endif()
+
+if(EMSCRIPTEN)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=1")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s WASM=0") # Did not worked correctly last tile I've tried, it complained about some streaming API things when reading WASM code.
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL=2")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s ALLOW_MEMORY_GROWTH=1") # By default Emscripten has a fixed pool size for dynamic allocations.
+endif()
 
 # Create the NoOpt configuration, which is the same as Release, but without optimizations.
 # it is useful while developing as it is faster then Debug.
@@ -49,31 +72,6 @@ SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DSGE_USE_DEBUG")
 SET(CMAKE_C_FLAGS_NOOPT "${CMAKE_C_FLAGS_NOOPT} -DSGE_USE_DEBUG")
 SET(CMAKE_CXX_FLAGS_NOOPT "${CMAKE_CXX_FLAGS_NOOPT} -DSGE_USE_DEBUG")
 
-# Enable C++17. Add other compiler specific options.
-if(UNIX)
-	# [TODO] remove -w, find out what -g means (i think it instructs NOT to strip debug symbols)
-	set(CMAKE_CXX_STANDARD 17)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w -g -fpermissive") #-std=c++14
-endif()
-if(MSVC)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
-endif()
-
-if(EMSCRIPTEN)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=1")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s WASM=0") # Did not worked correctly last tile I've tried, it complained about some streaming API things when reading WASM code.
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL=2")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s ALLOW_MEMORY_GROWTH=1") # By default Emscripten has a fixed pool size for dynamic allocations.
-endif()
-
-
-# CAUTION: In order to "Support" Window 7...
-# https://msdn.microsoft.com/en-us/library/6sehtctf.aspx
-if(WIN32)
-	add_definitions(-DWINVER=0x0601)
-	add_definitions(-D_WIN32_WINNT=0x0601)
-endif()
-
 # Add some helper functions.
 include(./scripts/cmake/macros.cmake)
 
@@ -82,10 +80,26 @@ macro(sge_mark_external_target target_name)
 if(TARGET ${target_name})
 	set_target_properties (${target_name} PROPERTIES FOLDER lib_ext)
 endif()
-endmacro(sge_mark_external_target)
+endmacro()
 
-#####################################################
-# Properties and config settings
+# Marks the specified target (if exists) to be filtered in IDE as a library.
+macro(sge_mark_internal_lib target_name)
+if(TARGET ${target_name})
+	set_target_properties (${target_name} PROPERTIES FOLDER lib)
+endif()
+endmacro()
+
+# Marks the specified target (if exists) to be filtered in IDE as tools that are executable.
+macro(sge_mark_internal_tools target_name)
+if(TARGET ${target_name})
+	set_target_properties (${target_name} PROPERTIES FOLDER tools)
+endif()
+endmacro()
+
+#---------------------------------------------------------------
+# Properties and config settings that the user should specify
+# or hopefully be able to use the default.
+#---------------------------------------------------------------
 if(WIN32)
 	set(SGE_REND_API "Direct3D11" CACHE STRING "Rendering API")
 else()
@@ -94,14 +108,12 @@ endif()
 set_property(CACHE SGE_REND_API PROPERTY STRINGS Direct3D11 OpenGL)
 
 set(SGE_FBX_SDK_DIR "" CACHE PATH "The directory that contains the FBX SDK include directory.")
-set(SGE_INSTALL_DIR_FORCE "${CMAKE_BINARY_DIR}/SGEEngine_Installed" CACHE PATH "The install directory for the INSTALL target. This is the same as CMAKE_INSTALL_PREFIX with a new name to have all SGE options in one place.")
-set(CMAKE_INSTALL_PREFIX ${SGE_INSTALL_DIR_FORCE} CACHE PATH "" FORCE)
 
 if(SGE_FBX_SDK_DIR STREQUAL "")
-	message(WARNING "FBX SDK Is not specified! Importing FBX Files would not be possible.")
+	message(WARNING "FBX SDK Is not specified! Importing FBX Files would not be possible. However the build should succeed!")
 endif()
 
-#####################################################
+# Print some messages that show what configuration is being used.
 MESSAGE("SGE_REND_API = ${SGE_REND_API}")
 MESSAGE("SGE_FBX_SDK_DIR = ${SGE_FBX_SDK_DIR}")
 
@@ -146,8 +158,7 @@ macro(sgePromoteWarningsOnTarget target)
 	endif()
 endmacro()
 
-#####################################################
-# Add projects that don't depend on SGE.
+# Add the 3rd party libraries to the build.
 add_subdirectory(./libs_ext/mcpp)
 add_subdirectory(./libs_ext/HLSLParser)
 add_subdirectory(./libs_ext/bullet)
@@ -156,12 +167,13 @@ add_subdirectory(./libs_ext/imgui)
 add_subdirectory(./libs_ext/doctest)
 
 # Use SDL2 as a dll.
+# The code shouldn't depend on SDL2 being a DLL
+# it should work fine if it is a static library.
 set(SDL_STATIC OFF CACHE BOOL "  " FORCE)
 set(SDL_SHARED ON CACHE BOOL "  " FORCE)
 add_subdirectory(./libs_ext/SDL2)
 
-#####################################################
-# Add projects that depend on SGE but not on the renderer
+# Add SGEEngine and all of its targets.
 add_subdirectory(./libs/sge_utils)
 
 # Set Definitions Rendering APIs.
@@ -186,15 +198,17 @@ add_subdirectory(./sge_editor)
 add_subdirectory(./sge_player)
 add_subdirectory(./project_maker)
 
+# No matter what the other project sets (particularly 3rd parties)
+# we do not want to used configuration postfix in the output files.
 set(CMAKE_DEBUG_POSTFIX "" CACHE STRING "" FORCE)
 set(CMAKE_NOOPT_POSTFIX "" CACHE STRING "" FORCE)
 set(CMAKE_RELEASE_POSTFIX "" CACHE STRING "" FORCE)
 set(CMAKE_RELWITHDEBINFO_POSTFIX "" CACHE STRING "" FORCE)
 
-
 # Organize the generated project in gropus to have them nicely displaced in the IDE (if supported).
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+# External projects.
 sge_mark_external_target(glew)
 sge_mark_external_target(lua)
 sge_mark_external_target(imgui)
@@ -212,6 +226,19 @@ sge_mark_external_target(SDL2-static)
 #sge_mark_external_target(doctest) # doctest doesn't create any targets, so it is not needed.
 sge_mark_external_target(mcpp)
 sge_mark_external_target(HLSLParser)
+
+# Internal projects.
+sge_mark_internal_lib(mdlconvlib)
+sge_mark_internal_lib(sge_utils)
+sge_mark_internal_lib(sge_utils_Tests)
+sge_mark_internal_lib(sge_renderer)
+sge_mark_internal_lib(sge_core)
+sge_mark_internal_lib(sge_engine)
+sge_mark_internal_lib(mdlconvlib)
+
+sge_mark_internal_tools(project_maker)
+sge_mark_internal_tools(sge_player)
+sge_mark_internal_tools(sge_editor)
 
 include(engine_install.cmake)
 include(copy_engine_helper.cmake)

@@ -240,5 +240,12 @@ inline T sign(const T& f) {
 inline float smoothstep(float k) {
 	return 3.f * k * k - 2.f * k * k * k;
 }
+/// @brief arccosine where the input argument is clamped in [-1;1] range.
+/// Acosf would crash if the input parameter is out of bounds, however when we do maths
+/// it sometimes happen due to floating point precision for that value to get slightly out of range.
+/// in that case we really do not want to crash.
+inline float acosUnorm(const float v) {
+	return acos(clamp(v, -1.f, 1.f));
+}
 
 } // namespace sge
