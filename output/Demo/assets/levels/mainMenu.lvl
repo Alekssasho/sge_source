@@ -1,6 +1,6 @@
 {
 	"version":0,
-	"nextNameIndex":15,
+	"nextNameIndex":20,
 	"nextActorId":6,
 	"actors":[
 		{
@@ -79,28 +79,6 @@
 			}
 		},
 		{
-			"type":"ALocator",
-			"id":3,
-			"members":{
-				"m_bindingIgnoreRotation":false,
-				"m_bindingToParentTransform":{
-					
-				},
-				"m_logicTransform":{
-					"r":{
-						"x":0.000000,
-						"y":0.000000,
-						"z":0.000000,
-						"w":-1.000000
-					}
-				},
-				"m_id":{
-					"id":3
-				},
-				"m_displayName":"ALocator_2"
-			}
-		},
-		{
 			"type":"ACamera",
 			"id":2,
 			"members":{
@@ -146,6 +124,28 @@
 						"orthographicMantainRatio":true
 					}
 				}
+			}
+		},
+		{
+			"type":"ALocator",
+			"id":3,
+			"members":{
+				"m_bindingIgnoreRotation":false,
+				"m_bindingToParentTransform":{
+					
+				},
+				"m_logicTransform":{
+					"r":{
+						"x":0.000000,
+						"y":0.000000,
+						"z":0.000000,
+						"w":-1.000000
+					}
+				},
+				"m_id":{
+					"id":3
+				},
+				"m_displayName":"ALocator_2"
 			}
 		},
 		{
@@ -219,12 +219,11 @@
 					]
 				},
 				"framesPerSecond":10,
-				"frameCount":20,
+				"frameCount":21,
 				"playbackMethod":0,
 				"m_gameplayEvalTime":0.000000,
 				"m_editingEvaltime":0.000000,
 				"moveObjectsOnTop":false,
-				"useLinearInterpolation":false,
 				"flipFlopDir":1.000000
 			}
 		},

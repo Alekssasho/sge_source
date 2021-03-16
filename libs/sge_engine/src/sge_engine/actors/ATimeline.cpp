@@ -54,7 +54,6 @@ ReflBlock() {
 		ReflMember(ATimeline, m_gameplayEvalTime)
 		ReflMember(ATimeline, m_editingEvaltime)
 		ReflMember(ATimeline, moveObjectsOnTop)
-		ReflMember(ATimeline, useLinearInterpolation)
 		ReflMember(ATimeline, flipFlopDir).addMemberFlag(MFF_NonEditable)
 	;
 }
@@ -344,11 +343,9 @@ void ATimeline::postUpdate(const GameUpdateSets& u) {
 
 	if (shouldUpdate) {
 		const float deltaTimeForUpdate = shouldUpdate ? u.dt : 0.f;
-		const float evalTimeToUse = isInEditMode ? m_editingEvaltime : m_gameplayEvalTime;
-
-		float smoothedLerpTime = (evalTimeToUse / totalAnimLength);
-		if (useLinearInterpolation == false) {
-			smoothedLerpTime = smoothstep(smoothedLerpTime) * totalAnimLength;
+		float evalTime = isInEditMode ? m_editingEvaltime : m_gameplayEvalTime;
+		if (m_useSmoothInterpolation) {
+			evalTime = smoothstep(evalTime / totalAnimLength) * totalAnimLength;
 		}
 
 		// Find the keys that we need to use to compute the final transform.
@@ -356,7 +353,7 @@ void ATimeline::postUpdate(const GameUpdateSets& u) {
 		for (int frame = 1; frame < keyFrames.size(); ++frame) {
 			const bool isLast = (frame + 1) == keyFrames.size();
 
-			if (isLast || (keyFrames.getAllKeys()[frame] * frameLengthSeconds >= smoothedLerpTime)) {
+			if (isLast || (keyFrames.getAllKeys()[frame] * frameLengthSeconds >= evalTime)) {
 				iKey = frame - 1;
 				break;
 			}
@@ -369,7 +366,7 @@ void ATimeline::postUpdate(const GameUpdateSets& u) {
 		if (keyFrames.size() > 1) {
 			const float t0 = keyFrames.keyAtIdx(iKey) * frameLengthSeconds;
 			const float t1 = keyFrames.keyAtIdx(iKey + 1) * frameLengthSeconds;
-			const float k = std::min(1.f, (smoothedLerpTime - t0) / (t1 - t0));
+			const float k = std::min(1.f, (evalTime - t0) / (t1 - t0));
 
 			newTransfrom = lerp(keyFrames.valueAtIdx(iKey), keyFrames.valueAtIdx(iKey + 1), k);
 		}

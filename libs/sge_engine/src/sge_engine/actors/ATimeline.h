@@ -51,7 +51,6 @@ struct ATimeline : public Actor, public IActorCustomAttributeEditorTrait {
 	ObjectId targetActorId; // The object that we are going to move.
 	int framesPerSecond = 30;
 	int frameCount = 30;
-	bool useLinearInterpolation = false;
 
 	vector_map<int, transf3d> keyFrames;
 };
