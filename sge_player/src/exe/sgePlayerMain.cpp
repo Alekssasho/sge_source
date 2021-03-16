@@ -195,7 +195,7 @@ int sge_main(int argc, char** argv) {
 	g_argv = argv;
 
 	if (!g_playerSettings.loadFromJsonFile("appdata/game_project_settings.json")) {
-		DialogYesNo("Error", "game_project_settings.json seems to be missing or invalid!");
+		DialongOk("Error", "appData/game_project_settings.json seems to be missing or invalid! The will not start!");
 		return 0;
 	}
 

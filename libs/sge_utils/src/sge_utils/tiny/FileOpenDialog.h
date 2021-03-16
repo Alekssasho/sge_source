@@ -5,6 +5,7 @@
 
 namespace sge {
 
+void DialongOk(const char* caption, const char* message);
 bool DialogYesNo(const char* caption, const char* message);
 
 std::string FileOpenDialog(const std::string& prompt, bool fileMustExists, const char* fileFilter, const char* initialDir);

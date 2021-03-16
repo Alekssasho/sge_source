@@ -333,7 +333,7 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 				}
 
 				if (levelsList.empty()) {
-					ImGui::Text(ICON_FK_EXCLAMATION_TRIANGLE" No files in assets/levels.");
+					ImGui::Text(ICON_FK_EXCLAMATION_TRIANGLE " No files in assets/levels.");
 				} else {
 					for (const auto& levelFile : levelsList) {
 						if (ImGui::MenuItem(levelFile.c_str())) {
@@ -493,13 +493,25 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 
 		if (ImGui::BeginMenu(ICON_FK_DOWNLOAD " Run & Export")) {
 			if (ImGui::MenuItem(ICON_FK_PLAY " Run")) {
-				system("start sge_player");
+				if (std::filesystem::exists("appData/game_project_settings.json")) {
+					system("start sge_player");
+				} else {
+					DialongOk("Game Run",
+					          "Game cannot be run, as there is no initial project settings specified. To specify them open Windows -> "
+					          "Project Settings");
+				}
 			}
 
 			if (ImGui::MenuItem(ICON_FK_DOWNLOAD " Export")) {
 				std::string exportFolder = FolderOpenDialog("Pick an Export location:", std::string());
-				if (exportFolder.empty() == false) {
-					exportGame(exportFolder);
+				if (std::filesystem::exists("appData/game_project_settings.json")) {
+					if (exportFolder.empty() == false) {
+						exportGame(exportFolder);
+					}
+				} else {
+					DialongOk("Game Run",
+					          "Game cannot be run, as there is no initial project settings specified. To specify them open Windows -> "
+					          "Project Settings");
 				}
 			}
 

@@ -9,12 +9,21 @@
 // clang-format on
 #else
 #include <cstdio>
-#include "sge_utils/utils/strings.h"
 #endif
 
+#include "sge_utils/utils/strings.h"
 #include "FileOpenDialog.h"
 
 namespace sge {
+
+void DialongOk(const char* caption, const char* message) {
+#ifdef WIN32
+	MessageBoxA(NULL, message, caption, MB_OK | MB_ICONQUESTION);
+#else
+	std::string cmd = string_format("zenity --info --text=\"%s\"", message);
+	int res = system(cmd.c_str());
+#endif
+}
 
 bool DialogYesNo(const char* caption, const char* message) {
 #ifdef WIN32
@@ -22,8 +31,8 @@ bool DialogYesNo(const char* caption, const char* message) {
 	return res == IDYES;
 #else
 	// TODO: Question text. It is done with --text="my-text". Careful with "!" sign.
-	int res = system("zenity --question");
-	return res == 0; // apperantly 0 is yes.
+	std::string cmd = string_format("zenity --question --text=\"%s\"", message);
+	int res = system(cmd.c_str());
 #endif
 }
 
