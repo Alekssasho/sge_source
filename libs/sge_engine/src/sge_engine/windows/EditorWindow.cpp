@@ -493,8 +493,12 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 
 		if (ImGui::BeginMenu(ICON_FK_DOWNLOAD " Run & Export")) {
 			if (ImGui::MenuItem(ICON_FK_PLAY " Run")) {
-				if (std::filesystem::exists("appData/game_project_settings.json")) {
+				if (std::filesystem::exists("appdata/game_project_settings.json")) {
+					#if WIN32
 					system("start sge_player");
+					#else
+					system("./sge_player");
+					#endif
 				} else {
 					DialongOk("Game Run",
 					          "Game cannot be run, as there is no initial project settings specified. To specify them open Windows -> "
@@ -504,13 +508,13 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 
 			if (ImGui::MenuItem(ICON_FK_DOWNLOAD " Export")) {
 				std::string exportFolder = FolderOpenDialog("Pick an Export location:", std::string());
-				if (std::filesystem::exists("appData/game_project_settings.json")) {
+				if (std::filesystem::exists("appdata/game_project_settings.json")) {
 					if (exportFolder.empty() == false) {
 						exportGame(exportFolder);
 					}
 				} else {
-					DialongOk("Game Run",
-					          "Game cannot be run, as there is no initial project settings specified. To specify them open Windows -> "
+					DialongOk("Game Export",
+					          "Game cannot be exported, as there is no initial project settings specified. To specify them open Windows -> "
 					          "Project Settings");
 				}
 			}

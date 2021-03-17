@@ -1,6 +1,7 @@
 #include "ProjectSettingsWindow.h"
 #include "IconsForkAwesome/IconsForkAwesome.h"
 #include "sge_core/SGEImGui.h"
+#include "sge_core/ICore.h"
 #include "sge_engine/EngineGlobal.h"
 #include "sge_utils/tiny/FileOpenDialog.h"
 #include <filesystem>
@@ -31,7 +32,13 @@ void ProjectSettingsWindow::update(SGEContext* const UNUSED(sgecon), const Input
 			std::string pickedLevel =
 			    FileOpenDialog("Select a the Initial level when the game is launched...", true, "*.lvl\0*.lvl\0", "./assets/levels");
 			if (pickedLevel.empty() == false) {
-				m_gamePlayerSetting.initalLevel = pickedLevel;
+				
+				try {
+					pickedLevel = std::filesystem::proximate(pickedLevel).string();
+					m_gamePlayerSetting.initalLevel = pickedLevel;
+				} catch(...) {
+					SGE_DEBUG_ERR("Failed to convert initial level path to relative!");
+				}
 			}
 		}
 

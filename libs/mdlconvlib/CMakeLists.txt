@@ -55,8 +55,8 @@ else()
 		set_target_properties(FBXSDK_TARGET PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${SGE_FBX_SDK_DIR}/include")
 		
 		# IMPORTED_LOCATION_<CONFIG> only works on Windows with Visual Studio. For everything else we have to use IMPORTED_LOCATION
-		string(TOLOWER ${CMAKE_BUILD_CONFIG} CMAKE_BUILD_CONFIG_LOWERCASE)
-		if(CMAKE_BUILD_CONFIG_LOWERCASE STREQUAL "debug")
+		string(TOLOWER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_LOWERCASE)
+		if(CMAKE_BUILD_TYPE_LOWERCASE STREQUAL "debug")
 			set_target_properties(FBXSDK_TARGET PROPERTIES IMPORTED_LOCATION "${SGE_FBX_SDK_DIR}/lib/gcc/x64/release/libfbxsdk.a")
 		else()
 			set_target_properties(FBXSDK_TARGET PROPERTIES IMPORTED_LOCATION "${SGE_FBX_SDK_DIR}/lib/gcc/x64/debug/libfbxsdk.a")

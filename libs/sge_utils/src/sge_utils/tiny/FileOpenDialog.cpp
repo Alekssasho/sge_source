@@ -19,9 +19,11 @@ namespace sge {
 void DialongOk(const char* caption, const char* message) {
 #ifdef WIN32
 	MessageBoxA(NULL, message, caption, MB_OK | MB_ICONQUESTION);
-#else
+#elif !defined(__EMSCRIPTEN__)
 	std::string cmd = string_format("zenity --info --text=\"%s\"", message);
 	int res = system(cmd.c_str());
+#else
+	return;
 #endif
 }
 
@@ -29,10 +31,12 @@ bool DialogYesNo(const char* caption, const char* message) {
 #ifdef WIN32
 	int res = MessageBoxA(NULL, message, caption, MB_YESNO | MB_ICONQUESTION);
 	return res == IDYES;
-#else
+#elif !defined(__EMSCRIPTEN__)
 	// TODO: Question text. It is done with --text="my-text". Careful with "!" sign.
 	std::string cmd = string_format("zenity --question --text=\"%s\"", message);
 	int res = system(cmd.c_str());
+#else
+	return;
 #endif
 }
 
@@ -69,27 +73,31 @@ std::string FileOpenDialog(const std::string& prompt, bool fileMustExists, const
 	}
 
 	return std::string(buffer);
-#else
-#if !defined(__EMSCRIPTEN__)
-	// [TODO] Fix this madness...
-	char file[1024] = {0};
-	FILE* const f = popen("zenity --file-selection", "r");
-	sgeAssert(f != nullptr);
-	fgets(file, 1024, f);
-	file[SGE_ARRSZ(file)] = '\0'; // clamp if the filename is too long.
-	std::string s(file);          // [TODO] Zenitiy.
-	s.pop_back();                 // Delete the '\n' printed by zenity.
-	pclose(f);
-	return s;
+#elif !defined(__EMSCRIPTEN__)
+	const std::string cmd = string_format("zenity --file-selection --text=\"%s\"", prompt.c_str());
+
+	char pickedPathCStr[1024] = {0};
+	FILE* const fPipe = popen(cmd.c_str(), "r");
+	if(fPipe == nullptr) {
+		return std::string();
+	}
+
+	fgets(pickedPathCStr, 1024, fPipe);
+	pclose(fPipe);
+	
+	// Clamp if the filename is too long.
+	pickedPathCStr[SGE_ARRSZ(pickedPathCStr)] = '\0'; 
+	std::string pickedPath(pickedPathCStr);     
+	pickedPath.pop_back(); // Delete the '\n' printed by zenity.               
+	
+	return pickedPath;
 #else
 	return std::string();
-#endif
 #endif
 }
 
 std::string FileSaveDialog(const std::string& prompt, const char* fileFilter, const char* defaultExtension, const char* initialDir) {
 #ifdef WIN32
-
 	static std::mutex mtx;
 	std::lock_guard<std::mutex> mtx_guard(mtx);
 
@@ -118,10 +126,26 @@ std::string FileSaveDialog(const std::string& prompt, const char* fileFilter, co
 	}
 
 	return std::string(buffer);
+#elif !defined(__EMSCRIPTEN__)
+	const std::string cmd = string_format("zenity --file-selection --save --confirm-overwrite --text=\"%s\"", prompt.c_str());
+
+	char pickedPathCStr[1024] = {0};
+	FILE* const fPipe = popen(cmd.c_str(), "r");
+	if(fPipe == nullptr) {
+		return std::string();
+	}
+
+	fgets(pickedPathCStr, 1024, fPipe);
+	pclose(fPipe);
+	
+	// Clamp if the filename is too long.
+	pickedPathCStr[SGE_ARRSZ(pickedPathCStr)] = '\0'; 
+	std::string pickedPath(pickedPathCStr);     
+	pickedPath.pop_back(); // Delete the '\n' printed by zenity.               
+	
+	return pickedPath;
 #else
-	// Implement.
-	sgeAssert(false);
-	return std::string();
+return std::string();
 #endif
 }
 
@@ -155,7 +179,11 @@ std::string FolderOpenDialog(const char* const prompt, const std::string& initia
 	// [TODO] Fix this madness...
 	char file[1024] = {0};
 	FILE* const f = popen(zenityCmd.c_str(), "r");
-	sgeAssert(f != nullptr);
+	
+	if(f == nullptr) {
+		return std::string();
+	}
+
 	fgets(file, 1024, f);
 	file[SGE_ARRSZ(file)] = '\0'; // clamp if the filename is too long.
 	std::string s(file);          // [TODO] Zenitiy.
