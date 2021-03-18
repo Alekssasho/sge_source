@@ -60,7 +60,7 @@ void SceneInstance::update(float dt, const InputState& is) {
 	for (int t = 0; t < m_world.m_postSceneUpdateTasks.size(); ++t) {
 		IPostSceneUpdateTask* const task = m_world.m_postSceneUpdateTasks[t].get();
 
-		PostSceneUpdateDaskSetWorldState* const taskChangeWorldJson = dynamic_cast<PostSceneUpdateDaskSetWorldState*>(task);
+		PostSceneUpdateTaskSetWorldState* const taskChangeWorldJson = dynamic_cast<PostSceneUpdateTaskSetWorldState*>(task);
 		if (taskChangeWorldJson != nullptr) {
 			taskChangeWorldJson->newWorldStateJson;
 			loadWorldFromJson(taskChangeWorldJson->newWorldStateJson.c_str(), false, m_world.m_workingFilePath.c_str());

@@ -1,15 +1,15 @@
 #pragma once
 
+#include <functional>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <functional>
 
 #include "Actor.h"
 #include "Camera.h"
 #include "PhysicsDebugDraw.h"
-#include "sge_engine/Physics.h"
 #include "sge_core/application/input.h"
+#include "sge_engine/Physics.h"
 #include "sge_renderer/renderer/renderer.h"
 #include "sge_utils/utils/Event.h"
 #include "sge_utils/utils/vector_set.h"
@@ -30,9 +30,9 @@ struct SGE_ENGINE_API IPostSceneUpdateTask {
 	virtual ~IPostSceneUpdateTask() = default;
 };
 
-struct SGE_ENGINE_API PostSceneUpdateDaskSetWorldState final : public IPostSceneUpdateTask {
-	PostSceneUpdateDaskSetWorldState() = default;
-	PostSceneUpdateDaskSetWorldState(std::string json, bool noPauseNoEditorCamera)
+struct SGE_ENGINE_API PostSceneUpdateTaskSetWorldState final : public IPostSceneUpdateTask {
+	PostSceneUpdateTaskSetWorldState() = default;
+	PostSceneUpdateTaskSetWorldState(std::string json, bool noPauseNoEditorCamera)
 	    : newWorldStateJson(std::move(json))
 	    , noPauseNoEditorCamera(noPauseNoEditorCamera) {}
 
@@ -127,6 +127,7 @@ struct SGE_ENGINE_API GameWorld {
 	void iterateOverPlayingObjects(const std::function<bool(GameObject*)>& lambda, bool includeAwaitCreationObject);
 	void iterateOverPlayingObjects(const std::function<bool(const GameObject*)>& lambda, bool includeAwaitCreationObject) const;
 
+	/// @brief Retrieves a list of all playing object of the specified type. May be nullptr.
 	const std::vector<GameObject*>* getObjects(TypeId type) const {
 		const auto itr = playingObjects.find(type);
 		if (itr == playingObjects.end()) {
@@ -136,6 +137,7 @@ struct SGE_ENGINE_API GameWorld {
 		return &itr->second;
 	}
 
+	/// @brief Retrieves an object with the specified id.
 	template <typename T>
 	T* getObject(const ObjectId& id) {
 		GameObject* const go = getActorById(id);
@@ -146,6 +148,8 @@ struct SGE_ENGINE_API GameWorld {
 		return static_cast<T*>(go);
 	}
 
+	/// @brief Retrieves an actor with the specified id.
+	/// If the object exists but if it is not actor the function will return nullptr.
 	template <typename T>
 	T* getActor(const ObjectId& id) {
 		Actor* const actor = getActorById(id);
@@ -156,7 +160,6 @@ struct SGE_ENGINE_API GameWorld {
 		return static_cast<T*>(actor);
 	}
 
-	// Hierarchical relationship between game objects.
 
 	/// Sets the parent of the specified actor.
 	/// @param [in] child the id of the child object
@@ -170,31 +173,32 @@ struct SGE_ENGINE_API GameWorld {
 	bool setParentOf(ObjectId const child, ObjectId const newParent, bool doNotAssert = false);
 	ObjectId getParentId(ObjectId const child) const;
 
+	/// @brief Retrieves the parent actor of the specified actor.
 	Actor* getParentActor(ObjectId const child);
 
-	/// Returns the root parent (parent of the parent of the parent and so on) of the specified object.
+	/// @brief Returns the root parent (parent of the parent of the parent and so on) of the specified object.
 	ObjectId getRootParentId(ObjectId child) const;
 
-	/// Retrieves all childres of the specified object.
+	/// @brief Retrieves all childres of the specified object.
 	const vector_set<ObjectId>* getChildensOf(ObjectId const parent) const;
 	vector_set<ObjectId> getChildensOfAsList(ObjectId const parent) const {
 		const vector_set<ObjectId>* pList = getChildensOf(parent);
 		return pList ? *pList : vector_set<ObjectId>();
 	}
 
-	/// Returns all childrens and their childrens of the specified actor.
-	/// The values are appended to the list.
+	/// @brief Returns all childrens and their childrens of the specified actor.
+	///        The values are appended to the list.
 	void getAllChildren(vector_set<ObjectId>& result, ObjectId const parent) const;
 
-	/// Returns a list of all parents (and their parents) of the specified actor (without the specified actor itself)!
+	/// @brief Returns a list of all parents (and their parents) of the specified actor (without the specified actor itself)!
 	/// The values are appended to the list.
 	void getAllParents(vector_set<ObjectId>& result, ObjectId actorId) const;
 
-	/// Returns the parent and its parents and all childrens and their childrens of the specified actor.
+	/// @brief Returns the parent and its parents and all childrens and their childrens of the specified actor.
 	/// The values are appended to the list.
 	void getAllRelativesOf(vector_set<ObjectId>& result, ObjectId actorId) const;
 
-	/// Instantients the specified world into the current world.
+	/// @brief Instantients the specified world into the current world.
 	/// @param [in] prefabPath a path the world file to be instantiated.
 	/// @param [in] createHistory pass true if the changes should be added to undo/redo history.
 	void instantiatePrefab(const char* prefabPath, bool createHistory, bool shouldGenerateNewObjectIds);
@@ -225,26 +229,31 @@ struct SGE_ENGINE_API GameWorld {
 	                  const vector_set<ObjectId>* const pOblectsToInstantiate) const;
 
 
-	/// Used for giving object unique names (However the GameWorld still supports objects with same name).
+	/// @brief Used for giving object unique-ish names. However the GameWorld still supports objects with same name.
 	int getNextNameIndex();
 
+	/// @brief Returns the attached inspector (if any).
 	GameInspector* getInspector() { return inspector; }
 
+	/// @brief Retrieves the amount of time passed while not being paused.
 	float getGameTime() const { return gameTime; }
 
 	bool isInEditMode() const { return isEdited; }
 	void toggleEditMode() { isEdited = !isEdited; }
 
-	void addPostSceneTask(IPostSceneUpdateTask* const task) {
-		if (task) {
-			m_postSceneUpdateTasks.emplace_back(task);
-		} else {
-			sgeAssert(false);
-		}
-	}
+	/// @brief Adds a task to be executed after the scene update has finished.
+	/// @param task A pointer to DYNAMICALLY allocated with new to task to be executed.
+	///        Once done this funcion will call delete on that pointer.
+	void addPostSceneTask(IPostSceneUpdateTask* const task);
 
+	/// @brief A shortcut for addPostSceneTask. Useful for changeing the levels.
+	void addPostSceneTaskLoadWorldFormFile(const char* filename);
+
+	/// @brief Removes all manifold for the specified rigid body.
+	///        Used if for some reason the rigid body is invalidated during updates.
 	void removeRigidBodyManifold(RigidBody* rb);
 
+	/// @brief Changes the gravity for all objects currently playing in the scene.
 	void setDefaultGravity(const vec3f& gravity);
 
   public:

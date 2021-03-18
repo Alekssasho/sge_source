@@ -1,13 +1,13 @@
-#include "GameInspector.h"
-#include <functional>
-#include <thread>
-#include "EngineGlobal.h"
-#include "GameSerialization.h"
 #include "GameWorld.h"
+#include "EngineGlobal.h"
+#include "GameInspector.h"
+#include "GameSerialization.h"
 #include "IWorldScript.h"
 #include "InspectorCmd.h"
 #include "sge_core/ICore.h"
 #include "sge_utils/utils/strings.h"
+#include <functional>
+#include <thread>
 
 namespace sge {
 
@@ -256,6 +256,8 @@ void GameWorld::clear() {
 	m_physicsManifoldList.clear();
 
 	onWorldLoaded.discardAllCallbacks();
+
+	m_postSceneUpdateTasks.clear();
 
 	gridShouldDraw = true;
 	gridNumSegments = vec2i(10);
@@ -739,7 +741,20 @@ void GameWorld::removeRigidBodyManifold(RigidBody* const rb) {
 	m_physicsManifoldList.erase(itrFind);
 }
 
-void sge::GameWorld::setDefaultGravity(const vec3f& gravity) {
+void GameWorld::addPostSceneTask(IPostSceneUpdateTask* const task) {
+	if (task) {
+		m_postSceneUpdateTasks.emplace_back(task);
+	} else {
+		sgeAssert(false);
+	}
+}
+
+void GameWorld::addPostSceneTaskLoadWorldFormFile(const char* filename) {
+	PostSceneUpdateTaskLoadWorldFormFile* task = new PostSceneUpdateTaskLoadWorldFormFile(filename, true);
+	addPostSceneTask(task);
+}
+
+void GameWorld::setDefaultGravity(const vec3f& gravity) {
 	physicsWorld.dynamicsWorld->setGravity(toBullet(gravity));
 	m_defaultGravity = gravity;
 }
