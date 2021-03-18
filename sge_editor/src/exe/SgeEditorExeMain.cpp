@@ -299,7 +299,9 @@ int main(int argc, char* argv[]) {
 #ifdef SGE_RENDERER_D3D11
 	// SDL_SetHint(SDL_HINT_RENDER_DRIVER, "software");
 #else if SGE_RENDERER_GL
+	
 	SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
+	SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
 
 	float ddpi = 0.f;
 	SDL_GetDisplayDPI(0, &ddpi, nullptr, nullptr);
@@ -312,7 +314,7 @@ int main(int argc, char* argv[]) {
 	//
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-	// SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	//SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 #endif
 #endif
 

@@ -247,8 +247,6 @@ void BasicModelDraw::drawGeometry_FWDShading(const RenderDestination& rdest,
 		shadingPermutFWDShading->createFromFile(sgedev, "core_shaders/FWDDefault_shading.shader", compileTimeOptions, uniformsToCache);
 	}
 
-
-
 	SGEDevice* const sgedev = rdest.getDevice();
 
 	const std::vector<VertexDecl>& vertexDecl = sgedev->getVertexDeclFromIndex(geometry->vertexDeclIndex);

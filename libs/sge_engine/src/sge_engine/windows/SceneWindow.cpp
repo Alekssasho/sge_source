@@ -77,7 +77,7 @@ void SceneWindow::update(SGEContext* const sgecon, const InputState& isOriginal)
 
 		// Draw.
 		m_gameDrawer->prepareForNewFrame();
-		//m_gameDrawer->updateShadowMaps(drawSets);
+		m_gameDrawer->updateShadowMaps(drawSets);
 
 		//  TODO: Caution:
 		// This was reset in the update shadow maps.

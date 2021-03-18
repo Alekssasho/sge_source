@@ -5,7 +5,6 @@ namespace sge
 
 void DumpGLError(const GLenum opengl_error_code)
 {
-    return;
 	// Those error message are directly taken form Khronos Group OpenGL documentation.
 	switch(opengl_error_code)
 	{
@@ -34,7 +33,6 @@ void DumpGLError(const GLenum opengl_error_code)
 
 void DumpAllGLErrors()
 {
-    return;
 	GLenum opengl_error_code = glGetError();
 	while(opengl_error_code != GL_NO_ERROR)
 	{
