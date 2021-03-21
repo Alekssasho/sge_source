@@ -168,6 +168,7 @@ bool FBXSDKParser::parse(Model::Model* result,
 		parseMeshes();
 
 		// Parse the node hierarchy.
+		m_fbxScene->GetRootNode()->EvaluateLocalTransform();
 		m_model->m_rootNode = parseNodesRecursive(enforcedRootNode != nullptr ? enforcedRootNode : m_fbxScene->GetRootNode());
 
 		if (enforcedRootNode == nullptr) {
@@ -187,13 +188,13 @@ bool FBXSDKParser::parse(Model::Model* result,
 		resolveBonesNodePointer();
 		parseAnimations();
 
-		// Clear the transform of the root node, as we aren't going to use it.
+		// Clear the translation of the root node, as we aren't going to use it.
 		if (enforcedRootNode != nullptr) {
 			m_model->m_rootNode->paramBlock.FindParameter("translation")->Create(ParameterType::Float3, vec3f(0.f).data);
-			m_model->m_rootNode->paramBlock.FindParameter("rotation")->Create(ParameterType::Quaternion, quatf::getIdentity().data);
-			m_model->m_rootNode->paramBlock.FindParameter("scaling")->Create(ParameterType::Float3, vec3f(1.f).data);
-
-			m_collision_transfromCorrection = transf3DFromFbx(enforcedRootNode->EvaluateGlobalTransform().Inverse(), FbxEuler::eOrderXYZ);
+			fbxsdk::FbxAMatrix tr = enforcedRootNode->EvaluateGlobalTransform();
+			tr.SetR(FbxVector4(0.f, 0.f, 0.f));
+			tr.SetS(FbxVector4(1.f, 1.f, 1.f));
+			m_collision_transfromCorrection = transf3DFromFbx(tr.Inverse(), FbxEuler::eOrderXYZ);
 		}
 
 		printf("Extracting collision data. \n");
@@ -829,7 +830,7 @@ void FBXSDKParser::parseMesh(fbxsdk::FbxMesh* const fbxMesh) {
 	fbxMeshToMesh[fbxMesh] = mesh;
 }
 
-Model::Node* FBXSDKParser::parseNodesRecursive(fbxsdk::FbxNode* const fbxNode) {
+Model::Node* FBXSDKParser::parseNodesRecursive(fbxsdk::FbxNode* const fbxNode, const fbxsdk::FbxAMatrix* const pOverrideTransform) {
 	printf("Parsing node %s ...\n", fbxNode->GetName());
 
 	Model::Node* const node = m_model->m_containerNode.new_element();
@@ -871,7 +872,7 @@ Model::Node* FBXSDKParser::parseNodesRecursive(fbxsdk::FbxNode* const fbxNode) {
 	// In order not to introduce a separate variable for the rotation offset we embed it in the node's
 	// translation. THIS MAY BE INCORRECT.
 
-	transf3d const localTransformBindMoment = transf3DFromFbx(fbxNode->EvaluateLocalTransform(), FbxEuler::eOrderXYZ);
+	transf3d const localTransformBindMoment = transf3DFromFbx(pOverrideTransform ? *pOverrideTransform : fbxNode->EvaluateLocalTransform(), FbxEuler::eOrderXYZ);
 
 	node->paramBlock.FindParameter("scaling", ParameterType::Float3, &localTransformBindMoment.s);
 	node->paramBlock.FindParameter("rotation", ParameterType::Quaternion, &localTransformBindMoment.r);

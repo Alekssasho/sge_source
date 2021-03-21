@@ -24,6 +24,10 @@ macro(sge_generate_assemble_and_debug_target_for_game target_name target_output_
 	)
 	
 	add_custom_command(TARGET ${target_name}_AssembleAndDebug POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${target_output_dir}
+	)
+	
+	add_custom_command(TARGET ${target_name}_AssembleAndDebug POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${target_name}> ${target_output_dir}/
 	)
 

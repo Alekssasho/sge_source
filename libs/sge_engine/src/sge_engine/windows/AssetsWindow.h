@@ -20,6 +20,7 @@ struct SGE_ENGINE_API AssetsWindow : public IImGuiWindow {
 		bool importFailed = false;
 		std::string filename;
 		AssetType assetType;
+		bool importModelsAsMultipleFiles = false;
 		std::string outputDir;
 		std::string outputFilename;
 
@@ -66,5 +67,6 @@ struct SGE_ENGINE_API AssetsWindow : public IImGuiWindow {
 
 	DLLHandler mdlconvlibHandler;
 	sgeImportFBXFileFn sgeImportFBXFile = nullptr;
+	sgeImportFBXFileAsMultipleFn sgeImportFBXFileAsMultiple = nullptr;
 };
 } // namespace sge

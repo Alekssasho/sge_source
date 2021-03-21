@@ -33,7 +33,7 @@ struct FBXSDKParser {
 	void parseMeshes();
 
 	// Step 3: parse the node hierarchy.
-	Model::Node* parseNodesRecursive(fbxsdk::FbxNode* const fbxNode);
+	Model::Node* parseNodesRecursive(fbxsdk::FbxNode* const fbxNode, const fbxsdk::FbxAMatrix* const pOverrideTransform = nullptr);
 
 	// Step 4: resolve bones to nodes pointer.
 	void resolveBonesNodePointer();

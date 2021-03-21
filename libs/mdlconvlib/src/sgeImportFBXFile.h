@@ -1,6 +1,7 @@
 #pragma once
 
 #include "sge_core/model/Model.h"
+#include <set>
 #include <string>
 #include <vector>
 
@@ -25,5 +26,16 @@ extern "C" {
 /// @param [out] pOutReferencedTextures A list of referenced textures in the specified filename (used for dependancy tracking).
 /// @return true if the import was successful.
 typedef bool (*sgeImportFBXFileFn)(sge::Model::Model& result, const char* fbxFilename, std::vector<std::string>* pOutReferencedTextures);
+
+
+struct MultiModelImportResult {
+	sge::Model::Model importedModel;
+	std::string propsedFilename;
+	std::set<std::string> referencedTextures;
+};
+
+typedef bool (*sgeImportFBXFileAsMultipleFn)(std::vector<MultiModelImportResult>& result,
+                                             const char* fbxFilename,
+                                             std::vector<std::string>* pOutReferencedTextures);
 
 } // extern "C"

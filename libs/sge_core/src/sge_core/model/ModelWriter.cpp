@@ -324,8 +324,8 @@ void ModelWriter::GenerateCollisionData() {
 
 		for (int t = 0; t < model->m_concaveHulls.size(); ++t) {
 			JsonValue* const jHull = jStaticConvecHulls->arrPush(jvb(JID_MAP));
-			const int hullVertsChunkId = NewChunkFromStdVector(model->m_convexHulls[t].vertices);
-			const int hullIndsChunkId = NewChunkFromStdVector(model->m_convexHulls[t].indices);
+			const int hullVertsChunkId = NewChunkFromStdVector(model->m_concaveHulls[t].vertices);
+			const int hullIndsChunkId = NewChunkFromStdVector(model->m_concaveHulls[t].indices);
 			jHull->setMember("vertsChunkId", jvb(hullVertsChunkId));
 			jHull->setMember("indicesChunkId", jvb(hullIndsChunkId));
 		}

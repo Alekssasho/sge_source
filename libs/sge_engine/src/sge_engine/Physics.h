@@ -21,7 +21,7 @@ namespace sge {
 struct Actor;
 struct RigidBody;
 
-inline btVector3 toBullet(const vec3f v) {
+inline btVector3 toBullet(const vec3f& v) {
 	return btVector3(v.x, v.y, v.z);
 }
 
@@ -51,7 +51,6 @@ inline transf3d fromBullet(const btTransform& btTr) {
 	const transf3d res = transf3d(fromBullet(btP), fromBullet(btR), vec3f(1.f));
 	return res;
 }
-
 
 /// PhysicsWorld
 /// A wrapper around the physics world of the engine that is doing the actual simulation of the object.
@@ -164,7 +163,6 @@ struct SGE_ENGINE_API CollisionShape {
 	// In case the collision shape is represented by concave triangle mesh, this object stores the actual triangles used by bullet physics.
 	std::vector<std::unique_ptr<btTriangleMesh>> m_triangleMeshes;
 };
-
 
 /// SgeCustomMoutionState
 /// A helper class used to communicate with the physics engine about the location of collsion objects.

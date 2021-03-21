@@ -30,9 +30,11 @@ AssetsWindow::AssetsWindow(std::string windowName, GameInspector& inspector)
     , m_inspector(inspector) {
 	if (mdlconvlibHandler.loadNoExt("mdlconvlib")) {
 		sgeImportFBXFile = reinterpret_cast<sgeImportFBXFileFn>(mdlconvlibHandler.getProcAdress("sgeImportFBXFile"));
+		sgeImportFBXFileAsMultiple =
+		    reinterpret_cast<sgeImportFBXFileAsMultipleFn>(mdlconvlibHandler.getProcAdress("sgeImportFBXFileAsMultiple"));
 	}
 
-	if (sgeImportFBXFile == nullptr) {
+	if (sgeImportFBXFile == nullptr || sgeImportFBXFileAsMultiple == nullptr) {
 		SGE_DEBUG_WAR("Failed to load dynamic library mdlconvlib. Importing FBX files would not be possible without it!");
 	}
 }
@@ -90,7 +92,7 @@ bool AssetsWindow::importAsset(AssetImportData& aid) {
 
 	std::string fullAssetPath = aid.outputDir + "/" + aid.outputFilename;
 
-	if (aid.assetType == AssetType::Model) {
+	if (aid.assetType == AssetType::Model && aid.importModelsAsMultipleFiles == false) {
 		Model::Model importedModel;
 
 		if (sgeImportFBXFile == nullptr) {
@@ -111,6 +113,59 @@ bool AssetsWindow::importAsset(AssetImportData& aid) {
 			std::string notificationMsg = string_format("Imported %s", fullAssetPath.c_str());
 			SGE_DEBUG_LOG(notificationMsg.c_str());
 			getEngineGlobal()->showNotification(notificationMsg);
+
+			// Copy the referenced textures.
+			const std::string modelInputDir = extractFileDir(aid.filename.c_str(), true);
+			for (const std::string& texturePathLocal : referencedTextures) {
+				const std::string textureDestDir = aid.outputDir + "/" + extractFileDir(texturePathLocal.c_str(), true);
+				const std::string textureFilename = extractFileNameIncludingExtension(texturePathLocal.c_str());
+
+				const std::string textureSrcPath = canonizePathRespectOS(modelInputDir + texturePathLocal);
+				const std::string textureDstPath = canonizePathRespectOS(textureDestDir + textureFilename);
+
+				createDirectory(textureDestDir.c_str());
+				copyFile(textureSrcPath.c_str(), textureDstPath.c_str());
+
+				PAsset assetTexture = assetLib->getAsset(AssetType::TextureView, textureDstPath.c_str(), true);
+				assetLib->reloadAssetModified(assetTexture.get());
+			}
+
+			return true;
+		} else {
+			std::string notificationMsg = string_format("Failed to import %s", fullAssetPath.c_str());
+			SGE_DEBUG_ERR(notificationMsg.c_str());
+			getEngineGlobal()->showNotification(notificationMsg);
+
+			return false;
+		}
+	} else if (aid.assetType == AssetType::Model && aid.importModelsAsMultipleFiles == true) {
+		if (sgeImportFBXFileAsMultiple == nullptr) {
+			SGE_DEBUG_ERR("mdlconvlib dynamic library is not loaded. We cannot import FBX files without it!");
+		}
+
+		std::vector<std::string> referencedTextures;
+		std::vector<MultiModelImportResult> importedModels;
+
+		if (sgeImportFBXFileAsMultiple && sgeImportFBXFileAsMultiple(importedModels, aid.filename.c_str(), &referencedTextures)) {
+			createDirectory(extractFileDir(aid.outputDir.c_str(), false).c_str());
+
+			for (MultiModelImportResult& model : importedModels) {
+				if (model.propsedFilename.empty())
+					continue;
+
+				std::string path = aid.outputDir + "/" + model.propsedFilename;
+
+				// Convert the 3d model to our internal type.
+				ModelWriter modelWriter;
+				const bool succeeded = modelWriter.write(model.importedModel, path.c_str());
+
+				PAsset assetModel = assetLib->getAsset(AssetType::Model, path.c_str(), true);
+				assetLib->reloadAssetModified(assetModel.get());
+
+				std::string notificationMsg = string_format("Imported %s", path.c_str());
+				SGE_DEBUG_LOG(notificationMsg.c_str());
+				getEngineGlobal()->showNotification(notificationMsg);
+			}
 
 			// Copy the referenced textures.
 			const std::string modelInputDir = extractFileDir(aid.filename.c_str(), true);
@@ -390,7 +445,8 @@ void AssetsWindow::update(SGEContext* const sgecon, const InputState& is) {
 								// If this is still true then the popup has just been opened.
 								// Initialize it with the information about the asset we are about to import.
 								m_importAssetToImportInPopup = AssetImportData();
-								m_importAssetToImportInPopup.filename = FileOpenDialog("Pick a file to import", true, "*.*\0*.*\0", nullptr);
+								m_importAssetToImportInPopup.filename =
+								    FileOpenDialog("Pick a file to import", true, "*.*\0*.*\0", nullptr);
 								m_importAssetToImportInPopup.assetType =
 								    assetType_fromExtension(extractFileExtension(m_importAssetToImportInPopup.filename.c_str()).c_str());
 
@@ -416,6 +472,10 @@ void AssetsWindow::update(SGEContext* const sgecon, const InputState& is) {
 							// The UI
 							if (m_importAssetToImportInPopup.assetType == AssetType::Model) {
 								ImGui::Text(ICON_FK_CUBE " 3D Model");
+								ImGui::Checkbox("Port As Multiple Models", &m_importAssetToImportInPopup.importModelsAsMultipleFiles);
+								ImGuiEx::TextTooltip(
+								    "When multiple game objects are defined in one 3D model file. You can import them as a separate 3D "
+								    "models using this option!");
 							} else if (m_importAssetToImportInPopup.assetType == AssetType::TextureView) {
 								ImGui::Text(ICON_FK_PICTURE_O " Texture");
 							} else if (m_importAssetToImportInPopup.assetType == AssetType::Text) {
@@ -425,7 +485,10 @@ void AssetsWindow::update(SGEContext* const sgecon, const InputState& is) {
 							}
 
 							ImGuiEx::InputText("Read From", m_importAssetToImportInPopup.filename, ImGuiInputTextFlags_ReadOnly);
-							ImGuiEx::InputText("Import As", m_importAssetToImportInPopup.filename);
+
+							if (m_importAssetToImportInPopup.importModelsAsMultipleFiles == false) {
+								ImGuiEx::InputText("Import As", m_importAssetToImportInPopup.filename);
+							}
 
 							// Show a warning that the import will fail if mdlconvlib is not loaded.
 							if (sgeImportFBXFile == nullptr && m_importAssetToImportInPopup.assetType == AssetType::Model) {

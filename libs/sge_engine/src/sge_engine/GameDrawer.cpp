@@ -44,9 +44,11 @@ void IGameDrawer::drawWorld(const GameDrawSets& drawSets, const DrawReason drawR
 		getWorld()->m_physicsDebugDraw.postDebugDraw();
 	}
 
-	for (ObjectId scriptObj : getWorld()->m_scriptObjects) {
-		if (IWorldScript* script = dynamic_cast<IWorldScript*>(getWorld()->getObjectById(scriptObj))) {
-			script->onPostDraw(drawSets);
+	if (drawReason == drawReason_gameplay) {
+		for (ObjectId scriptObj : getWorld()->m_scriptObjects) {
+			if (IWorldScript* script = dynamic_cast<IWorldScript*>(getWorld()->getObjectById(scriptObj))) {
+				script->onPostDraw(drawSets);
+			}
 		}
 	}
 

@@ -369,15 +369,17 @@ void RigidBody::create(Actor* const actor, CollisionShape* collisionShapeToBeOwn
 
 	m_collisionShape.reset(collisionShapeToBeOwned);
 
-	btVector3 inertia;
-	m_collisionShape->getBulletShape()->calculateLocalInertia(mass, inertia);
+	btVector3 inertia = btVector3(0.f, 0.f, 0.f);
+	if (mass > 0.f) {
+		m_collisionShape->getBulletShape()->calculateLocalInertia(mass, inertia);
+	}
 
 	m_collisionObject.reset(new btRigidBody(mass, &m_motionState, m_collisionShape->getBulletShape(), inertia));
 
 	m_collisionObject->setRestitution(0.f);
 	m_collisionObject->setFriction(1.f);
-	m_collisionObject->setRollingFriction(0.5f);
-	m_collisionObject->setSpinningFriction(0.5f);
+	m_collisionObject->setRollingFriction(0.0f);
+	m_collisionObject->setSpinningFriction(0.0f);
 
 	if (mass == 0.f) {
 		getBulletRigidBody()->setActivationState(ISLAND_SLEEPING);

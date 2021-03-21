@@ -499,8 +499,8 @@ namespace Model {
 			if (jStaticConcaveHulls) {
 				int const numHulls = int(jStaticConcaveHulls->arrSize());
 				for (int t = 0; t < numHulls; ++t) {
-					const int hullVertsChunkId = jStaticConvexHulls->arrAt(t)->getMember("vertsChunkId")->getNumberAs<int>();
-					const int hullIndicesChunkId = jStaticConvexHulls->arrAt(t)->getMember("indicesChunkId")->getNumberAs<int>();
+					const int hullVertsChunkId = jStaticConcaveHulls->arrAt(t)->getMember("vertsChunkId")->getNumberAs<int>();
+					const int hullIndicesChunkId = jStaticConcaveHulls->arrAt(t)->getMember("indicesChunkId")->getNumberAs<int>();
 
 					std::vector<vec3f> verts;
 					LoadDataChunk(verts, hullVertsChunkId);
