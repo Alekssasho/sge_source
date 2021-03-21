@@ -371,7 +371,7 @@ void ATimeline::postUpdate(const GameUpdateSets& u) {
 			newTransfrom = lerp(keyFrames.valueAtIdx(iKey), keyFrames.valueAtIdx(iKey + 1), k);
 		}
 
-		const transf3d diffTransform = newTransfrom * oldTransform.inverseSimple();
+		const transf3d diffTransform = newTransfrom.computeBindingTransform(oldTransform);
 
 		if (moveObjectsOnTop) {
 			// Now find and move all actors that are on top of our target actor.
