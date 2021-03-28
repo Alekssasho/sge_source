@@ -1,43 +1,8 @@
 {
 	"version":0,
-	"nextNameIndex":713,
-	"nextActorId":157,
+	"nextNameIndex":1014,
+	"nextActorId":184,
 	"actors":[
-		{
-			"type":"Player",
-			"id":1,
-			"members":{
-				"m_bindingIgnoreRotation":false,
-				"m_bindingToParentTransform":{
-					
-				},
-				"m_logicTransform":{
-					"p":{
-						"x":-6.069005,
-						"y":2.000000,
-						"z":9.253905
-					},
-					"r":{
-						"x":0.208743,
-						"y":0.533994,
-						"z":0.790697,
-						"w":-0.214650
-					}
-				},
-				"m_id":{
-					"id":1
-				},
-				"m_displayName":"Player_0",
-				"cameraObject":{
-					"id":5
-				},
-				"cameraOffset":{
-					"x":0.000000,
-					"y":13.000000,
-					"z":14.000000
-				}
-			}
-		},
 		{
 			"type":"ALight",
 			"id":6,
@@ -80,6 +45,41 @@
 			}
 		},
 		{
+			"type":"Player",
+			"id":1,
+			"members":{
+				"m_bindingIgnoreRotation":false,
+				"m_bindingToParentTransform":{
+					
+				},
+				"m_logicTransform":{
+					"p":{
+						"x":-51.112228,
+						"y":5.999999,
+						"z":12.614376
+					},
+					"r":{
+						"x":-0.000000,
+						"y":-0.000000,
+						"z":0.000000,
+						"w":1.000000
+					}
+				},
+				"m_id":{
+					"id":1
+				},
+				"m_displayName":"Player_0",
+				"cameraObject":{
+					"id":5
+				},
+				"cameraOffset":{
+					"x":0.000000,
+					"y":6.000000,
+					"z":7.000000
+				}
+			}
+		},
+		{
 			"type":"ACamera",
 			"id":5,
 			"members":{
@@ -89,9 +89,9 @@
 				},
 				"m_logicTransform":{
 					"p":{
-						"x":-6.069005,
-						"y":15.000000,
-						"z":23.253906
+						"x":-51.112228,
+						"y":11.999999,
+						"z":19.614376
 					},
 					"r":{
 						"x":-0.183013,
@@ -115,6 +115,71 @@
 						"orthographicMantainRatio":true
 					}
 				}
+			}
+		},
+		{
+			"type":"ATimeline",
+			"id":153,
+			"members":{
+				"m_bindingIgnoreRotation":false,
+				"m_bindingToParentTransform":{
+					
+				},
+				"m_logicTransform":{
+					"p":{
+						"x":35.000000,
+						"y":10.000000,
+						"z":5.500000
+					}
+				},
+				"m_id":{
+					"id":153
+				},
+				"m_displayName":"ATimeline_624",
+				"m_isEnabled":true,
+				"m_useSmoothInterpolation":true,
+				"targetActorId":{
+					"id":152
+				},
+				"keyFrames":{
+					"keys":[
+						0,
+						9
+					],
+					"values":[
+						{
+							"p":{
+								"x":28.000000,
+								"y":10.000000,
+								"z":4.500000
+							},
+							"s":{
+								"x":1.000000,
+								"y":1.000000,
+								"z":-1.000000
+							}
+						},
+						{
+							"p":{
+								"x":28.000000,
+								"y":17.000000,
+								"z":4.500000
+							},
+							"s":{
+								"x":1.000000,
+								"y":1.000000,
+								"z":-1.000000
+							}
+						}
+					]
+				},
+				"framesPerSecond":2,
+				"frameCount":10,
+				"playbackMethod":2,
+				"m_gameplayEvalTime":1.344296,
+				"m_editingEvaltime":0.000000,
+				"moveObjectsOnTop":true,
+				"flipFlopDir":-1.000000
 			}
 		},
 		{
@@ -6766,7 +6831,7 @@
 				"m_logicTransform":{
 					"p":{
 						"x":28.000000,
-						"y":16.580132,
+						"y":11.564441,
 						"z":4.500000
 					},
 					"s":{
@@ -6841,8 +6906,8 @@
 			}
 		},
 		{
-			"type":"AStaticObstacle",
-			"id":155,
+			"type":"ADynamicObstacle",
+			"id":164,
 			"members":{
 				"m_bindingIgnoreRotation":false,
 				"m_bindingToParentTransform":{
@@ -6850,28 +6915,28 @@
 				},
 				"m_logicTransform":{
 					"p":{
-						"x":-4.000000,
-						"y":1.500000,
-						"z":5.000000
+						"x":-5.156909,
+						"y":6.073616,
+						"z":-18.007071
 					},
 					"r":{
-						"x":0.025967,
-						"y":0.906332,
-						"z":0.056288,
-						"w":0.417995
+						"x":-0.000080,
+						"y":0.002146,
+						"z":0.000039,
+						"w":0.999998
 					}
 				},
 				"m_id":{
-					"id":155
+					"id":164
 				},
-				"m_displayName":"AStaticObstacle_711",
+				"m_displayName":"ADynamicObstacle_807",
 				"m_traitModel":{
 					"m_assetProperty":{
-						"m_targetAsset":"assets/models/level.spinner0.mdl"
+						"m_targetAsset":"assets/models/level.Seculent0.mdl"
 					},
 					"m_materialOverrides":[
 						{
-							"materialName":"StingrayPBS1",
+							"materialName":"lambert1",
 							"materialObjId":{
 								"id":0
 							}
@@ -6917,12 +6982,40 @@
 					"rootSkeletonId":{
 						"id":0
 					}
+				},
+				"m_rbConfig":{
+					"gravity":{
+						"x":0.000000,
+						"y":-10.000000,
+						"z":0.000000
+					},
+					"specifyGravity":false,
+					"rotationDamping":0.000000,
+					"movementDamping":0.000000,
+					"noRotationZ":false,
+					"noRotationY":false,
+					"noRotationX":false,
+					"noMoveZ":false,
+					"noMoveY":false,
+					"noMoveX":false,
+					"bounciness":0.000000,
+					"spinningFriction":0.500000,
+					"rollingFriction":0.500000,
+					"friction":1.000000,
+					"mass":0.010000,
+					"shapeSource":0,
+					"assetPropery":{
+						"m_targetAsset":""
+					},
+					"collisionShapes":[
+						
+					]
 				}
 			}
 		},
 		{
-			"type":"ATimeline",
-			"id":153,
+			"type":"ADynamicObstacle",
+			"id":165,
 			"members":{
 				"m_bindingIgnoreRotation":false,
 				"m_bindingToParentTransform":{
@@ -6930,64 +7023,107 @@
 				},
 				"m_logicTransform":{
 					"p":{
-						"x":35.000000,
-						"y":10.000000,
-						"z":5.500000
+						"x":-8.000000,
+						"y":6.073632,
+						"z":-16.500000
+					},
+					"r":{
+						"x":-0.000000,
+						"y":-0.000000,
+						"z":-0.000000,
+						"w":1.000000
 					}
 				},
 				"m_id":{
-					"id":153
+					"id":165
 				},
-				"m_displayName":"ATimeline_624",
-				"m_isEnabled":true,
-				"m_useSmoothInterpolation":false,
-				"targetActorId":{
-					"id":152
-				},
-				"keyFrames":{
-					"keys":[
-						0,
-						9
-					],
-					"values":[
+				"m_displayName":"ADynamicObstacle_808",
+				"m_traitModel":{
+					"m_assetProperty":{
+						"m_targetAsset":"assets/models/level.Seculent0.mdl"
+					},
+					"m_materialOverrides":[
 						{
-							"p":{
-								"x":28.000000,
-								"y":10.000000,
-								"z":4.500000
-							},
-							"s":{
-								"x":1.000000,
-								"y":1.000000,
-								"z":-1.000000
+							"materialName":"lambert1",
+							"materialObjId":{
+								"id":0
 							}
 						},
 						{
-							"p":{
-								"x":28.000000,
-								"y":17.000000,
-								"z":4.500000
-							},
-							"s":{
-								"x":1.000000,
-								"y":1.000000,
-								"z":-1.000000
+							"materialName":"Material.001",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.004",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.005",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.007",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.008",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.009",
+							"materialObjId":{
+								"id":0
 							}
 						}
-					]
+					],
+					"useSkeleton":false,
+					"rootSkeletonId":{
+						"id":0
+					}
 				},
-				"framesPerSecond":2,
-				"frameCount":10,
-				"playbackMethod":2,
-				"m_gameplayEvalTime":4.247240,
-				"m_editingEvaltime":0.000000,
-				"moveObjectsOnTop":true,
-				"flipFlopDir":1.000000
+				"m_rbConfig":{
+					"gravity":{
+						"x":0.000000,
+						"y":-10.000000,
+						"z":0.000000
+					},
+					"specifyGravity":false,
+					"rotationDamping":0.000000,
+					"movementDamping":0.000000,
+					"noRotationZ":false,
+					"noRotationY":false,
+					"noRotationX":false,
+					"noMoveZ":false,
+					"noMoveY":false,
+					"noMoveX":false,
+					"bounciness":0.000000,
+					"spinningFriction":0.500000,
+					"rollingFriction":0.500000,
+					"friction":1.000000,
+					"mass":0.010000,
+					"shapeSource":0,
+					"assetPropery":{
+						"m_targetAsset":""
+					},
+					"collisionShapes":[
+						
+					]
+				}
 			}
 		},
 		{
-			"type":"ATimeline",
-			"id":156,
+			"type":"ADynamicObstacle",
+			"id":166,
 			"members":{
 				"m_bindingIgnoreRotation":false,
 				"m_bindingToParentTransform":{
@@ -6995,103 +7131,750 @@
 				},
 				"m_logicTransform":{
 					"p":{
-						"x":-2.000000,
-						"y":7.000000,
-						"z":10.000000
+						"x":-5.901142,
+						"y":6.073526,
+						"z":-16.746058
+					},
+					"r":{
+						"x":0.000000,
+						"y":-0.019197,
+						"z":-0.000136,
+						"w":0.999816
 					}
 				},
 				"m_id":{
-					"id":156
+					"id":166
 				},
-				"m_displayName":"ATimeline_712",
-				"m_isEnabled":true,
-				"m_useSmoothInterpolation":false,
-				"targetActorId":{
-					"id":155
-				},
-				"keyFrames":{
-					"keys":[
-						0,
-						3,
-						6,
-						9,
-						12
-					],
-					"values":[
+				"m_displayName":"ADynamicObstacle_809",
+				"m_traitModel":{
+					"m_assetProperty":{
+						"m_targetAsset":"assets/models/level.Seculent0.mdl"
+					},
+					"m_materialOverrides":[
 						{
-							"p":{
-								"x":-4.000000,
-								"y":1.500000,
-								"z":5.000000
-							},
-							"r":{
-								"x":0.000006,
-								"y":0.998077,
-								"z":0.061989,
-								"w":0.000000
+							"materialName":"lambert1",
+							"materialObjId":{
+								"id":0
 							}
 						},
 						{
-							"p":{
-								"x":-4.000000,
-								"y":1.500000,
-								"z":5.000000
-							},
-							"r":{
-								"x":0.043837,
-								"y":0.705747,
-								"z":0.043828,
-								"w":0.705747
+							"materialName":"Material.001",
+							"materialObjId":{
+								"id":0
 							}
 						},
 						{
-							"p":{
-								"x":-4.000000,
-								"y":1.500000,
-								"z":5.000000
-							},
-							"r":{
-								"x":0.061989,
-								"y":-0.000000,
-								"z":-0.000006,
-								"w":0.998077
+							"materialName":"Material.004",
+							"materialObjId":{
+								"id":0
 							}
 						},
 						{
-							"p":{
-								"x":-4.000000,
-								"y":1.500000,
-								"z":5.000000
-							},
-							"r":{
-								"x":0.043828,
-								"y":-0.705747,
-								"z":-0.043837,
-								"w":0.705747
+							"materialName":"Material.005",
+							"materialObjId":{
+								"id":0
 							}
 						},
 						{
-							"p":{
-								"x":-4.000000,
-								"y":1.500000,
-								"z":5.000000
-							},
-							"r":{
-								"x":0.000006,
-								"y":0.998077,
-								"z":0.061989,
-								"w":0.000000
+							"materialName":"Material.007",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.008",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.009",
+							"materialObjId":{
+								"id":0
 							}
 						}
-					]
+					],
+					"useSkeleton":false,
+					"rootSkeletonId":{
+						"id":0
+					}
 				},
-				"framesPerSecond":2,
-				"frameCount":13,
-				"playbackMethod":0,
-				"m_gameplayEvalTime":0.842451,
-				"m_editingEvaltime":1.100000,
-				"moveObjectsOnTop":false,
-				"flipFlopDir":1.000000
+				"m_rbConfig":{
+					"gravity":{
+						"x":0.000000,
+						"y":-10.000000,
+						"z":0.000000
+					},
+					"specifyGravity":false,
+					"rotationDamping":0.000000,
+					"movementDamping":0.000000,
+					"noRotationZ":false,
+					"noRotationY":false,
+					"noRotationX":false,
+					"noMoveZ":false,
+					"noMoveY":false,
+					"noMoveX":false,
+					"bounciness":0.000000,
+					"spinningFriction":0.500000,
+					"rollingFriction":0.500000,
+					"friction":1.000000,
+					"mass":0.010000,
+					"shapeSource":0,
+					"assetPropery":{
+						"m_targetAsset":""
+					},
+					"collisionShapes":[
+						
+					]
+				}
+			}
+		},
+		{
+			"type":"ADynamicObstacle",
+			"id":167,
+			"members":{
+				"m_bindingIgnoreRotation":false,
+				"m_bindingToParentTransform":{
+					
+				},
+				"m_logicTransform":{
+					"p":{
+						"x":-8.000000,
+						"y":6.073632,
+						"z":-14.000000
+					},
+					"r":{
+						"x":-0.000000,
+						"y":-0.000000,
+						"z":-0.000000,
+						"w":1.000000
+					}
+				},
+				"m_id":{
+					"id":167
+				},
+				"m_displayName":"ADynamicObstacle_810",
+				"m_traitModel":{
+					"m_assetProperty":{
+						"m_targetAsset":"assets/models/level.Seculent0.mdl"
+					},
+					"m_materialOverrides":[
+						{
+							"materialName":"lambert1",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.001",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.004",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.005",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.007",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.008",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.009",
+							"materialObjId":{
+								"id":0
+							}
+						}
+					],
+					"useSkeleton":false,
+					"rootSkeletonId":{
+						"id":0
+					}
+				},
+				"m_rbConfig":{
+					"gravity":{
+						"x":0.000000,
+						"y":-10.000000,
+						"z":0.000000
+					},
+					"specifyGravity":false,
+					"rotationDamping":0.000000,
+					"movementDamping":0.000000,
+					"noRotationZ":false,
+					"noRotationY":false,
+					"noRotationX":false,
+					"noMoveZ":false,
+					"noMoveY":false,
+					"noMoveX":false,
+					"bounciness":0.000000,
+					"spinningFriction":0.500000,
+					"rollingFriction":0.500000,
+					"friction":1.000000,
+					"mass":0.010000,
+					"shapeSource":0,
+					"assetPropery":{
+						"m_targetAsset":""
+					},
+					"collisionShapes":[
+						
+					]
+				}
+			}
+		},
+		{
+			"type":"ADynamicObstacle",
+			"id":168,
+			"members":{
+				"m_bindingIgnoreRotation":false,
+				"m_bindingToParentTransform":{
+					
+				},
+				"m_logicTransform":{
+					"p":{
+						"x":5.021865,
+						"y":6.113542,
+						"z":-10.517397
+					},
+					"r":{
+						"x":-0.000001,
+						"y":0.000005,
+						"z":0.000139,
+						"w":1.000000
+					}
+				},
+				"m_id":{
+					"id":168
+				},
+				"m_displayName":"ADynamicObstacle_811",
+				"m_traitModel":{
+					"m_assetProperty":{
+						"m_targetAsset":"assets/models/level.Seculent0.mdl"
+					},
+					"m_materialOverrides":[
+						{
+							"materialName":"lambert1",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.001",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.004",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.005",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.007",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.008",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.009",
+							"materialObjId":{
+								"id":0
+							}
+						}
+					],
+					"useSkeleton":false,
+					"rootSkeletonId":{
+						"id":0
+					}
+				},
+				"m_rbConfig":{
+					"gravity":{
+						"x":0.000000,
+						"y":-10.000000,
+						"z":0.000000
+					},
+					"specifyGravity":false,
+					"rotationDamping":0.000000,
+					"movementDamping":0.000000,
+					"noRotationZ":false,
+					"noRotationY":false,
+					"noRotationX":false,
+					"noMoveZ":false,
+					"noMoveY":false,
+					"noMoveX":false,
+					"bounciness":0.000000,
+					"spinningFriction":0.500000,
+					"rollingFriction":0.500000,
+					"friction":1.000000,
+					"mass":0.010000,
+					"shapeSource":0,
+					"assetPropery":{
+						"m_targetAsset":""
+					},
+					"collisionShapes":[
+						
+					]
+				}
+			}
+		},
+		{
+			"type":"ADynamicObstacle",
+			"id":169,
+			"members":{
+				"m_bindingIgnoreRotation":false,
+				"m_bindingToParentTransform":{
+					
+				},
+				"m_logicTransform":{
+					"p":{
+						"x":1.500208,
+						"y":6.113550,
+						"z":-13.949146
+					},
+					"r":{
+						"x":-0.000122,
+						"y":0.000002,
+						"z":0.000012,
+						"w":1.000000
+					}
+				},
+				"m_id":{
+					"id":169
+				},
+				"m_displayName":"ADynamicObstacle_812",
+				"m_traitModel":{
+					"m_assetProperty":{
+						"m_targetAsset":"assets/models/level.Seculent0.mdl"
+					},
+					"m_materialOverrides":[
+						{
+							"materialName":"lambert1",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.001",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.004",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.005",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.007",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.008",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.009",
+							"materialObjId":{
+								"id":0
+							}
+						}
+					],
+					"useSkeleton":false,
+					"rootSkeletonId":{
+						"id":0
+					}
+				},
+				"m_rbConfig":{
+					"gravity":{
+						"x":0.000000,
+						"y":-10.000000,
+						"z":0.000000
+					},
+					"specifyGravity":false,
+					"rotationDamping":0.000000,
+					"movementDamping":0.000000,
+					"noRotationZ":false,
+					"noRotationY":false,
+					"noRotationX":false,
+					"noMoveZ":false,
+					"noMoveY":false,
+					"noMoveX":false,
+					"bounciness":0.000000,
+					"spinningFriction":0.500000,
+					"rollingFriction":0.500000,
+					"friction":1.000000,
+					"mass":0.010000,
+					"shapeSource":0,
+					"assetPropery":{
+						"m_targetAsset":""
+					},
+					"collisionShapes":[
+						
+					]
+				}
+			}
+		},
+		{
+			"type":"ADynamicObstacle",
+			"id":180,
+			"members":{
+				"m_bindingIgnoreRotation":false,
+				"m_bindingToParentTransform":{
+					
+				},
+				"m_logicTransform":{
+					"p":{
+						"x":-5.678855,
+						"y":1.500000,
+						"z":10.237408
+					},
+					"r":{
+						"x":0.000000,
+						"y":0.603173,
+						"z":0.000000,
+						"w":0.797610
+					}
+				},
+				"m_id":{
+					"id":180
+				},
+				"m_displayName":"ADynamicObstacle_916",
+				"m_traitModel":{
+					"m_assetProperty":{
+						"m_targetAsset":"assets/models/level.spinner0.mdl"
+					},
+					"m_materialOverrides":[
+						{
+							"materialName":"lambert1",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.001",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.004",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.005",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.007",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.008",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.009",
+							"materialObjId":{
+								"id":0
+							}
+						}
+					],
+					"useSkeleton":false,
+					"rootSkeletonId":{
+						"id":0
+					}
+				},
+				"m_rbConfig":{
+					"gravity":{
+						"x":0.000000,
+						"y":-10.000000,
+						"z":0.000000
+					},
+					"specifyGravity":false,
+					"rotationDamping":0.000000,
+					"movementDamping":0.000000,
+					"noRotationZ":true,
+					"noRotationY":false,
+					"noRotationX":true,
+					"noMoveZ":true,
+					"noMoveY":true,
+					"noMoveX":true,
+					"bounciness":0.000000,
+					"spinningFriction":0.500000,
+					"rollingFriction":0.500000,
+					"friction":1.000000,
+					"mass":1.000000,
+					"shapeSource":0,
+					"assetPropery":{
+						"m_targetAsset":""
+					},
+					"collisionShapes":[
+						
+					]
+				}
+			}
+		},
+		{
+			"type":"ADynamicObstacle",
+			"id":181,
+			"members":{
+				"m_bindingIgnoreRotation":false,
+				"m_bindingToParentTransform":{
+					
+				},
+				"m_logicTransform":{
+					"p":{
+						"x":-9.738335,
+						"y":1.500000,
+						"z":13.401200
+					},
+					"r":{
+						"x":0.000000,
+						"y":0.603173,
+						"z":0.000000,
+						"w":0.797610
+					}
+				},
+				"m_id":{
+					"id":181
+				},
+				"m_displayName":"ADynamicObstacle_917",
+				"m_traitModel":{
+					"m_assetProperty":{
+						"m_targetAsset":"assets/models/level.spinner0.mdl"
+					},
+					"m_materialOverrides":[
+						{
+							"materialName":"lambert1",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.001",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.004",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.005",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.007",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.008",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.009",
+							"materialObjId":{
+								"id":0
+							}
+						}
+					],
+					"useSkeleton":false,
+					"rootSkeletonId":{
+						"id":0
+					}
+				},
+				"m_rbConfig":{
+					"gravity":{
+						"x":0.000000,
+						"y":-10.000000,
+						"z":0.000000
+					},
+					"specifyGravity":false,
+					"rotationDamping":0.000000,
+					"movementDamping":0.000000,
+					"noRotationZ":true,
+					"noRotationY":false,
+					"noRotationX":true,
+					"noMoveZ":true,
+					"noMoveY":true,
+					"noMoveX":true,
+					"bounciness":0.000000,
+					"spinningFriction":0.500000,
+					"rollingFriction":0.500000,
+					"friction":1.000000,
+					"mass":1.000000,
+					"shapeSource":0,
+					"assetPropery":{
+						"m_targetAsset":""
+					},
+					"collisionShapes":[
+						
+					]
+				}
+			}
+		},
+		{
+			"type":"ADynamicObstacle",
+			"id":182,
+			"members":{
+				"m_bindingIgnoreRotation":false,
+				"m_bindingToParentTransform":{
+					
+				},
+				"m_logicTransform":{
+					"p":{
+						"x":-13.947147,
+						"y":1.500000,
+						"z":10.360064
+					},
+					"r":{
+						"x":0.000000,
+						"y":0.603173,
+						"z":0.000000,
+						"w":0.797610
+					}
+				},
+				"m_id":{
+					"id":182
+				},
+				"m_displayName":"ADynamicObstacle_918",
+				"m_traitModel":{
+					"m_assetProperty":{
+						"m_targetAsset":"assets/models/level.spinner0.mdl"
+					},
+					"m_materialOverrides":[
+						{
+							"materialName":"lambert1",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.001",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.004",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.005",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.007",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.008",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.009",
+							"materialObjId":{
+								"id":0
+							}
+						}
+					],
+					"useSkeleton":false,
+					"rootSkeletonId":{
+						"id":0
+					}
+				},
+				"m_rbConfig":{
+					"gravity":{
+						"x":0.000000,
+						"y":-10.000000,
+						"z":0.000000
+					},
+					"specifyGravity":false,
+					"rotationDamping":0.000000,
+					"movementDamping":0.000000,
+					"noRotationZ":true,
+					"noRotationY":false,
+					"noRotationX":true,
+					"noMoveZ":true,
+					"noMoveY":true,
+					"noMoveX":true,
+					"bounciness":0.000000,
+					"spinningFriction":0.500000,
+					"rollingFriction":0.500000,
+					"friction":1.000000,
+					"mass":1.000000,
+					"shapeSource":0,
+					"assetPropery":{
+						"m_targetAsset":""
+					},
+					"collisionShapes":[
+						
+					]
+				}
 			}
 		}
 	],

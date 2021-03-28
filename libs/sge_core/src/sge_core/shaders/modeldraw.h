@@ -115,6 +115,7 @@ struct SGE_CORE_API BasicModelDraw {
 	bool isInitialized = false;
 	Optional<ShadingProgramPermuator> shadingPermutFWDShading;
 	Optional<ShadingProgramPermuator> shadingPermutFWDBuildShadowMaps;
+	GpuHandle<Texture> emptyCubeShadowMap;
 	StateGroup stateGroup;
 };
 

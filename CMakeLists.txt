@@ -192,11 +192,12 @@ endif()
 
 add_subdirectory(./libs/sge_renderer)
 add_subdirectory(./libs/sge_core)
-add_subdirectory(./libs/mdlconvlib)
 add_subdirectory(./libs/sge_engine)
-add_subdirectory(./sge_editor)
 add_subdirectory(./sge_player)
-add_subdirectory(./project_maker)
+if(NOT EMSCRIPTEN)
+	add_subdirectory(./sge_editor)
+	add_subdirectory(./libs/mdlconvlib)
+endif()
 
 # No matter what the other project sets (particularly 3rd parties)
 # we do not want to used configuration postfix in the output files.

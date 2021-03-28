@@ -28,22 +28,22 @@ macro(sge_generate_assemble_and_debug_target_for_game target_name target_output_
 	)
 	
 	add_custom_command(TARGET ${target_name}_AssembleAndDebug POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${target_name}> ${target_output_dir}/
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${target_name}> ${target_output_dir}/
 	)
 
 	# sge_editor
 	add_custom_command(TARGET ${target_name}_AssembleAndDebug POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:sge_editor> ${target_output_dir}/
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:sge_editor> ${target_output_dir}/
 	)
 	
 	# sge_player
 	add_custom_command(TARGET ${target_name}_AssembleAndDebug POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:sge_player> ${target_output_dir}/
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:sge_player> ${target_output_dir}/
 	)
 	
 	# sge_core
 	add_custom_command(TARGET ${target_name}_AssembleAndDebug POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:sge_core> ${target_output_dir}/
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:sge_core> ${target_output_dir}/
 	)
 	
 	#sge_core shaders
@@ -53,18 +53,18 @@ macro(sge_generate_assemble_and_debug_target_for_game target_name target_output_
 	
 	# sge_engine
 	add_custom_command(TARGET ${target_name}_AssembleAndDebug POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:sge_engine> ${target_output_dir}/
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:sge_engine> ${target_output_dir}/
 	)
 	
 	# SDL2
 	add_custom_command(TARGET ${target_name}_AssembleAndDebug POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:SDL2> ${target_output_dir}/
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:SDL2> ${target_output_dir}/
 	)
 	
 	# mdlconvlib for import 3D models.
 	if(TARGET mdlconvlib)
 		add_custom_command(TARGET ${target_name}_AssembleAndDebug POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:mdlconvlib> ${target_output_dir}/
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:mdlconvlib> ${target_output_dir}/
 		)
 	endif()
 	

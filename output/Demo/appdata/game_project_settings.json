@@ -2,5 +2,5 @@
 	"window_width":640,
 	"window_height":480,
 	"window_is_resizable":true,
-	"initial_level":"C:\\work\\sge_source\\output\\Demo\\assets\\levels\\mainMenu.lvl"
+	"initial_level":"assets\\levels\\mainMenu.lvl"
 }

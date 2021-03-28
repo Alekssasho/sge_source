@@ -31,7 +31,6 @@ __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 #include "sge_utils/utils/FileStream.h"
 #include "sge_utils/utils/Path.h"
 #include "sge_utils/utils/json.h"
-#include "sge_utils/utils/DLLHandler.h"
 #include <filesystem>
 #include <thread>
 
