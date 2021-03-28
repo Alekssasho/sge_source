@@ -1,9 +1,11 @@
 #include "ProjectSettingsWindow.h"
 #include "IconsForkAwesome/IconsForkAwesome.h"
-#include "sge_core/SGEImGui.h"
 #include "sge_core/ICore.h"
+#include "sge_core/SGEImGui.h"
 #include "sge_engine/EngineGlobal.h"
+#include "sge_engine/GameExport.h"
 #include "sge_utils/tiny/FileOpenDialog.h"
+#include "sge_utils/utils/Path.h"
 #include <filesystem>
 
 namespace sge {
@@ -32,11 +34,10 @@ void ProjectSettingsWindow::update(SGEContext* const UNUSED(sgecon), const Input
 			std::string pickedLevel =
 			    FileOpenDialog("Select a the Initial level when the game is launched...", true, "*.lvl\0*.lvl\0", "./assets/levels");
 			if (pickedLevel.empty() == false) {
-				
 				try {
-					pickedLevel = std::filesystem::proximate(pickedLevel).string();
+					pickedLevel = canonizePathRespectOS(std::filesystem::proximate(pickedLevel).string());
 					m_gamePlayerSetting.initalLevel = pickedLevel;
-				} catch(...) {
+				} catch (...) {
 					SGE_DEBUG_ERR("Failed to convert initial level path to relative!");
 				}
 			}
@@ -45,9 +46,39 @@ void ProjectSettingsWindow::update(SGEContext* const UNUSED(sgecon), const Input
 		ImGui::SameLine();
 		ImGuiEx::InputText("##Inital Level input text", m_gamePlayerSetting.initalLevel);
 
-		if (ImGui::Button(ICON_FK_FLOPPY_O " Save")) {
+		auto saveSettings = [&]() -> void {
 			std::filesystem::create_directories("appdata");
 			m_gamePlayerSetting.saveToJsonFile("appdata/game_project_settings.json");
+		};
+
+		if (ImGui::Button(ICON_FK_FLOPPY_O " Save")) {
+			saveSettings();
+		}
+
+		if (ImGui::Button(ICON_FK_PLAY " Run")) {
+			saveSettings();
+#if WIN32
+			system("start sge_player");
+#else
+			system("./sge_player");
+#endif
+		}
+
+		ImGui::SameLine();
+
+		if (ImGui::Button(ICON_FK_DOWNLOAD " Export")) {
+			saveSettings();
+
+			std::string exportFolder = FolderOpenDialog("Pick an Export location:", std::string());
+			if (std::filesystem::exists("appdata/game_project_settings.json")) {
+				if (exportFolder.empty() == false) {
+					exportGame(exportFolder);
+				}
+			} else {
+				DialongOk("Game Export",
+				          "Game cannot be exported, as there is no initial project settings specified. To specify them open Windows -> "
+				          "Project Settings");
+			}
 		}
 	}
 	ImGui::End();

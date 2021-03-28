@@ -10,7 +10,7 @@ void GameMode::create(IGameDrawer* gameDrawer, const char* openingLevelPath) {
 
 	m_sceneInstance.loadWorldFromFile(openingLevelPath, false);
 	m_sceneInstance.getInspector().m_disableAutoStepping = false;
-	m_sceneInstance.getInspector().m_useEditorCamera = false;
+	m_sceneInstance.getWorld().m_useEditorCamera = false;
 	m_gameDrawer = gameDrawer;
 	m_gameDrawer->initialize(&m_sceneInstance.getWorld());
 }
@@ -23,14 +23,13 @@ void GameMode::update(const InputState& is) {
 
 void GameMode::draw(const RenderDestination& rdest) {
 	GameWorld* const world = m_gameDrawer->getWorld();
-	GameInspector* const inspector = world->getInspector();
 
 	// Update the view aspect ratio.
 	world->userProjectionSettings.canvasSize = vec2i(rdest.viewport.width, rdest.viewport.height);
 	world->userProjectionSettings.aspectRatio = (float)rdest.viewport.width / (float)rdest.viewport.height;
 
 	// Intilize the game draw settings.
-	ICamera* const gameCamera = inspector->getRenderCamera();
+	ICamera* const gameCamera = world->getRenderCamera();
 
 	GameDrawSets drawSets;
 	drawSets.rdest = rdest;
@@ -48,7 +47,7 @@ void GameMode::draw(const RenderDestination& rdest) {
 	drawSets.drawCamera = gameCamera;
 	drawSets.gameCamera = gameCamera;
 
-	m_gameDrawer->drawWorld(drawSets, inspector->m_useEditorCamera ? drawReason_editing : drawReason_gameplay);
+	m_gameDrawer->drawWorld(drawSets, world->m_useEditorCamera ? drawReason_editing : drawReason_gameplay);
 }
 
 } // namespace sge

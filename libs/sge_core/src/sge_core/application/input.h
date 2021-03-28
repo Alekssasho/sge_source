@@ -3,8 +3,8 @@
 #include <string>
 
 #include "sge_core/sgecore_api.h"
-#include "sge_utils/sge_utils.h"
 #include "sge_utils/math/vec2.h"
+#include "sge_utils/sge_utils.h"
 
 namespace sge {
 
@@ -184,6 +184,8 @@ struct SGE_CORE_API InputState {
 		m_hadkeyboardOrMouseInputThisPoll = true;
 		m_wheelCount = v;
 	}
+
+	void setMouseMotion(const vec2f& moution) { m_cursorMotion = moution; }
 
 	void setWasActiveDuringPoll(bool v) { m_wasActiveWhilePolling = v; }
 	bool wasActiveWhilePolling() const { return m_wasActiveWhilePolling; }

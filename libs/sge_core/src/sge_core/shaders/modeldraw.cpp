@@ -376,6 +376,27 @@ void BasicModelDraw::drawGeometry_FWDShading(const RenderDestination& rdest,
 	}
 
 	shaderPerm.bind<64>(uniforms, uDarkSpotPositonWs, (void*)&generalMods.darkSpotPosition);
+	
+	if (emptyCubeShadowMap.IsResourceValid() == false) {
+		TextureDesc texDesc;
+		texDesc.textureType = UniformType::TextureCube;
+		texDesc.format = TextureFormat::D24_UNORM_S8_UINT;
+		texDesc.usage = TextureUsage::DepthStencilResource;
+		texDesc.textureCube.width = 16;
+		texDesc.textureCube.height = 16;
+		texDesc.textureCube.arraySize = 1;
+		texDesc.textureCube.numMips = 1;
+		texDesc.textureCube.sampleQuality = 0;
+		texDesc.textureCube.numSamples = 1;
+
+		emptyCubeShadowMap = getCore()->getDevice()->requestResource<Texture>();
+		[[maybe_unused]] const bool succeeded = emptyCubeShadowMap->create(texDesc, nullptr);
+	}
+
+	if (shaderPerm.uniformLUT[uPointLightShadowMap].isNull() == false) {
+		uniforms.push_back(BoundUniform(shaderPerm.uniformLUT[uPointLightShadowMap], (emptyCubeShadowMap.GetPtr())));
+		sgeAssert(uniforms.back().bindLocation.isNull() == false && uniforms.back().bindLocation.uniformType != 0);
+	}
 
 	// Lights and draw call.
 	const int preLightsNumUnuforms = uniforms.size();
@@ -394,27 +415,6 @@ void BasicModelDraw::drawGeometry_FWDShading(const RenderDestination& rdest,
 				shaderPerm.bind<64>(uniforms, uAmbientLightColor, (void*)&zeroColor);
 				shaderPerm.bind<64>(uniforms, uRimLightColorWWidth, (void*)&zeroColor);
 			}
-		}
-
-		if (emptyCubeShadowMap.IsResourceValid() == false) {
-			TextureDesc texDesc;
-			texDesc.textureType = UniformType::TextureCube;
-			texDesc.format = TextureFormat::D24_UNORM_S8_UINT;
-			texDesc.usage = TextureUsage::DepthStencilResource;
-			texDesc.textureCube.width = 16;
-			texDesc.textureCube.height = 16;
-			texDesc.textureCube.arraySize = 1;
-			texDesc.textureCube.numMips = 1;
-			texDesc.textureCube.sampleQuality = 0;
-			texDesc.textureCube.numSamples = 1;
-
-			emptyCubeShadowMap = getCore()->getDevice()->requestResource<Texture>();
-			[[maybe_unused]] const bool succeeded = emptyCubeShadowMap->create(texDesc, nullptr);
-		}
-
-		if (shaderPerm.uniformLUT[uPointLightShadowMap].isNull() == false) {
-			uniforms.push_back(BoundUniform(shaderPerm.uniformLUT[uPointLightShadowMap], (emptyCubeShadowMap.GetPtr())));
-			sgeAssert(uniforms.back().bindLocation.isNull() == false && uniforms.back().bindLocation.uniformType != 0);
 		}
 
 		if (mods.forceNoLighting == false) {

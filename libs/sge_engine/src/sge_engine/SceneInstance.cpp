@@ -65,14 +65,14 @@ void SceneInstance::update(float dt, const InputState& is) {
 			taskChangeWorldJson->newWorldStateJson;
 			loadWorldFromJson(taskChangeWorldJson->newWorldStateJson.c_str(), false, m_world.m_workingFilePath.c_str());
 			m_inspector.m_disableAutoStepping = !taskChangeWorldJson->noPauseNoEditorCamera;
-			m_inspector.m_useEditorCamera = !taskChangeWorldJson->noPauseNoEditorCamera;
+			m_world.m_useEditorCamera = !taskChangeWorldJson->noPauseNoEditorCamera;
 		}
 
 		PostSceneUpdateTaskLoadWorldFormFile* const taskChangeWorld = dynamic_cast<PostSceneUpdateTaskLoadWorldFormFile*>(task);
 		if (taskChangeWorld != nullptr) {
 			loadWorldFromFile(taskChangeWorld->filename.c_str(), m_inspector.m_disableAutoStepping);
 			m_inspector.m_disableAutoStepping = !taskChangeWorld->noPauseNoEditorCamera;
-			m_inspector.m_useEditorCamera = !taskChangeWorld->noPauseNoEditorCamera;
+			m_world.m_useEditorCamera = !taskChangeWorld->noPauseNoEditorCamera;
 		}
 	}
 

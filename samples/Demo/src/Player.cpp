@@ -53,6 +53,8 @@ struct Player : public Actor {
 			return;
 		}
 
+		getWorld()->needsLockedCursor = true;
+
 		if (this->getPosition().y < yPositionRestart) {
 			this->setPosition(respawnPosition);
 			prePos = vec3f(0.f);
@@ -69,31 +71,42 @@ struct Player : public Actor {
 		//wobbleAmplitude = clamp(wobbleAmplitude, 0.4f, 1.2f);
 
 		Actor* const cameraActor = getWorld()->getActorById(cameraObject);
-		if (cameraActor) {
-			transf3d cameraTransform;
-			cameraTransform.p = getTransform().p + cameraOffset;
-			cameraTransform.r = quatf::getAxisAngle(vec3f::axis_x(), -deg2rad(30.f)) * quatf::getAxisAngle(vec3f::axis_y(), deg2rad(90.f));
 
+		vec3f wsForward = vec3f(0.f, 0.f, -1.f);
+		vec3f wsRight = vec3f(1.f, 0.f, 0.f);
+
+		if (cameraActor) {
+			cameraOffset = quat_mul_pos(quatf::getAxisAngle(vec3f::axis_y(), -u.is.GetCursorMotion().x * deg2rad(1.f)), cameraOffset);
+
+			transf3d cameraTransform = cameraActor->getTransform();
+			cameraTransform.p = getTransform().p + cameraOffset;
+			//cameraTransform.r = quatf::getAxisAngle(vec3f::axis_x(), -deg2rad(30.f)) * quatf::getAxisAngle(vec3f::axis_y(), deg2rad(90.f));
+			cameraTransform.r = quatf::getAxisAngle(vec3f::axis_y(), -u.is.GetCursorMotion().x * deg2rad(1.f)) * cameraTransform.r;
 			cameraActor->setTransform(cameraTransform);
+
+			wsForward = cameraActor->getTransformMtx().c0.xyz().x0z().normalized0();
+			wsRight = cameraActor->getTransformMtx().c2.xyz().x0z().normalized0();
 		}
 
-		// wobbleAmplitude = clamp(wobbleAmplitude, 0.f, 5.f);
 		wobbleForce += (0.85f - wobbleAmplitude) * 1.75f;
 		wobbleForce -= wobbleForce * u.dt * timeScale ;
 		wobbleAmplitude += wobbleForce * u.dt * 0.5f * timeScale;
 
-		const vec2f inputDir = u.is.GetArrowKeysDir(true, false);
-		const vec3f inputDirWs = vec3f(inputDir.x, 0.f, -inputDir.y);
+		const vec2f inputDir = u.is.GetArrowKeysDir(true, true);
+		const vec3f inputDirWs = wsRight * inputDir.x +  inputDir.y * wsForward;
+		const vec3f inputDirWsRight = vec3f(-inputDirWs.z, 0.f, inputDirWs.x);
 
-		float boost = 1.f;
-		float con = dot(inputDirWs.x0z(), ttRigidbody.getRigidBody()->getLinearVel().x0z().normalized0());
-		if (con < 0.f) {
-			boost += -con * 0.75f;
+		vec3f additionalForce = vec3f(0.f);
+		float dr = inputDirWsRight.dot(ttRigidbody.getRigidBody()->getLinearVel().x0z());
+		float df = inputDirWs.dot(ttRigidbody.getRigidBody()->getLinearVel().x0z());
+		additionalForce = -dr * inputDirWsRight * 100.f;
+		if (df < 0.f) {
+			additionalForce += -df * inputDirWs * 50.f;
 		}
 
-		ttRigidbody.getRigidBody()->applyForce(inputDirWs * 300.f * boost * u.dt, vec3f(0.f, 0.65f, 0.f));
+		ttRigidbody.getRigidBody()->applyForce((inputDirWs * 300.f + additionalForce) * u.dt, vec3f(0.f, 0.65f, 0.f));
 
-		float squash = wobbleAmplitude;
+		float squash = wobbleAmplitude; 
 
 		ttModel.setAdditionalTransform(mat4f::getRotationQuat(getTransform().r.inverse()) * mat4f::getTranslation(0.f, -0.5f, 0.f) *
 		                               mat4f::getSquashyScalingY(squash) * mat4f::getTranslation(0.f, 0.5f, 0.f) *

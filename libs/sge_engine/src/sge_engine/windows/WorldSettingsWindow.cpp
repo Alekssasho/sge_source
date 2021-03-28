@@ -55,8 +55,11 @@ void WorldSettingsWindow::update(SGEContext* const UNUSED(sgecon), const InputSt
 			ImGui::ColorPicker3("Sky Bottom Color", m_inspector.getWorld()->m_skyColorBottom.data);
 		}
 
-		if (ImGui::CollapsingHeader(ICON_FK_CAMERA " Game Camera")) {
-			ImGui::InputInt("Playing Camera", &m_inspector.getWorld()->m_cameraPovider.id);
+		if (ImGui::CollapsingHeader(ICON_FK_CAMERA " Gameplay")) {
+
+			ImGui::Checkbox(ICON_FK_MOUSE_POINTER" Lock Cursor", &m_inspector.getWorld()->needsLockedCursor);
+
+			ImGui::InputInt(ICON_FK_CAMERA" Gameplay Camera", &m_inspector.getWorld()->m_cameraPovider.id);
 
 			ImGui::SameLine();
 			if (ImGui::Button(ICON_FK_SHOPPING_CART)) {

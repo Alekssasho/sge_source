@@ -4,8 +4,10 @@
 #include "GameSerialization.h"
 #include "IWorldScript.h"
 #include "InspectorCmd.h"
+#include "SDL.h"
 #include "sge_core/ICore.h"
 #include "sge_utils/utils/strings.h"
+#include "traits/TraitCamera.h"
 #include <functional>
 #include <thread>
 
@@ -262,9 +264,26 @@ void GameWorld::clear() {
 	gridShouldDraw = true;
 	gridNumSegments = vec2i(10);
 	gridSegmentsSpacing = 1.f;
+
+	needsLockedCursor = false;
+	m_cameraPovider = ObjectId();
+	m_useEditorCamera = true;
+	m_editorCamera.m_orbitCamera.yaw = -sgeHalfPi;
+	m_editorCamera.m_orbitCamera.pitch = deg2rad(35.f);
+	m_editorCamera.m_orbitCamera.radius = 20.f;
+	m_editorCamera.m_projSets.fov = deg2rad(60.f);
+	m_editorCamera.m_projSets.aspectRatio = 1.f; // Just some default to be overriden.
+	m_editorCamera.m_projSets.near = 0.1f;
+	m_editorCamera.m_projSets.far = 10000.f;
 }
 
 void GameWorld::update(const GameUpdateSets& updateSets) {
+	if (needsLockedCursor && m_useEditorCamera == false) {
+		SDL_SetRelativeMouseMode(SDL_TRUE);
+	} else {
+		SDL_SetRelativeMouseMode(SDL_FALSE);
+	}
+
 	if (debug.forceSleepMs != 0) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(debug.forceSleepMs));
 	}
@@ -757,6 +776,38 @@ void GameWorld::addPostSceneTaskLoadWorldFormFile(const char* filename) {
 void GameWorld::setDefaultGravity(const vec3f& gravity) {
 	physicsWorld.dynamicsWorld->setGravity(toBullet(gravity));
 	m_defaultGravity = gravity;
+}
+
+ICamera* GameWorld::getRenderCamera() {
+	if (m_useEditorCamera) {
+		return &m_editorCamera;
+	}
+
+	TraitCamera* traitCamera = getTrait<TraitCamera>(getActorById(m_cameraPovider));
+
+	// If this object cannot provide us a camera, search for the 1st one that can.
+	if (traitCamera == nullptr) {
+		iterateOverPlayingObjects(
+		    [&](GameObject* object) -> bool {
+			    traitCamera = getTrait<TraitCamera>(object);
+			    if (traitCamera != nullptr) {
+				    m_cameraPovider = object->getId();
+				    return false;
+			    }
+
+			    return true;
+		    },
+		    false);
+	}
+
+	ICamera* const camera = traitCamera ? traitCamera->getCamera() : nullptr;
+
+	// Fallback to the editor camera.
+	if (!camera) {
+		return &m_editorCamera;
+	}
+
+	return camera;
 }
 
 } // namespace sge

@@ -238,8 +238,8 @@ void GameInspector::deleteSelection(bool const deleteHierarchyUnderSelectedObjec
 
 void GameInspector::focusOnSelection() {
 	if (m_selection.size() == 0) {
-		m_editorCamera.m_orbitCamera.orbitPoint = vec3f(0.f);
-		m_editorCamera.m_orbitCamera.radius = 27.0f;
+		getWorld()->m_editorCamera.m_orbitCamera.orbitPoint = vec3f(0.f);
+		getWorld()->m_editorCamera.m_orbitCamera.radius = 27.0f;
 		return;
 	}
 
@@ -268,48 +268,17 @@ void GameInspector::focusOnSelection() {
 
 	// TODO: Figure out a better way to update the camera this is hacky.
 	if (!combinedBoundingBox.IsEmpty()) {
-		m_editorCamera.m_orbitCamera.orbitPoint = combinedBoundingBox.center();
-		m_editorCamera.m_orbitCamera.radius = combinedBoundingBox.halfDiagonal().length() * 2.7f;
+		getWorld()->m_editorCamera.m_orbitCamera.orbitPoint = combinedBoundingBox.center();
+		getWorld()->m_editorCamera.m_orbitCamera.radius = combinedBoundingBox.halfDiagonal().length() * 2.7f;
 
-		if (m_editorCamera.m_orbitCamera.radius < 2.7f) {
-			m_editorCamera.m_orbitCamera.radius = 2.7f;
+		if (getWorld()->m_editorCamera.m_orbitCamera.radius < 2.7f) {
+			getWorld()->m_editorCamera.m_orbitCamera.radius = 2.7f;
 		}
 	}
 
-	sgeAssert(m_editorCamera.m_orbitCamera.orbitPoint.hasNan() == false);
-	sgeAssert(std::isnan(m_editorCamera.m_orbitCamera.radius) == false);
+	sgeAssert(getWorld()->m_editorCamera.m_orbitCamera.orbitPoint.hasNan() == false);
+	sgeAssert(std::isnan(getWorld()->m_editorCamera.m_orbitCamera.radius) == false);
 }
 
-ICamera* GameInspector::getRenderCamera() {
-	if (m_useEditorCamera) {
-		return &m_editorCamera;
-	}
-
-	TraitCamera* traitCamera = getTrait<TraitCamera>(getWorld()->getActorById(getWorld()->m_cameraPovider));
-
-	// If his object cannot provide us a camera, search for the 1st one that can.
-	if (traitCamera == nullptr) {
-		getWorld()->iterateOverPlayingObjects(
-		    [&](GameObject* object) -> bool {
-			    traitCamera = getTrait<TraitCamera>(object);
-			    if (traitCamera != nullptr) {
-				    getWorld()->m_cameraPovider = object->getId();
-				    return false;
-			    }
-
-			    return true;
-		    },
-		    false);
-	}
-
-	ICamera* const camera = traitCamera ? traitCamera->getCamera() : nullptr;
-
-	// Fallback to the editor camera.
-	if (!camera) {
-		return &m_editorCamera;
-	}
-
-	return camera;
-}
 
 } // namespace sge

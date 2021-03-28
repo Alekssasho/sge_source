@@ -338,6 +338,9 @@ void ApplicationHandler::PollEvents() {
 			case SDL_MOUSEWHEEL: {
 				m_inputState.addMouseWheel(-event.wheel.y);
 			} break;
+			case SDL_MOUSEMOTION: {
+				m_inputState.setMouseMotion(vec2f(float(event.motion.xrel), float(event.motion.yrel)));
+			} break;
 			case SDL_JOYDEVICEADDED: {
 				const int sdlJoystickIndex = event.cdevice.which;
 				if (SDL_IsGameController(sdlJoystickIndex)) {
@@ -577,7 +580,6 @@ void ApplicationHandler::PollEvents() {
 		wnd->m_inputState.m_cursorClient = newCursorClient;
 		wnd->m_inputState.m_cursorDomain = wnd->m_inputState.m_cursorClient;
 		wnd->m_inputState.m_cursorDomainSize = vec2f(float(wnd->GetClientWidth()), float(wnd->GetClientHeight()));
-		wnd->m_inputState.m_cursorMotion = cursorMotion;
 		wnd->m_inputState.setWasActiveDuringPoll(wasActiveWhilePolling);
 	}
 

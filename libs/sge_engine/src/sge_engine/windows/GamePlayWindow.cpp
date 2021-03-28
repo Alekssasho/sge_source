@@ -23,7 +23,7 @@ GamePlayWindow::GamePlayWindow(std::string windowName, const char* const worldJs
 
 	m_sceneInstance.loadWorldFromJson(worldJsonString, false, "");
 
-	m_sceneInstance.getInspector().m_useEditorCamera = false;
+	m_sceneInstance.getWorld().m_useEditorCamera = false;
 	m_sceneInstance.getWorld().isEdited = false;
 }
 
@@ -35,7 +35,6 @@ void GamePlayWindow::update(SGEContext* const sgecon, const InputState& isOrigin
 	}
 
 	GameWorld* const world = m_gameDrawer->getWorld();
-	GameInspector* const inspector = world->getInspector();
 	GameDrawSets drawSets;
 
 	InputState is = isOriginal;
@@ -83,7 +82,7 @@ void GamePlayWindow::update(SGEContext* const sgecon, const InputState& isOrigin
 		sgeAssert(world->isInEditMode() == false);
 
 		// Intilize the game draw settings.
-		ICamera* const gameCamera = inspector->getRenderCamera();
+		ICamera* const gameCamera = world->getRenderCamera();
 
 		drawSets.rdest = RenderDestination(sgecon, m_frameTarget);
 		drawSets.quickDraw = &getCore()->getQuickDraw();
@@ -98,7 +97,7 @@ void GamePlayWindow::update(SGEContext* const sgecon, const InputState& isOrigin
 		// Draw the game world.
 		m_gameDrawer->prepareForNewFrame();
 		m_gameDrawer->updateShadowMaps(drawSets);
-		m_gameDrawer->drawWorld(drawSets, inspector->m_useEditorCamera ? drawReason_editing : drawReason_gameplay);
+		m_gameDrawer->drawWorld(drawSets, world->m_useEditorCamera ? drawReason_editing : drawReason_gameplay);
 
 		// Display the rendered image to the ImGui window.
 		if (kIsTexcoordStyleD3D)

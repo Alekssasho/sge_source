@@ -77,16 +77,6 @@ struct SGE_ENGINE_API GameInspector {
 
 		m_physicsDebugDrawEnabled = false;
 
-		m_useEditorCamera = true;
-		m_editorCamera = EditorCamera();
-		m_editorCamera.m_orbitCamera.yaw = -sgeHalfPi;
-		m_editorCamera.m_orbitCamera.pitch = deg2rad(35.f);
-		m_editorCamera.m_orbitCamera.radius = 20.f;
-		m_editorCamera.m_projSets.fov = deg2rad(60.f);
-		m_editorCamera.m_projSets.aspectRatio = 1.f; // Just some default to be overriden.
-		m_editorCamera.m_projSets.near = 0.1f;
-		m_editorCamera.m_projSets.far = 10000.f;
-
 		m_disableAutoStepping = false;
 		m_stepOnce = false;
 
@@ -107,10 +97,6 @@ struct SGE_ENGINE_API GameInspector {
 	PlantingTool m_plantingTool;
 
 	bool m_physicsDebugDrawEnabled = false;
-
-	// The editor camera and a boolen that specify if we should use it or we should the the game's camera.
-	bool m_useEditorCamera = true;
-	EditorCamera m_editorCamera;
 
 	// Game stepping.
 	bool m_disableAutoStepping = false;

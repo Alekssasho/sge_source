@@ -317,6 +317,7 @@ int main(int argc, char* argv[]) {
 #endif
 #endif
 
+	//SDL_SetRelativeMouseMode(SDL_TRUE);
 
 	// const int numJoystics = SDL_NumJoysticks();
 	// for (int iJoy = 0; iJoy < numJoystics; ++iJoy) {

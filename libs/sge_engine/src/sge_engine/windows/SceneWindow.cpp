@@ -65,7 +65,7 @@ void SceneWindow::update(SGEContext* const sgecon, const InputState& isOriginal)
 		world->userProjectionSettings.aspectRatio = (float)m_canvasSize.x / (float)m_canvasSize.y;
 
 		// Intilize the game draw settings.
-		ICamera* const gameCamera = inspector->getRenderCamera();
+		ICamera* const gameCamera = world->getRenderCamera();
 
 		GameDrawSets drawSets;
 		drawSets.rdest = RenderDestination(sgecon, m_frameTarget);
@@ -95,7 +95,7 @@ void SceneWindow::update(SGEContext* const sgecon, const InputState& isOriginal)
 			                                      getCore()->getGraphicsResources().BS_backToFrontAlpha);
 		}
 
-		m_gameDrawer->drawWorld(drawSets, inspector->m_useEditorCamera ? drawReason_editing : drawReason_gameplay);
+		m_gameDrawer->drawWorld(drawSets, world->m_useEditorCamera ? drawReason_editing : drawReason_gameplay);
 
 		if (world->isInEditMode()) {
 			drawOverlay(drawSets);
@@ -109,7 +109,7 @@ void SceneWindow::update(SGEContext* const sgecon, const InputState& isOriginal)
 			}
 
 			if (is.IsKeyPressed(Key::Key_F2)) {
-				inspector->m_useEditorCamera = !inspector->m_useEditorCamera;
+				world->m_useEditorCamera = !world->m_useEditorCamera;
 			}
 
 			if (is.IsKeyReleased(Key::Key_F1)) {
@@ -291,8 +291,8 @@ bool SceneWindow::updateToolsAndOverlay(const InputState& is, const GameDrawSets
 	GameInspector* const inspector = world->getInspector();
 
 	bool userInteractedWithCamera = false;
-	if (inspector->getRenderCamera() == &inspector->m_editorCamera) {
-		userInteractedWithCamera = inspector->m_editorCamera.update(is, drawSets.rdest.viewport.ratioWbyH());
+	if (world->getRenderCamera() == &world->m_editorCamera) {
+		userInteractedWithCamera = world->m_editorCamera.update(is, drawSets.rdest.viewport.ratioWbyH());
 	}
 
 	bool const canInteractWithViewport = !userInteractedWithCamera && is.wasActiveWhilePolling();

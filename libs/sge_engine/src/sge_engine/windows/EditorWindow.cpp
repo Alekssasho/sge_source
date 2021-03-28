@@ -24,7 +24,6 @@
 #include "sge_core/ui/MultiCurve2DEditor.h"
 #include "sge_engine/EngineGlobal.h"
 #include "sge_engine/GameDrawer.h"
-#include "sge_engine/GameExport.h"
 #include "sge_engine/GameSerialization.h"
 #include "sge_engine/actors/ACRSpline.h"
 #include "sge_engine/actors/ALight.h"
@@ -430,15 +429,6 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 				}
 			}
 
-			if (ImGui::MenuItem("Project Settings")) {
-				ProjectSettingsWindow* wnd = getEngineGlobal()->findFirstWindowOfType<ProjectSettingsWindow>();
-				if (wnd) {
-					ImGui::SetWindowFocus(wnd->getWindowName());
-				} else {
-					getEngineGlobal()->addWindow(new ProjectSettingsWindow(ICON_FK_PUZZLE_PIECE " Project Setting"));
-				}
-			}
-
 			ImGui::EndMenu();
 		}
 
@@ -492,31 +482,11 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 		}
 
 		if (ImGui::BeginMenu(ICON_FK_DOWNLOAD " Run & Export")) {
-			if (ImGui::MenuItem(ICON_FK_PLAY " Run")) {
-				if (std::filesystem::exists("appdata/game_project_settings.json")) {
-					#if WIN32
-					system("start sge_player");
-					#else
-					system("./sge_player");
-					#endif
-				} else {
-					DialongOk("Game Run",
-					          "Game cannot be run, as there is no initial project settings specified. To specify them open Windows -> "
-					          "Project Settings");
-				}
-			}
-
-			if (ImGui::MenuItem(ICON_FK_DOWNLOAD " Export")) {
-				std::string exportFolder = FolderOpenDialog("Pick an Export location:", std::string());
-				if (std::filesystem::exists("appdata/game_project_settings.json")) {
-					if (exportFolder.empty() == false) {
-						exportGame(exportFolder);
-					}
-				} else {
-					DialongOk("Game Export",
-					          "Game cannot be exported, as there is no initial project settings specified. To specify them open Windows -> "
-					          "Project Settings");
-				}
+			ProjectSettingsWindow* wnd = getEngineGlobal()->findFirstWindowOfType<ProjectSettingsWindow>();
+			if (wnd) {
+				ImGui::SetWindowFocus(wnd->getWindowName());
+			} else {
+				getEngineGlobal()->addWindow(new ProjectSettingsWindow(ICON_FK_PUZZLE_PIECE " Run & Export"));
 			}
 
 			ImGui::EndMenu();
@@ -643,29 +613,29 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 		ImGui::SameLine();
 
 		if (m_assets.m_assetRebuildIcon && ImGui::ImageButton((*m_assets.m_orthoIcon->asTextureView()), ImVec2(24, 24))) {
-			getInspector().m_editorCamera.isOrthograhpic = !getInspector().m_editorCamera.isOrthograhpic;
+			getInspector().getWorld()->m_editorCamera.isOrthograhpic = !getInspector().getWorld()->m_editorCamera.isOrthograhpic;
 		}
 		ImGuiEx::TextTooltip("Toggle the orthographic/perspective mode of the preview camera.");
 
 		ImGui::SameLine();
 		if (m_assets.m_assetRebuildIcon && ImGui::ImageButton((*m_assets.m_xIcon->asTextureView()), ImVec2(24, 24))) {
-			getInspector().m_editorCamera.m_orbitCamera.yaw = 0.f;
-			getInspector().m_editorCamera.m_orbitCamera.pitch = 0.f;
+			getInspector().getWorld()->m_editorCamera.m_orbitCamera.yaw = 0.f;
+			getInspector().getWorld()->m_editorCamera.m_orbitCamera.pitch = 0.f;
 		}
 		ImGuiEx::TextTooltip("Align the preview camera to +X axis.");
 
 		ImGui::SameLine();
 		if (m_assets.m_assetRebuildIcon && ImGui::ImageButton((*m_assets.m_yIcon->asTextureView()), ImVec2(24, 24))) {
-			getInspector().m_editorCamera.m_orbitCamera.yaw =
-			    deg2rad(90.f) * float(int(getInspector().m_editorCamera.m_orbitCamera.yaw / deg2rad(90.f)));
-			getInspector().m_editorCamera.m_orbitCamera.pitch = deg2rad(90.f);
+			getInspector().getWorld()->m_editorCamera.m_orbitCamera.yaw =
+			    deg2rad(90.f) * float(int(getInspector().getWorld()->m_editorCamera.m_orbitCamera.yaw / deg2rad(90.f)));
+			getInspector().getWorld()->m_editorCamera.m_orbitCamera.pitch = deg2rad(90.f);
 		}
 		ImGuiEx::TextTooltip("Align the preview camera to +Y axis.");
 
 		ImGui::SameLine();
 		if (m_assets.m_assetRebuildIcon && ImGui::ImageButton((*m_assets.m_zIcon->asTextureView()), ImVec2(24, 24))) {
-			getInspector().m_editorCamera.m_orbitCamera.yaw = deg2rad(-90.f);
-			getInspector().m_editorCamera.m_orbitCamera.pitch = 0.f;
+			getInspector().getWorld()->m_editorCamera.m_orbitCamera.yaw = deg2rad(-90.f);
+			getInspector().getWorld()->m_editorCamera.m_orbitCamera.pitch = 0.f;
 		}
 		ImGuiEx::TextTooltip("Align the preview camera to +Z axis.");
 

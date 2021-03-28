@@ -256,6 +256,8 @@ struct SGE_ENGINE_API GameWorld {
 	/// @brief Changes the gravity for all objects currently playing in the scene.
 	void setDefaultGravity(const vec3f& gravity);
 
+	ICamera* getRenderCamera();
+
   public:
 	/// The update settings passed to the current update() function call.
 	GameUpdateSets m_cachedUpdateSets;
@@ -265,6 +267,8 @@ struct SGE_ENGINE_API GameWorld {
 
 	//
 	ObjectId m_cameraPovider = ObjectId();
+	bool m_useEditorCamera = true;
+	EditorCamera m_editorCamera;
 
 	// Lighting.
 	vec3f m_ambientLight = vec3f(0.25f);
@@ -322,6 +326,8 @@ struct SGE_ENGINE_API GameWorld {
 	bool gridShouldDraw = true;
 	vec2i gridNumSegments = vec2i(10);
 	float gridSegmentsSpacing = 1.f;
+
+	bool needsLockedCursor = false;
 
 	/// Debugging variables.
 	mutable struct {

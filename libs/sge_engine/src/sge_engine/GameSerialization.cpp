@@ -506,6 +506,8 @@ JsonValue* serializeGameWorld(const GameWorld* world, JsonValueBuffer& jvb) {
 	jWorld->setMember("defaultGravity", serializeVariableT(world->m_defaultGravity, jvb));
 	jWorld->setMember("physicsSimNumSubSteps", serializeVariableT(world->m_physicsSimNumSubSteps, jvb));
 
+	jWorld->setMember("needsLockedCursor", serializeVariableT(world->needsLockedCursor, jvb));
+
 	jWorld->setMember("worldScripts", serializeVariableT(world->m_scriptObjects, jvb));
 
 	// Hierarchical relationships.
@@ -624,6 +626,8 @@ bool loadGameWorldFromStream(GameWorld* world, IReadStream* stream, const char* 
 	}
 
 	deserializeWorldMember(&world->m_physicsSimNumSubSteps, "physicsSimNumSubSteps", sgeTypeId(decltype(world->m_physicsSimNumSubSteps)));
+	deserializeWorldMember(&world->needsLockedCursor, "needsLockedCursor", sgeTypeId(decltype(world->needsLockedCursor)));
+	
 	deserializeWorldMember(&world->m_scriptObjects, "worldScripts", sgeTypeId(decltype(world->m_scriptObjects)));
 
 	// Load the playing objects.

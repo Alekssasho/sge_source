@@ -10,5 +10,5 @@ struct DummyPlugin final : public IPlugin {
 	void onUnload() override {}
 	void run() override {}
 };
-
+ 
 } // namespace sge
