@@ -16,7 +16,7 @@
 
 namespace sge {
 
-std::string extractFileNameIncludingExtension(const char* filepath) {
+std::string extractFileNameWithExt(const char* filepath) {
 	if (filepath == NULL) {
 		sgeAssert(false);
 		return std::string();

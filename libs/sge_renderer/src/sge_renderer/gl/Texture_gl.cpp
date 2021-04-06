@@ -25,54 +25,7 @@ bool TextureGL::create(const TextureDesc& desc, const TextureData initalData[], 
 	// bind the newly created texture
 	//[TODO]tune a bit GL_TEXTURE0 value....
 	glcon->BindTextureEx(glTexTarget, GL_TEXTURE0, m_glTexture);
-
-	// [TODO][HACK][HOTFIX]
-	// Currently OpenGL samplers aren't supported!
-	// I'm adding a dummy texture sampler parameters.
-	// That code MUST be removed in the future!!!
-	// if(glTexTarget == GL_TEXTURE_2D)
-	{
-		GLenum samplerFilterMin = GL_NEAREST;
-		GLenum samplerFilterMag = GL_NEAREST;
-		if (samplerDesc.filter == TextureFilter::Min_Mag_Mip_Linear) {
-			samplerFilterMin = desc.hasMipMaps() ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR;
-			samplerFilterMag = GL_NEAREST;
-		}
-		if (samplerDesc.filter == TextureFilter::Min_Mag_Mip_Point) {
-			samplerFilterMin = desc.hasMipMaps() ? GL_NEAREST_MIPMAP_NEAREST : GL_NEAREST;
-			samplerFilterMag = GL_NEAREST;
-		}
-
-		const auto getGLNativeAddressMode = [](TextureAddressMode::Enum mode) -> GLenum {
-			if (mode == TextureAddressMode::Repeat)
-				return GL_REPEAT;
-			if (mode == TextureAddressMode::ClampEdge)
-				return GL_CLAMP_TO_EDGE;
-			return GL_CLAMP_TO_BORDER;
-		};
-
-		GLenum const xAddresMode = getGLNativeAddressMode(samplerDesc.addressModes[0]);
-		DumpAllGLErrors();
-		GLenum const yAddresMode = getGLNativeAddressMode(samplerDesc.addressModes[1]);
-		DumpAllGLErrors();
-		GLenum const zAddresMode = getGLNativeAddressMode(samplerDesc.addressModes[2]);
-		DumpAllGLErrors();
-
-		glTexParameteri(glTexTarget, GL_TEXTURE_MIN_FILTER, samplerFilterMin);
-		DumpAllGLErrors();
-
-		glTexParameteri(glTexTarget, GL_TEXTURE_MAG_FILTER, samplerFilterMag);
-		DumpAllGLErrors();
-
-		// Apply the texture sampler.
-		glTexParameteri(glTexTarget, GL_TEXTURE_WRAP_S, xAddresMode);
-		glTexParameteri(glTexTarget, GL_TEXTURE_WRAP_T, yAddresMode);
-#ifndef __EMSCRIPTEN__
-		glTexParameteri(glTexTarget, GL_TEXTURE_WRAP_R, zAddresMode);
-		glTexParameterfv(glTexTarget, GL_TEXTURE_BORDER_COLOR, samplerDesc.colorBorder);
-#endif
-		DumpAllGLErrors();
-	}
+	applySamplerDesc(samplerDesc, false);
 
 	const bool isCompressed = TextureFormat::IsBC(desc.format);
 
@@ -188,6 +141,78 @@ bool TextureGL::create(const TextureDesc& desc, const TextureData initalData[], 
 	DumpAllGLErrors();
 
 	return true;
+}
+
+void TextureGL::setSamplerState(SamplerState* ss) {
+	m_samplerState = ss;
+	if (m_samplerState.HasResource()) {
+		applySamplerDesc(m_samplerState->getDesc(), true);
+	}
+}
+
+void TextureGL::applySamplerDesc(const SamplerDesc& samplerDesc, bool shouldBindAndUnBindtexture) {
+	if (!isValid()) {
+		return;
+	}
+
+	GLContextStateCache* const glcon = getDevice<SGEDeviceImpl>()->GL_GetContextStateCache();
+	const GLenum glTexTarget = TextureDesc_GetGLNativeTextureTartget(m_desc);
+
+	if (shouldBindAndUnBindtexture) {
+		glcon->BindTextureEx(glTexTarget, GL_TEXTURE0, m_glTexture);
+	}
+
+	// [TODO][HACK][HOTFIX]
+	// Currently OpenGL samplers aren't supported!
+	// I'm adding a dummy texture sampler parameters.
+	// That code MUST be removed in the future!!!
+	// if(glTexTarget == GL_TEXTURE_2D)
+	{
+		GLenum samplerFilterMin = GL_NEAREST;
+		GLenum samplerFilterMag = GL_NEAREST;
+		if (samplerDesc.filter == TextureFilter::Min_Mag_Mip_Linear) {
+			samplerFilterMin = m_desc.hasMipMaps() ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR;
+			samplerFilterMag = GL_NEAREST;
+		}
+		if (samplerDesc.filter == TextureFilter::Min_Mag_Mip_Point) {
+			samplerFilterMin = m_desc.hasMipMaps() ? GL_NEAREST_MIPMAP_NEAREST : GL_NEAREST;
+			samplerFilterMag = GL_NEAREST;
+		}
+
+		const auto getGLNativeAddressMode = [](TextureAddressMode::Enum mode) -> GLenum {
+			if (mode == TextureAddressMode::Repeat)
+				return GL_REPEAT;
+			if (mode == TextureAddressMode::ClampEdge)
+				return GL_CLAMP_TO_EDGE;
+			return GL_CLAMP_TO_BORDER;
+		};
+
+		GLenum const xAddresMode = getGLNativeAddressMode(samplerDesc.addressModes[0]);
+		DumpAllGLErrors();
+		GLenum const yAddresMode = getGLNativeAddressMode(samplerDesc.addressModes[1]);
+		DumpAllGLErrors();
+		GLenum const zAddresMode = getGLNativeAddressMode(samplerDesc.addressModes[2]);
+		DumpAllGLErrors();
+
+		glTexParameteri(glTexTarget, GL_TEXTURE_MIN_FILTER, samplerFilterMin);
+		DumpAllGLErrors();
+
+		glTexParameteri(glTexTarget, GL_TEXTURE_MAG_FILTER, samplerFilterMag);
+		DumpAllGLErrors();
+
+		// Apply the texture sampler.
+		glTexParameteri(glTexTarget, GL_TEXTURE_WRAP_S, xAddresMode);
+		glTexParameteri(glTexTarget, GL_TEXTURE_WRAP_T, yAddresMode);
+#ifndef __EMSCRIPTEN__
+		glTexParameteri(glTexTarget, GL_TEXTURE_WRAP_R, zAddresMode);
+		glTexParameterfv(glTexTarget, GL_TEXTURE_BORDER_COLOR, samplerDesc.colorBorder);
+#endif
+		DumpAllGLErrors();
+	}
+
+	if (shouldBindAndUnBindtexture) {
+		glcon->BindTextureEx(glTexTarget, GL_TEXTURE0, 0);
+	}
 }
 
 void TextureGL::destroy() {

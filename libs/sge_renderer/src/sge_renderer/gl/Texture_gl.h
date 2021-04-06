@@ -8,8 +8,7 @@ namespace sge {
 //----------------------------------------------------------
 // Texture
 //----------------------------------------------------------
-struct TextureGL : public Texture
-{
+struct TextureGL : public Texture {
 	TextureGL() = default;
 	~TextureGL() { destroy(); }
 
@@ -25,15 +24,16 @@ struct TextureGL : public Texture
 
 	const TextureDesc& getDesc() const final { return m_desc; }
 	SamplerState* getSamplerState() final { return m_samplerState; }
-	void setSamplerState(SamplerState* ss) final { m_samplerState = ss; }
+	void setSamplerState(SamplerState* ss) final;
 
 	GLuint GL_GetResource() { return m_glTexture; }
 
-private : 
+  private:
+	void applySamplerDesc(const SamplerDesc& samplerDesc, bool shouldBindAndUnBindtexture);
 
 	TextureDesc m_desc;
 	GpuHandle<SamplerState> m_samplerState;
 	GLuint m_glTexture = 0;
 };
 
-}
+} // namespace sge

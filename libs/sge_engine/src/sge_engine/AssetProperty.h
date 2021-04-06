@@ -8,11 +8,21 @@ namespace sge {
 /// @brief A Helper class usually used as a property to game object.
 /// This is a reference to an asset, by using the @update() method you can check if new asset has been assigned.
 struct SGE_ENGINE_API AssetProperty {
-	explicit AssetProperty(AssetType assetType)
-	    : m_assetType(assetType) {}
+	explicit AssetProperty(AssetType assetType) { m_acceptedAssetTypes.push_back(assetType); }
 
-	explicit AssetProperty(AssetType assetType, const char* const initialTargetAsset)
-	    : m_assetType(assetType) {
+	AssetProperty(AssetType assetType0, AssetType assetType1) {
+		m_acceptedAssetTypes.push_back(assetType0);
+		m_acceptedAssetTypes.push_back(assetType1);
+	}
+
+	AssetProperty(AssetType assetType0, AssetType assetType1, AssetType assetType2) {
+		m_acceptedAssetTypes.push_back(assetType0);
+		m_acceptedAssetTypes.push_back(assetType1);
+		m_acceptedAssetTypes.push_back(assetType2);
+	}
+
+	AssetProperty(AssetType assetType, const char* const initialTargetAsset) {
+		m_acceptedAssetTypes.push_back(assetType);
 		setTargetAsset(initialTargetAsset);
 	}
 
@@ -30,21 +40,32 @@ struct SGE_ENGINE_API AssetProperty {
 	void setAsset(std::shared_ptr<Asset>& asset);
 	void setTargetAsset(const char* const assetPath);
 
+	std::shared_ptr<Asset>& getAsset() { return m_asset; }
+	const std::shared_ptr<Asset>& getAsset() const { return m_asset; }
+
 	AssetModel* getAssetModel();
 	const AssetModel* getAssetModel() const;
 	GpuHandle<Texture>* getAssetTexture();
+	SpriteAnimationAsset* getAssetSprite();
+	const SpriteAnimationAsset* getAssetSprite() const;
 	const GpuHandle<Texture>* getAssetTexture() const;
 
 	AssetProperty& operator=(const AssetProperty& ref) {
 		m_targetAsset = ref.m_targetAsset;
-		m_assetType = ref.m_assetType;
+		m_acceptedAssetTypes = ref.m_acceptedAssetTypes;
+		m_uiPossibleAssets = ref.m_uiPossibleAssets;
+
+		// m_currentAsset not copied so when an object is duplicated it would need to force inititalize it,
+		// which is needed so it could initialize its dependencies like rigid body.
+		// TODO: the above might no longer be needed.
+		// m_asset is not copied for the same reason as m_currentAsset
 
 		return *this;
 	}
 
   public:
 	// Caution: there is a custom copy logic.
-	AssetType m_assetType;
+	StaticArray<AssetType, int(AssetType::Count)> m_acceptedAssetTypes;
 	std::string m_targetAsset;
 
 	std::string m_currentAsset;

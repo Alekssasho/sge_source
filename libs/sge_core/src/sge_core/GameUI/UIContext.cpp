@@ -137,7 +137,7 @@ void UIContext::update(const InputState& is, const vec2i& canvasSize, const floa
 				}
 			}
 
-			if ((is.xinputDevicesState[0].btnA & 0x3) == 2) {
+			if (is.xinputDevicesState[0].isBtnReleased(GamepadState::btn_a)) {
 				if (gamepadTarget->isSuspended() == false) {
 					gamepadTarget->onRelease(true);
 				}

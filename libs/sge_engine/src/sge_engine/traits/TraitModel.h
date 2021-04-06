@@ -4,10 +4,10 @@
 #include "sge_core/shaders/modeldraw.h"
 #include "sge_engine/Actor.h"
 #include "sge_engine/AssetProperty.h"
+#include "sge_engine/enums2d.h"
 
 
 namespace sge {
-
 /// @brief TraitModel is a trait designed to be attached in an Actor.
 /// It provides a simple way to assign a renderable 3D Model to the game object (both animated and static).
 /// The trait is not automatically updateable, the user needs to manually call @postUpdate() method in their objects.
@@ -33,7 +33,7 @@ struct SGE_ENGINE_API TraitModel : public Trait {
 	SGE_TraitDecl_Full(TraitModel);
 
 	TraitModel()
-	    : m_assetProperty(AssetType::Model) {}
+	    : m_assetProperty(AssetType::Model, AssetType::TextureView, AssetType::Sprite) {}
 
 	void setModel(const char* assetPath, bool updateNow) {
 		m_assetProperty.setTargetAsset(assetPath);
@@ -76,8 +76,8 @@ struct SGE_ENGINE_API TraitModel : public Trait {
 
 	void setRenderable(bool v) { isRenderable = v; }
 	bool getRenderable() const { return isRenderable; }
-	void setNoLighting(bool v) { drawMods.forceNoLighting = v; }
-	bool getNoLighting() const { return drawMods.forceNoLighting; }
+	void setNoLighting(bool v) { instanceDrawMods.forceNoLighting = v; }
+	bool getNoLighting() const { return instanceDrawMods.forceNoLighting; }
 	bool showOnlyInEditMode() const { return m_showOnlyInEditmode; }
 	void setShowOnlyInEditMode(bool v) { m_showOnlyInEditmode = v; }
 
@@ -98,7 +98,7 @@ struct SGE_ENGINE_API TraitModel : public Trait {
 	};
 
 	mat4f m_additionalTransform = mat4f::getIdentity();
-	InstanceDrawMods drawMods;
+	InstanceDrawMods instanceDrawMods;
 	AssetProperty m_assetProperty;
 	std::string animationName;
 	float animationTime = 0.f;
@@ -112,8 +112,43 @@ struct SGE_ENGINE_API TraitModel : public Trait {
 
 	// Skeleton.
 	std::unordered_map<const Model::Node*, ObjectId> nodeToBoneId;
+
+	struct ImageSettings {
+		mat4f getAnchorAlignMtxOS(float imageWidth, float imageHeight) const {
+			const float sz = imageWidth / m_pixelsPerUnit;
+			const float sy = imageHeight / m_pixelsPerUnit;
+
+			const mat4f anchorAlineMtx = anchor_getPlaneAlignMatrix(m_anchor, vec2f(sz, sy));
+			return anchorAlineMtx;
+		}
+
+		// Sprite and texture drawing.
+		/// @brief Describes where the (0,0,0) point of the plane should be relative to the object.
+		/// TODO: replace this with UV style coordinates.
+		Anchor m_anchor = anchor_bottomMid;
+
+		/// @brief Describes how much along the plane normal (which is X) should the plane be moved.
+		/// This is useful when we want to place recoration on top of walls or floor objects.
+		float m_localXOffset = 0.01f;
+
+		/// @brief Describes how big is one pixel in world space.
+		float m_pixelsPerUnit = 64.f;
+
+		/// @brief Describes if any billboarding should happen for the plane.
+		Billboarding m_billboarding = billboarding_none;
+
+		/// @brief if true the image will get rendered with no lighting applied,
+		/// as if we just rendered the color (with gamma correction and post processing).
+		bool forceNoLighting = true;
+
+		/// @brief if true the plane will not get any culling applied. Useful if we want the
+		/// texture to be visible from both sides.
+		bool forceNoCulling = true;
+
+		float spriteFrameTime = 0.f;
+	};
+
+	ImageSettings imageSettings;
 };
-
-
 
 } // namespace sge

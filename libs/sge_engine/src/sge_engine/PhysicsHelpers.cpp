@@ -2,11 +2,7 @@
 #include "sge_engine/GameWorld.h"
 #include "sge_engine/traits/TraitRigidBody.h"
 
-
 namespace sge {
-
-// Hack: Lame forward declarations:
-struct APlayer;
 
 //-------------------------------------------------------------------------
 // RayResultCollisionObject

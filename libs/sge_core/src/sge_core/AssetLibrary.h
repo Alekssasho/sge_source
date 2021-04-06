@@ -7,6 +7,7 @@
 #include "sge_core/model/EvaluatedModel.h"
 #include "sge_core/model/Model.h"
 #include "sge_utils/utils/vector_map.h"
+#include "sge_core/Sprite.h"
 
 namespace sge {
 
@@ -16,36 +17,6 @@ struct AssetModel {
 	Model::Model model;
 	EvaluatedModel staticEval;
 	EvaluatedModel sharedEval;
-};
-
-struct Sprite {
-	struct Frame {
-		vec2i xy;               // The position of the 1st pixel of the frame.
-		vec2i wh;               // The width and height of the region of the frame starting form "xy".
-		vec4f uvRegion;         // The uv region in the source texture to be used. (x,y) top-left, (w,z) bottom-right
-		float duration = 0.f;   // The duration of the frame in seconds.
-		float frameStart = 0.f; // The time offset in the global animation when this frame should appear.
-	};
-
-	const Frame* getFrameForTime(float time) const {
-		if (frames.size() == 0) {
-			return nullptr;
-		}
-
-		const Frame* result = &frames[0];
-		for (const Frame& frm : frames) {
-			const float frameEndTime = frm.frameStart + frm.duration;
-			if (time >= frm.frameStart) {
-				result = &frm;
-			}
-		}
-
-		return result;
-	}
-
-	std::shared_ptr<Asset> texture;
-	std::vector<Frame> frames;
-	float animationDuration = 0.f;
 };
 
 // Defines all posible asset types.
@@ -59,7 +30,9 @@ enum class AssetType : int {
 	Count,
 };
 
-SGE_CORE_API AssetType assetType_fromExtension(const char* const ext);
+SGE_CORE_API const char* assetType_getName(const AssetType type);
+
+SGE_CORE_API AssetType assetType_fromExtension(const char* const ext, bool includeExternalExtensions);
 
 // Provides an interfaces that is used to allocated a particular asset of a type.
 struct SGE_CORE_API IAssetAllocator {
@@ -101,6 +74,11 @@ struct SGE_CORE_API Asset {
 		return (GpuHandle<Texture>*)m_pAsset;
 	}
 
+	SpriteAnimationAsset* asSprite() {
+		sgeAssert(getType() == AssetType::Sprite);
+		return (SpriteAnimationAsset*)m_pAsset;
+	}
+
 	const void* asVoid() const { return m_pAsset; }
 	AssetModel* asModel() {
 		sgeAssert(getType() == AssetType::Model);
@@ -114,9 +92,9 @@ struct SGE_CORE_API Asset {
 		sgeAssert(getType() == AssetType::Text);
 		return (const std::string*)m_pAsset;
 	}
-	const Sprite* asSprite() const {
+	const SpriteAnimationAsset* asSprite() const {
 		sgeAssert(getType() == AssetType::Sprite);
-		return (const Sprite*)m_pAsset;
+		return (const SpriteAnimationAsset*)m_pAsset;
 	}
 
 	AssetType getType() const { return m_type; }

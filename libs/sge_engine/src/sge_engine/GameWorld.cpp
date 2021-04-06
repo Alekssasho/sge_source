@@ -810,4 +810,12 @@ ICamera* GameWorld::getRenderCamera() {
 	return camera;
 }
 
+void setMouseCaptureAndCenter(bool isRelative) {
+	SDL_SetRelativeMouseMode(isRelative ? SDL_TRUE : SDL_FALSE);
+}
+
+bool getMouseCaptureAndCenter() {
+	return SDL_GetRelativeMouseMode() == SDL_TRUE ? true : false;
+}
+
 } // namespace sge

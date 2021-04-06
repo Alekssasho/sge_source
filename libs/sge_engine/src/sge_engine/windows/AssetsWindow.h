@@ -44,6 +44,10 @@ struct SGE_ENGINE_API AssetsWindow : public IImGuiWindow {
 	bool importAsset(AssetImportData& aid);
 
   private:
+	bool shouldOpenImportPopup = false;
+	bool m_importPopupIsOpen = false;
+	std::string openAssetImport_filename;
+
 	bool m_isOpened = true;
 	GameInspector& m_inspector;
 	std::string m_windowName;
@@ -51,9 +55,6 @@ struct SGE_ENGINE_API AssetsWindow : public IImGuiWindow {
 	ModelPreviewWidget m_modelPreviewWidget;
 
 	std::shared_ptr<Asset> m_selectedAsset;
-
-	bool shouldOpenImportPopup = false;
-	bool m_importPopupIsOpen = false;
 
 	std::filesystem::path m_rightClickedPath;
 	PAsset explorePreviewAsset;

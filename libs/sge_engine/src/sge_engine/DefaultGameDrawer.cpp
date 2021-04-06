@@ -631,8 +631,10 @@ void DefaultGameDrawer::drawTraitStaticModel(TraitModel* modelTrait,
 	const vec3f camLookDir = drawSets.drawCamera->getCameraLookDir();
 	Actor* actor = modelTrait->getActor();
 
+	PAsset const asset = modelTrait->getAssetProperty().getAsset();
+
 	const bool shouldDisplay = modelTrait->showOnlyInEditMode() ? drawReason_IsEditOrSelection(drawReason) : true;
-	if (shouldDisplay && modelTrait->getRenderable()) {
+	if (shouldDisplay && modelTrait->getRenderable() && isAssetLoaded(asset) && asset->getType() == AssetType::Model) {
 		AssetModel* const model = modelTrait->getAssetProperty().getAssetModel();
 
 		std::vector<MaterialOverride> mtlOverrides;
@@ -658,20 +660,20 @@ void DefaultGameDrawer::drawTraitStaticModel(TraitModel* modelTrait,
 					const mat4f n2w = actor->getTransformMtx() * modelTrait->m_additionalTransform;
 					model->sharedEval.evaluate(boneOverrides);
 					m_modeldraw.draw(drawSets.rdest, camPos, camLookDir, drawSets.drawCamera->getProjView(), n2w, generalMods,
-					                 model->sharedEval, modelTrait->drawMods, &mtlOverrides);
+					                 model->sharedEval, modelTrait->instanceDrawMods, &mtlOverrides);
 				}
 			} else if (modelTrait->animationName.empty()) {
 				if (model && model->staticEval.isInitialized()) {
 					const mat4f n2w = actor->getTransformMtx() * modelTrait->m_additionalTransform;
 					m_modeldraw.draw(drawSets.rdest, camPos, camLookDir, drawSets.drawCamera->getProjView(), n2w, generalMods,
-					                 model->staticEval, modelTrait->drawMods, &mtlOverrides);
+					                 model->staticEval, modelTrait->instanceDrawMods, &mtlOverrides);
 				}
 			} else {
 				if (model && model->sharedEval.isInitialized()) {
 					const mat4f n2w = actor->getTransformMtx() * modelTrait->m_additionalTransform;
 					model->sharedEval.evaluate(modelTrait->animationName.c_str(), modelTrait->animationTime);
 					m_modeldraw.draw(drawSets.rdest, camPos, camLookDir, drawSets.drawCamera->getProjView(), n2w, generalMods,
-					                 model->sharedEval, modelTrait->drawMods, &mtlOverrides); // TODO force no lighting in mods
+					                 model->sharedEval, modelTrait->instanceDrawMods, &mtlOverrides); // TODO force no lighting in mods
 				}
 			}
 		} else {
@@ -700,6 +702,62 @@ void DefaultGameDrawer::drawTraitStaticModel(TraitModel* modelTrait,
 					m_constantColorShader.draw(drawSets.rdest, drawSets.drawCamera->getProjView(), n2w, model->sharedEval,
 					                           generalMods.highlightColor);
 				}
+			}
+		}
+	} else if (isAssetLoaded(asset) && asset->getType() == AssetType::TextureView) {
+		GpuHandle<Texture>* ppTexture = asset->asTextureView();
+		if (ppTexture && ppTexture->IsResourceValid()) {
+			Texture* const texture = ppTexture->GetPtr();
+			if (texture) {
+				const mat4f localOffsetmtx = mat4f::getTranslation(modelTrait->imageSettings.m_localXOffset, 0.f, 0.f);
+				const mat4f anchorAlignMtx = modelTrait->imageSettings.getAnchorAlignMtxOS(float(texture->getDesc().texture2D.width),
+				                                                                           float(texture->getDesc().texture2D.height));
+				const mat4f billboardFacingMtx =
+				    billboarding_getOrentationMtx(modelTrait->imageSettings.m_billboarding, actor->getTransform(),
+				                                  drawSets.drawCamera->getCameraPosition(), drawSets.drawCamera->getView());
+				const mat4f objToWorld = billboardFacingMtx * anchorAlignMtx * localOffsetmtx;
+
+				Geometry texPlaneGeom = m_texturedPlaneDraw.getGeometry(drawSets.rdest.getDevice());
+				Material texPlaneMtl = m_texturedPlaneDraw.getMaterial(texture);
+
+				InstanceDrawMods mods;
+				mods.gameTime = getWorld()->gameTime;
+				mods.forceNoLighting = modelTrait->imageSettings.forceNoLighting;
+				mods.forceNoCulling = modelTrait->imageSettings.forceNoCulling;
+
+				m_modeldraw.drawGeometry(drawSets.rdest, camPos, camLookDir, drawSets.drawCamera->getProjView(), objToWorld, generalMods,
+				                         &texPlaneGeom, texPlaneMtl, mods);
+			}
+		}
+	} else if (isAssetLoaded(asset) && asset->getType() == AssetType::Sprite) {
+		SpriteAnimationAsset* const pSprite = asset->asSprite();
+		if (pSprite && isAssetLoaded(pSprite->textureAsset) && pSprite->textureAsset->asTextureView() != nullptr &&
+		    pSprite->textureAsset->asTextureView()->GetPtr() != nullptr) {
+			// Get the frame of the sprite to be rendered.
+			const SpriteAnimation::Frame* const frame = pSprite->spriteAnimation.getFrameForTime(modelTrait->imageSettings.spriteFrameTime);
+			if (frame) {
+				const mat4f localOffsetmtx = mat4f::getTranslation(modelTrait->imageSettings.m_localXOffset, 0.f, 0.f);
+				const mat4f anchorAlignMtx = modelTrait->imageSettings.getAnchorAlignMtxOS(float(frame->wh.x), float(frame->wh.y));
+				const mat4f billboardFacingMtx =
+				    billboarding_getOrentationMtx(modelTrait->imageSettings.m_billboarding, actor->getTransform(),
+				                                  drawSets.drawCamera->getCameraPosition(), drawSets.drawCamera->getView());
+				const mat4f objToWorld = billboardFacingMtx * anchorAlignMtx * localOffsetmtx;
+
+				Geometry texPlaneGeom = m_texturedPlaneDraw.getGeometry(drawSets.rdest.getDevice());
+				Material texPlaneMtl = m_texturedPlaneDraw.getMaterial(pSprite->textureAsset->asTextureView()->GetPtr());
+
+				InstanceDrawMods mods;
+				mods.gameTime = getWorld()->gameTime;
+				mods.forceNoLighting = modelTrait->imageSettings.forceNoLighting;
+				mods.forceNoCulling = modelTrait->imageSettings.forceNoCulling;
+				
+				// Compute the UVW transform so we get only this frame portion of the texture to be displayed.
+				texPlaneMtl.uvwTransform =
+				    mat4f::getTranslation(frame->uvRegion.x, frame->uvRegion.y, 0.f) *
+				    mat4f::getScaling(frame->uvRegion.z - frame->uvRegion.x, frame->uvRegion.w - frame->uvRegion.y, 0.f);
+
+				m_modeldraw.drawGeometry(drawSets.rdest, camPos, camLookDir, drawSets.drawCamera->getProjView(), objToWorld, generalMods,
+				                         &texPlaneGeom, texPlaneMtl, mods);
 			}
 		}
 	}

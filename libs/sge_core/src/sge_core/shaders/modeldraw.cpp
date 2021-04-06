@@ -42,7 +42,7 @@ void BasicModelDraw::drawGeometry_FWDBuildShadowMap(const RenderDestination& rde
                                                     const GeneralDrawMod& generalMods,
                                                     const Geometry* geometry,
                                                     const Material& UNUSED(material),
-                                                    const InstanceDrawMods& UNUSED(mods)) {
+                                                    const InstanceDrawMods& mods) {
 	enum {
 		OPT_LightType,
 	};
@@ -95,20 +95,24 @@ void BasicModelDraw::drawGeometry_FWDBuildShadowMap(const RenderDestination& rde
 	stateGroup.setVBDeclIndex(geometry->vertexDeclIndex);
 	stateGroup.setVB(0, geometry->vertexBuffer, uint32(geometry->vbByteOffset), geometry->stride);
 
-	// We are baking shadow maps and we want to render the backfaces
-	// *opposing to the regular rendering which uses front faces... duh).
-	// This is done to avoid the Shadow Acne artifacts caused by floating point
-	// innacuraties introduced by the depth texture.
-	bool flipCulling = determinant(world) > 0.f;
+	RasterizerState* rasterState = nullptr;
+	if (mods.forceNoCulling) {
+		rasterState = getCore()->getGraphicsResources().RS_noCulling;
+	} else {
+		// We are baking shadow maps and we want to render the backfaces
+		// *opposing to the regular rendering which uses front faces... duh).
+		// This is done to avoid the Shadow Acne artifacts caused by floating point
+		// innacuraties introduced by the depth texture.
+		bool flipCulling = determinant(world) > 0.f;
 
-	// Caution: [POINT_LIGHT_SHADOWMAP_TRIANGLE_WINING_FLIP]
-	// Triangle winding would need an aditional flip based on the rendering API.
-	if (generalMods.isShadowMapForPointLight && kIsTexcoordStyleD3D) {
-		flipCulling = !flipCulling;
+		// Caution: [POINT_LIGHT_SHADOWMAP_TRIANGLE_WINING_FLIP]
+		// Triangle winding would need an aditional flip based on the rendering API.
+		if (generalMods.isShadowMapForPointLight && kIsTexcoordStyleD3D) {
+			flipCulling = !flipCulling;
+		}
+
+		rasterState = flipCulling ? getCore()->getGraphicsResources().RS_defaultBackfaceCCW : getCore()->getGraphicsResources().RS_default;
 	}
-
-	RasterizerState* const rasterState =
-	    flipCulling ? getCore()->getGraphicsResources().RS_defaultBackfaceCCW : getCore()->getGraphicsResources().RS_default;
 
 	stateGroup.setRenderState(rasterState, getCore()->getGraphicsResources().DSS_default_lessEqual);
 
@@ -300,10 +304,24 @@ void BasicModelDraw::drawGeometry_FWDShading(const RenderDestination& rdest,
 		stateGroup.setIB(nullptr, UniformType::Unknown, 0);
 	}
 
-	const bool flipCulling = determinant(world) < 0.f;
+	RasterizerState* rasterState = nullptr;
+	if (mods.forceNoCulling) {
+		rasterState = getCore()->getGraphicsResources().RS_noCulling;
+	} else {
+		// We are baking shadow maps and we want to render the backfaces
+		// *opposing to the regular rendering which uses front faces... duh).
+		// This is done to avoid the Shadow Acne artifacts caused by floating point
+		// innacuraties introduced by the depth texture.
+		bool flipCulling = determinant(world) > 0.f;
 
-	RasterizerState* const rasterState =
-	    flipCulling ? getCore()->getGraphicsResources().RS_defaultBackfaceCCW : getCore()->getGraphicsResources().RS_default;
+		// Caution: [POINT_LIGHT_SHADOWMAP_TRIANGLE_WINING_FLIP]
+		// Triangle winding would need an aditional flip based on the rendering API.
+		if (generalMods.isShadowMapForPointLight && kIsTexcoordStyleD3D) {
+			flipCulling = !flipCulling;
+		}
+
+		rasterState = flipCulling ? getCore()->getGraphicsResources().RS_default : getCore()->getGraphicsResources().RS_defaultBackfaceCCW;
+	}
 
 	StaticArray<BoundUniform, 64> uniforms;
 
@@ -376,7 +394,7 @@ void BasicModelDraw::drawGeometry_FWDShading(const RenderDestination& rdest,
 	}
 
 	shaderPerm.bind<64>(uniforms, uDarkSpotPositonWs, (void*)&generalMods.darkSpotPosition);
-	
+
 	if (emptyCubeShadowMap.IsResourceValid() == false) {
 		TextureDesc texDesc;
 		texDesc.textureType = UniformType::TextureCube;

@@ -17,7 +17,7 @@ ReflBlock() {
 		ReflMember(TraitTexturedPlane, m_pixelSizeInWorld)
 		ReflMember(TraitTexturedPlane, m_billboarding)
 		ReflMember(TraitTexturedPlane, m_assetProperty)
-			.addMemberFlag(MFF_StringAsModelAsset);
+	;
 }
 // clang-format on
 

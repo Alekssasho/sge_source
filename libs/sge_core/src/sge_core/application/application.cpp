@@ -368,33 +368,33 @@ void ApplicationHandler::PollEvents() {
 					m_inputState.xinputDevicesState[gamepadIndex].hadInputThisPoll = true;
 
 					if (event.cbutton.button == 0) {
-						m_inputState.xinputDevicesState[gamepadIndex].btnA |= 1;
+						m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_a] |= 1;
 					} else if (event.cbutton.button == 1) {
-						m_inputState.xinputDevicesState[gamepadIndex].btnB |= 1;
+						m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_b] |= 1;
 					} else if (event.cbutton.button == 2) {
-						m_inputState.xinputDevicesState[gamepadIndex].btnX |= 1;
+						m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_x] |= 1;
 					} else if (event.cbutton.button == 3) {
-						m_inputState.xinputDevicesState[gamepadIndex].btnY |= 1;
+						m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_y] |= 1;
 					} else if (event.cbutton.button == 4) {
-						m_inputState.xinputDevicesState[gamepadIndex].btnShoulderL |= 1;
+						m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_shoulderL] |= 1;
 					} else if (event.cbutton.button == 5) {
-						m_inputState.xinputDevicesState[gamepadIndex].btnShoulderR |= 1;
+						m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_shoulderR] |= 1;
 					} else if (event.cbutton.button == 6) {
-						m_inputState.xinputDevicesState[gamepadIndex].btnBack |= 1;
+						m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_back] |= 1;
 					} else if (event.cbutton.button == 7) {
-						m_inputState.xinputDevicesState[gamepadIndex].btnStart |= 1;
+						m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_start] |= 1;
 					} else if (event.cbutton.button == 8) {
-						m_inputState.xinputDevicesState[gamepadIndex].btnThumbL |= 1;
+						m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_thumbL] |= 1;
 					} else if (event.cbutton.button == 9) {
-						m_inputState.xinputDevicesState[gamepadIndex].btnThumbR |= 1;
+						m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_thumbR] |= 1;
 					} else if (event.cbutton.button == 11) { // PS4 hat-up
-						m_inputState.xinputDevicesState[gamepadIndex].btnUp |= 1;
+						m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_up] |= 1;
 					} else if (event.cbutton.button == 12) { // PS4 hat-down
-						m_inputState.xinputDevicesState[gamepadIndex].btnDown |= 1;
+						m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_down] |= 1;
 					} else if (event.cbutton.button == 13) { // PS4 hat-left
-						m_inputState.xinputDevicesState[gamepadIndex].btnLeft |= 1;
+						m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_left] |= 1;
 					} else if (event.cbutton.button == 14) { // PS4 hat-right
-						m_inputState.xinputDevicesState[gamepadIndex].btnRight |= 1;
+						m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_right] |= 1;
 					}
 				}
 			} break;
@@ -405,33 +405,33 @@ void ApplicationHandler::PollEvents() {
 					m_inputState.xinputDevicesState[gamepadIndex].hadInputThisPoll = true;
 
 					if (event.cbutton.button == 0) {
-						m_inputState.xinputDevicesState[gamepadIndex].btnA &= ~1;
+						m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_a] &= ~1;
 					} else if (event.cbutton.button == 1) {
-						m_inputState.xinputDevicesState[gamepadIndex].btnB &= ~1;
+						m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_b] &= ~1;
 					} else if (event.cbutton.button == 2) {
-						m_inputState.xinputDevicesState[gamepadIndex].btnX &= ~1;
+						m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_x] &= ~1;
 					} else if (event.cbutton.button == 3) {
-						m_inputState.xinputDevicesState[gamepadIndex].btnY &= ~1;
+						m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_y] &= ~1;
 					} else if (event.cbutton.button == 4) {
-						m_inputState.xinputDevicesState[gamepadIndex].btnShoulderL &= ~1;
+						m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_shoulderL] &= ~1;
 					} else if (event.cbutton.button == 5) {
-						m_inputState.xinputDevicesState[gamepadIndex].btnShoulderR &= ~1;
+						m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_shoulderR] &= ~1;
 					} else if (event.cbutton.button == 6) {
-						m_inputState.xinputDevicesState[gamepadIndex].btnBack &= ~1;
+						m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_back] &= ~1;
 					} else if (event.cbutton.button == 7) {
-						m_inputState.xinputDevicesState[gamepadIndex].btnStart &= ~1;
+						m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_start] &= ~1;
 					} else if (event.cbutton.button == 8) {
-						m_inputState.xinputDevicesState[gamepadIndex].btnThumbL &= ~1;
+						m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_thumbL] &= ~1;
 					} else if (event.cbutton.button == 9) {
-						m_inputState.xinputDevicesState[gamepadIndex].btnThumbR &= ~1;
+						m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_thumbR] &= ~1;
 					} else if (event.cbutton.button == 11) { // PS4 hat-up
-						m_inputState.xinputDevicesState[gamepadIndex].btnUp &= ~1;
+						m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_up] &= ~1;
 					} else if (event.cbutton.button == 12) { // PS4 hat-down
-						m_inputState.xinputDevicesState[gamepadIndex].btnDown &= ~1;
+						m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_down] &= ~1;
 					} else if (event.cbutton.button == 13) { // PS4 hat-left
-						m_inputState.xinputDevicesState[gamepadIndex].btnLeft &= ~1;
+						m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_left] &= ~1;
 					} else if (event.cbutton.button == 14) { // PS4 hat-right
-						m_inputState.xinputDevicesState[gamepadIndex].btnRight &= ~1;
+						m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_right] &= ~1;
 					}
 				}
 			} break;
@@ -487,58 +487,58 @@ void ApplicationHandler::PollEvents() {
 
 					switch (event.jhat.value) {
 						case SDL_HAT_CENTERED: {
-							m_inputState.xinputDevicesState[gamepadIndex].btnLeft &= ~1;
-							m_inputState.xinputDevicesState[gamepadIndex].btnRight &= ~1;
-							m_inputState.xinputDevicesState[gamepadIndex].btnUp &= ~1;
-							m_inputState.xinputDevicesState[gamepadIndex].btnDown &= ~1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_left] &= ~1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_right] &= ~1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_up] &= ~1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_down] &= ~1;
 						} break;
 						case SDL_HAT_UP: {
-							m_inputState.xinputDevicesState[gamepadIndex].btnLeft &= ~1;
-							m_inputState.xinputDevicesState[gamepadIndex].btnRight &= ~1;
-							m_inputState.xinputDevicesState[gamepadIndex].btnUp |= 1;
-							m_inputState.xinputDevicesState[gamepadIndex].btnDown &= ~1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_left] &= ~1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_right] &= ~1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_up] |= 1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_down] &= ~1;
 						} break;
 						case SDL_HAT_RIGHT: {
-							m_inputState.xinputDevicesState[gamepadIndex].btnLeft &= ~1;
-							m_inputState.xinputDevicesState[gamepadIndex].btnRight |= 1;
-							m_inputState.xinputDevicesState[gamepadIndex].btnUp &= ~1;
-							m_inputState.xinputDevicesState[gamepadIndex].btnDown &= ~1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_left] &= ~1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_right] |= 1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_up] &= ~1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_down] &= ~1;
 						} break;
 						case SDL_HAT_DOWN: {
-							m_inputState.xinputDevicesState[gamepadIndex].btnLeft &= ~1;
-							m_inputState.xinputDevicesState[gamepadIndex].btnRight &= ~1;
-							m_inputState.xinputDevicesState[gamepadIndex].btnUp &= ~1;
-							m_inputState.xinputDevicesState[gamepadIndex].btnDown |= 1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_left] &= ~1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_right] &= ~1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_up] &= ~1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_down] |= 1;
 						} break;
 						case SDL_HAT_LEFT: {
-							m_inputState.xinputDevicesState[gamepadIndex].btnLeft |= 1;
-							m_inputState.xinputDevicesState[gamepadIndex].btnRight &= ~1;
-							m_inputState.xinputDevicesState[gamepadIndex].btnUp &= ~1;
-							m_inputState.xinputDevicesState[gamepadIndex].btnDown &= ~1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_left] |= 1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_right] &= ~1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_up] &= ~1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_down] &= ~1;
 						} break;
 						case SDL_HAT_RIGHTUP: {
-							m_inputState.xinputDevicesState[gamepadIndex].btnLeft &= ~1;
-							m_inputState.xinputDevicesState[gamepadIndex].btnRight |= 1;
-							m_inputState.xinputDevicesState[gamepadIndex].btnUp |= 1;
-							m_inputState.xinputDevicesState[gamepadIndex].btnDown &= ~1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_left] &= ~1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_right] |= 1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_up] |= 1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_down] &= ~1;
 						} break;
 						case SDL_HAT_RIGHTDOWN: {
-							m_inputState.xinputDevicesState[gamepadIndex].btnLeft &= ~1;
-							m_inputState.xinputDevicesState[gamepadIndex].btnRight |= 1;
-							m_inputState.xinputDevicesState[gamepadIndex].btnUp &= ~1;
-							m_inputState.xinputDevicesState[gamepadIndex].btnDown |= 1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_left] &= ~1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_right] |= 1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_up] &= ~1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_down] |= 1;
 						} break;
 						case SDL_HAT_LEFTUP: {
-							m_inputState.xinputDevicesState[gamepadIndex].btnLeft |= 1;
-							m_inputState.xinputDevicesState[gamepadIndex].btnRight &= ~1;
-							m_inputState.xinputDevicesState[gamepadIndex].btnUp |= 1;
-							m_inputState.xinputDevicesState[gamepadIndex].btnDown &= ~1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_left] |= 1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_right] &= ~1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_up] |= 1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_down] &= ~1;
 						} break;
 						case SDL_HAT_LEFTDOWN: {
-							m_inputState.xinputDevicesState[gamepadIndex].btnLeft |= 1;
-							m_inputState.xinputDevicesState[gamepadIndex].btnRight &= ~1;
-							m_inputState.xinputDevicesState[gamepadIndex].btnUp &= ~1;
-							m_inputState.xinputDevicesState[gamepadIndex].btnDown |= 1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_left] |= 1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_right] &= ~1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_up] &= ~1;
+							m_inputState.xinputDevicesState[gamepadIndex].btnState[GamepadState::btn_down] |= 1;
 						} break;
 					}
 				}
@@ -565,17 +565,13 @@ void ApplicationHandler::PollEvents() {
 		m_inputState.addInputText(ch);
 	}
 
-	for (auto wnd : m_wnds) {
+	for (WindowBase* const wnd : m_wnds) {
 		const bool wasActiveWhilePolling = true; // SDL_GetWindowFlags(wnd->m_implData->window) & SDL_WINDOW_INPUT_GRABBED;
 		wnd->m_implData->isActive = wasActiveWhilePolling;
 		wnd->m_inputState = m_inputState;
 
 		vec2f const prevCursorClient = wnd->m_inputState.m_cursorClient;
-
 		vec2f const newCursorClient = vec2f((float)sdlMouseX, (float)sdlMouseY);
-		vec2f const cursorMotion = (wnd->m_shouldRecenterMouseEveryFrame)
-		                               ? newCursorClient - vec2f(wnd->GetClientWidth() * 0.5f, wnd->GetClientHeight() * 0.5f)
-		                               : newCursorClient - prevCursorClient;
 
 		wnd->m_inputState.m_cursorClient = newCursorClient;
 		wnd->m_inputState.m_cursorDomain = wnd->m_inputState.m_cursorClient;

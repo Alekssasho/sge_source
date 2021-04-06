@@ -1,4 +1,5 @@
 #include "TraitModel.h"
+#include "IconsForkAwesome/IconsForkAwesome.h"
 #include "sge_core/SGEImGui.h"
 #include "sge_engine/EngineGlobal.h"
 #include "sge_engine/GameInspector.h"
@@ -20,8 +21,20 @@ struct MDiffuseMaterial;
 DefineTypeId(TraitModel, 20'03'01'0004);
 DefineTypeId(TraitModel::MaterialOverride, 20'10'15'0001);
 DefineTypeId(std::vector<TraitModel::MaterialOverride>, 20'10'15'0002);
+DefineTypeId(TraitModel::ImageSettings, 21'04'04'0001);
 
 ReflBlock() {
+
+	ReflAddType(TraitModel::ImageSettings)
+		ReflMember(TraitModel::ImageSettings, m_anchor)
+		ReflMember(TraitModel::ImageSettings, m_localXOffset).uiRange(-FLT_MAX, FLT_MAX, 0.01f)
+		ReflMember(TraitModel::ImageSettings, m_pixelsPerUnit).uiRange(0.00001f, 100000.f, 0.1f)
+		ReflMember(TraitModel::ImageSettings, m_billboarding)
+		ReflMember(TraitModel::ImageSettings, forceNoLighting)
+		ReflMember(TraitModel::ImageSettings, forceNoCulling)
+		ReflMember(TraitModel::ImageSettings, spriteFrameTime).uiRange(0.f, 100000.f, 0.01f);
+	;
+
 	ReflAddType(TraitModel::MaterialOverride)
 		ReflMember(TraitModel::MaterialOverride, materialName)
 		ReflMember(TraitModel::MaterialOverride, materialObjId).setPrettyName("Material Object")
@@ -34,6 +47,7 @@ ReflBlock() {
 		ReflMember(TraitModel, m_materialOverrides)
 		ReflMember(TraitModel, useSkeleton)
 		ReflMember(TraitModel, rootSkeletonId)
+		ReflMember(TraitModel, imageSettings)
 	;
 
 }
@@ -196,77 +210,89 @@ void editTraitStaticModel(GameInspector& inspector, GameObject* actor, MemberCha
 				ImGui::PopID();
 			}
 		}
-	}
 
 
+		if (ImGui::Button("Extract Skeleton")) {
+			AssetModel* modelAsset = traitStaticModel.m_assetProperty.getAssetModel();
+			GameWorld* world = inspector.getWorld();
+			ALocator* allBonesParent = world->alloc<ALocator>();
+			allBonesParent->setTransform(traitStaticModel.getActor()->getTransform());
 
-	if (ImGui::Button("Extract Skeleton")) {
-		AssetModel* modelAsset = traitStaticModel.m_assetProperty.getAssetModel();
-		GameWorld* world = inspector.getWorld();
-		ALocator* allBonesParent = world->alloc<ALocator>();
-		allBonesParent->setTransform(traitStaticModel.getActor()->getTransform());
+			float boneLengthAuto = 0.05f * modelAsset->staticEval.aabox.diagonal().length();
 
-		float boneLengthAuto = 0.05f * modelAsset->staticEval.aabox.diagonal().length();
+			struct NodeRemapEl {
+				transf3d localTransform;
+				ABone* boneActor = nullptr;
+			};
+			vector_map<Model::Node*, NodeRemapEl> nodeRemap;
 
-		struct NodeRemapEl {
-			transf3d localTransform;
-			ABone* boneActor = nullptr;
-		};
-		vector_map<Model::Node*, NodeRemapEl> nodeRemap;
+			transf3d n2w = actor->getActor()->getTransform();
+			for (Model::Node* node : modelAsset->model.m_nodes) {
+				ParameterBlock& pb = node->paramBlock;
+				const Parameter* const scalingPrm = pb.FindParameter("scaling");
+				const Parameter* const rotationPrm = pb.FindParameter("rotation");
+				const Parameter* const translationPrm = pb.FindParameter("translation");
 
-		transf3d n2w = actor->getActor()->getTransform();
-		for (Model::Node* node : modelAsset->model.m_nodes) {
-			ParameterBlock& pb = node->paramBlock;
-			const Parameter* const scalingPrm = pb.FindParameter("scaling");
-			const Parameter* const rotationPrm = pb.FindParameter("rotation");
-			const Parameter* const translationPrm = pb.FindParameter("translation");
+				const Parameter* const boneLengthPrm = pb.FindParameter("boneLength");
 
-			const Parameter* const boneLengthPrm = pb.FindParameter("boneLength");
+				transf3d localTform;
 
-			transf3d localTform;
+				scalingPrm->Evalute(&localTform.s, nullptr, 0.f);
+				rotationPrm->Evalute(&localTform.r, nullptr, 0.f);
+				translationPrm->Evalute(&localTform.p, nullptr, 0.f);
 
-			scalingPrm->Evalute(&localTform.s, nullptr, 0.f);
-			rotationPrm->Evalute(&localTform.r, nullptr, 0.f);
-			translationPrm->Evalute(&localTform.p, nullptr, 0.f);
+				float boneLength = boneLengthAuto;
+				if (boneLengthPrm) {
+					boneLengthPrm->Evalute(&boneLength, nullptr, 0.f);
+				}
 
-			float boneLength = boneLengthAuto;
-			if (boneLengthPrm) {
-				boneLengthPrm->Evalute(&boneLength, nullptr, 0.f);
+				nodeRemap[node].localTransform = localTform;
+				nodeRemap[node].boneActor = inspector.getWorld()->alloc<ABone>(ObjectId(), node->name.c_str());
+				nodeRemap[node].boneActor->boneLength = boneLength;
 			}
 
-			nodeRemap[node].localTransform = localTform;
-			nodeRemap[node].boneActor = inspector.getWorld()->alloc<ABone>(ObjectId(), node->name.c_str());
-			nodeRemap[node].boneActor->boneLength = boneLength;
+			std::function<void(Model::Node * node, NodeRemapEl * parent)> traverseGlobalTransform;
+			traverseGlobalTransform = [&](Model::Node* node, NodeRemapEl* parent) -> void {
+				NodeRemapEl* remapNode = nodeRemap.find_element(node);
+				if (parent) {
+					remapNode->boneActor->setTransform(parent->boneActor->getTransform() * remapNode->localTransform);
+					inspector.getWorld()->setParentOf(remapNode->boneActor->getId(), parent->boneActor->getId());
+				} else {
+					remapNode->localTransform = allBonesParent->getTransform() * remapNode->localTransform;
+					remapNode->boneActor->setTransform(remapNode->localTransform);
+					world->setParentOf(remapNode->boneActor->getId(), allBonesParent->getId());
+				}
+
+				for (auto& childNode : node->childNodes) {
+					traverseGlobalTransform(childNode, remapNode);
+				}
+			};
+
+
+			traverseGlobalTransform(modelAsset->model.m_rootNode, nullptr);
 		}
 
-		std::function<void(Model::Node * node, NodeRemapEl * parent)> traverseGlobalTransform;
-		traverseGlobalTransform = [&](Model::Node* node, NodeRemapEl* parent) -> void {
-			NodeRemapEl* remapNode = nodeRemap.find_element(node);
-			if (parent) {
-				remapNode->boneActor->setTransform(parent->boneActor->getTransform() * remapNode->localTransform);
-				inspector.getWorld()->setParentOf(remapNode->boneActor->getId(), parent->boneActor->getId());
-			} else {
-				remapNode->localTransform = allBonesParent->getTransform() * remapNode->localTransform;
-				remapNode->boneActor->setTransform(remapNode->localTransform);
-				world->setParentOf(remapNode->boneActor->getId(), allBonesParent->getId());
-			}
+		chain.add(sgeFindMember(TraitModel, useSkeleton));
+		ProperyEditorUIGen::doMemberUI(inspector, actor, chain);
+		chain.pop();
 
-			for (auto& childNode : node->childNodes) {
-				traverseGlobalTransform(childNode, remapNode);
-			}
-		};
-
-
-		traverseGlobalTransform(modelAsset->model.m_rootNode, nullptr);
+		chain.add(sgeFindMember(TraitModel, rootSkeletonId));
+		ProperyEditorUIGen::doMemberUI(inspector, actor, chain);
+		chain.pop();
 	}
 
-	chain.add(sgeFindMember(TraitModel, useSkeleton));
-	ProperyEditorUIGen::doMemberUI(inspector, actor, chain);
-	chain.pop();
+	if (traitStaticModel.m_assetProperty.getAssetSprite()) {
+		chain.add(sgeFindMember(TraitModel, imageSettings));
+		ProperyEditorUIGen::doMemberUI(inspector, actor, chain);
+		chain.pop();
+	}
 
-	chain.add(sgeFindMember(TraitModel, rootSkeletonId));
-	ProperyEditorUIGen::doMemberUI(inspector, actor, chain);
-	chain.pop();
+	if (traitStaticModel.m_assetProperty.getAssetTexture()) {
+		chain.add(sgeFindMember(TraitModel, imageSettings));
+		ProperyEditorUIGen::doMemberUI(inspector, actor, chain);
+		chain.pop();
+	}
+
 
 	ImGuiEx::EndGroupPanel();
 }

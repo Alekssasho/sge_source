@@ -87,7 +87,7 @@ SGE_MDLCONVLIB_API bool sgeImportFBXFileAsMultiple(std::vector<MultiModelImportR
 
 		// Append the name of the node in the result.
 		const std::string newExt = string_format("%s.mdl", fbxChild->GetName());
-		const std::string newOutName = extractFileNameIncludingExtension(replaceExtension(fbxFilename, newExt.c_str()).c_str());
+		const std::string newOutName = extractFileNameWithExt(replaceExtension(fbxFilename, newExt.c_str()).c_str());
 
 		FBXSDKParser fbxsdkParser;
 		Model::Model importedModel;

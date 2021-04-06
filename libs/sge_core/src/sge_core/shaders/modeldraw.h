@@ -61,6 +61,7 @@ struct InstanceDrawMods {
 	float gameTime = 0.f;
 	bool forceNoLighting = false;
 	bool forceAdditiveBlending = false;
+	bool forceNoCulling = false;
 };
 
 //------------------------------------------------------------

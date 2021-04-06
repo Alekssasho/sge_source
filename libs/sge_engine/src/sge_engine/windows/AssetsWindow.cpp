@@ -40,51 +40,8 @@ AssetsWindow::AssetsWindow(std::string windowName, GameInspector& inspector)
 }
 
 void AssetsWindow::openAssetImport(const std::string& filename) {
-	AssetLibrary* const assetLib = getCore()->getAssetLib();
-
-	AssetImportData aid;
-	aid.filename = filename;
-	aid.assetType = assetType_fromExtension(extractFileExtension(filename.c_str()).c_str());
-	if (aid.assetType != AssetType::None) {
-		if (aid.assetType == AssetType::Model) {
-			if (sgeImportFBXFile == nullptr) {
-				SGE_DEBUG_ERR("mdlconvlib dynamic library is not loaded. We cannot import FBX files without it!");
-			}
-
-			Model::Model importedModel;
-			std::vector<std::string> referencedTextures;
-
-			if (sgeImportFBXFile && sgeImportFBXFile(importedModel, aid.filename.c_str(), &referencedTextures)) {
-				createDirectory(extractFileDir(aid.outputFilename.c_str(), false).c_str());
-				ModelWriter modelWriter;
-
-				WriteByteStream serializedModel;
-				const bool succeeded = modelWriter.write(importedModel, &serializedModel);
-
-				ReadByteStream serializedModelReader(serializedModel.serializedData);
-				Model::ModelReader modelReader;
-
-				// Create the temporary asset.
-				aid.tempAsset = assetLib->makeRuntimeAsset(AssetType::Model, ("@tmp_" + filename).c_str());
-
-				Model::LoadSettings loadSets;
-				loadSets.assetDir = extractFileDir(aid.filename.c_str(), true);
-				modelReader.Load(loadSets, getCore()->getDevice(), &serializedModelReader, aid.tempAsset->asModel()->model);
-
-				aid.tempAsset->asModel()->staticEval.initialize(assetLib, &aid.tempAsset->asModel()->model);
-				aid.tempAsset->asModel()->staticEval.evaluate(nullptr, 0);
-
-				aid.tempAsset->asModel()->sharedEval.initialize(assetLib, &aid.tempAsset->asModel()->model);
-				aid.tempAsset->asModel()->sharedEval.evaluate(nullptr, 0);
-			}
-		}
-
-		m_assetsToImport.emplace_back(std::move(aid));
-	} else {
-		std::string msg = string_format("Unknown asset type for %s", filename.c_str());
-		getEngineGlobal()->showNotification(msg.c_str());
-		SGE_DEBUG_ERR(msg.c_str());
-	}
+	shouldOpenImportPopup = true;
+	openAssetImport_filename = filename;
 }
 
 bool AssetsWindow::importAsset(AssetImportData& aid) {
@@ -118,7 +75,7 @@ bool AssetsWindow::importAsset(AssetImportData& aid) {
 			const std::string modelInputDir = extractFileDir(aid.filename.c_str(), true);
 			for (const std::string& texturePathLocal : referencedTextures) {
 				const std::string textureDestDir = aid.outputDir + "/" + extractFileDir(texturePathLocal.c_str(), true);
-				const std::string textureFilename = extractFileNameIncludingExtension(texturePathLocal.c_str());
+				const std::string textureFilename = extractFileNameWithExt(texturePathLocal.c_str());
 
 				const std::string textureSrcPath = canonizePathRespectOS(modelInputDir + texturePathLocal);
 				const std::string textureDstPath = canonizePathRespectOS(textureDestDir + textureFilename);
@@ -171,7 +128,7 @@ bool AssetsWindow::importAsset(AssetImportData& aid) {
 			const std::string modelInputDir = extractFileDir(aid.filename.c_str(), true);
 			for (const std::string& texturePathLocal : referencedTextures) {
 				const std::string textureDestDir = aid.outputDir + "/" + extractFileDir(texturePathLocal.c_str(), true);
-				const std::string textureFilename = extractFileNameIncludingExtension(texturePathLocal.c_str());
+				const std::string textureFilename = extractFileNameWithExt(texturePathLocal.c_str());
 
 				const std::string textureSrcPath = canonizePathRespectOS(modelInputDir + texturePathLocal);
 				const std::string textureDstPath = canonizePathRespectOS(textureDestDir + textureFilename);
@@ -200,6 +157,22 @@ bool AssetsWindow::importAsset(AssetImportData& aid) {
 		assetLib->reloadAssetModified(assetTexture.get());
 
 		return true;
+	} else if (aid.assetType == AssetType::Sprite) {
+		SpriteAnimation tempSpriteAnimation;
+		if (SpriteAnimation::importFromAsepriteSpriteSheetJsonFile(tempSpriteAnimation, aid.filename.c_str())) {
+			// There is a texture associated with this sprite, import it as well.
+			std::string importTextureSource = extractFileDir(aid.filename.c_str(), true) + tempSpriteAnimation.texturePath;
+			std::string importTextureDest = aid.outputDir + "/" + tempSpriteAnimation.texturePath;
+			createDirectory(extractFileDir(importTextureDest.c_str(), false).c_str());
+			copyFile(importTextureSource.c_str(), importTextureDest.c_str());
+
+			// Finally make the path to the texture relative to the .sprite file.
+			tempSpriteAnimation.texturePath = relativePathTo(aid.outputDir.c_str(), "./") + "/" + tempSpriteAnimation.texturePath;
+
+			return tempSpriteAnimation.saveSpriteToFile(fullAssetPath.c_str());
+		} else {
+			SGE_DEBUG_ERR("Failed to import %s as a Sprite!", aid.filename.c_str());
+		}
 	} else if (aid.assetType == AssetType::Text) {
 		createDirectory(extractFileDir(aid.outputDir.c_str(), false).c_str());
 		copyFile(aid.filename.c_str(), fullAssetPath.c_str());
@@ -208,9 +181,13 @@ bool AssetsWindow::importAsset(AssetImportData& aid) {
 		assetLib->reloadAssetModified(asset.get());
 
 		return true;
+	} else {
+		createDirectory(extractFileDir(aid.outputDir.c_str(), false).c_str());
+		copyFile(aid.filename.c_str(), fullAssetPath.c_str());
+		SGE_DEBUG_WAR("Imported a files by just copying it as it is not recognized asset type!")
+		return true;
 	}
 
-	sgeAssertFalse("unknown asset type");
 	return false;
 }
 
@@ -285,296 +262,327 @@ void AssetsWindow::update(SGEContext* const sgecon, const InputState& is) {
 	AssetLibrary* const assetLib = getCore()->getAssetLib();
 
 	if (ImGui::Begin(m_windowName.c_str(), &m_isOpened)) {
-		if (ImGui::BeginTabBar("Assets Tab Bar")) {
-			if (ImGui::BeginTabItem(ICON_FK_SEARCH " Explore")) {
-				namespace fs = std::filesystem;
+		namespace fs = std::filesystem;
 
-				if (ImGui::Button(ICON_FK_BACKWARD)) {
-					if (directoryTree.empty() == false) {
-						directoryTree.pop_back();
+		if (ImGui::Button(ICON_FK_BACKWARD)) {
+			if (directoryTree.empty() == false) {
+				directoryTree.pop_back();
+			}
+		}
+
+		ImGui::SameLine();
+		ImGui::Separator();
+		ImGui::SameLine();
+		ImGui::Text("Path: ");
+
+		{
+			int eraseAfter = -1;
+			for (int t = 0; t < int(directoryTree.size()); ++t) {
+				ImGui::SameLine();
+
+				if (ImGui::Button(directoryTree[t].c_str())) {
+					eraseAfter = t + 1;
+				}
+			}
+
+			if (eraseAfter > -1) {
+				while (directoryTree.size() > eraseAfter) {
+					directoryTree.pop_back();
+				}
+			}
+		}
+
+		ImGui::NewLine();
+
+		bool explorePreviewAssetChanged = false;
+		if (explorePreviewAsset) {
+			ImGui::Columns(2);
+		}
+
+		ImGui::Text(ICON_FK_SEARCH " File Filter");
+		ImGui::SameLine();
+		exploreFilter.Draw("##File Filter");
+		if (ImGui::IsItemClicked(2)) {
+			ImGui::ClearActiveID(); // Hack: (if we do not make this call ImGui::InputText will set it's cached value.
+			exploreFilter.Clear();
+		}
+
+		if (ImGui::BeginChildFrame(ImGui::GetID("FilesChildFrameID"), ImVec2(-1.f, -1.f))) {
+			try {
+				if (!directoryTree.empty() && ImGui::Selectable(ICON_FK_BACKWARD " [/..]")) {
+					directoryTree.pop_back();
+				}
+
+				bool shouldOpenNewFolderPopup = false;
+
+				std::string label;
+				fs::path pathToAssets = assetLib->getAssetsDirAbs();
+				for (auto& p : directoryTree) {
+					pathToAssets.append(p);
+				}
+
+				if (ImGui::Selectable(ICON_FK_FOLDER_O " [New Folder]")) {
+					shouldOpenNewFolderPopup = true;
+				}
+
+				Optional<fs::path> rightClickedPath;
+
+				std::string dirToAdd;
+				for (const fs::directory_entry& entry : fs::directory_iterator(pathToAssets)) {
+					if (entry.is_directory() && exploreFilter.PassFilter(entry.path().filename().string().c_str())) {
+						string_format(label, "%s %s", ICON_FK_FOLDER, entry.path().filename().string().c_str());
+						if (ImGui::Selectable(label.c_str())) {
+							dirToAdd = entry.path().filename().string();
+						}
+
+						if (ImGui::IsItemClicked(1)) {
+							rightClickedPath = entry.path();
+						}
 					}
 				}
 
-				ImGui::SameLine();
-				ImGui::Separator();
-				ImGui::SameLine();
-				ImGui::Text("Path: ");
+				for (const fs::directory_entry& entry : fs::directory_iterator(pathToAssets)) {
+					if (entry.is_regular_file() && exploreFilter.PassFilter(entry.path().filename().string().c_str())) {
+						AssetType assetType = assetType_fromExtension(extractFileExtension(entry.path().string().c_str()).c_str(), false);
+						if (assetType == AssetType::Model) {
+							string_format(label, "%s %s", ICON_FK_CUBE, entry.path().filename().string().c_str());
+						} else if (assetType == AssetType::TextureView) {
+							string_format(label, "%s %s", ICON_FK_PICTURE_O, entry.path().filename().string().c_str());
+						} else if (assetType == AssetType::Text) {
+							string_format(label, "%s %s", ICON_FK_FILE, entry.path().filename().string().c_str());
+						} else {
+							string_format(label, "%s %s", ICON_FK_FILE_TEXT_O, entry.path().filename().string().c_str());
+						}
 
-				{
-					int eraseAfter = -1;
-					for (int t = 0; t < int(directoryTree.size()); ++t) {
-						ImGui::SameLine();
-
-						if (ImGui::Button(directoryTree[t].c_str())) {
-							eraseAfter = t + 1;
+						if (ImGui::Selectable(label.c_str())) {
+							explorePreviewAssetChanged = true;
+							explorePreviewAsset = assetLib->getAsset(entry.path().string().c_str(), true);
+						}
+						if (ImGui::IsItemClicked(1)) {
+							rightClickedPath = entry.path();
 						}
 					}
+				}
 
-					if (eraseAfter > -1) {
-						while (directoryTree.size() > eraseAfter) {
-							directoryTree.pop_back();
-						}
+				if (rightClickedPath.hasValue()) {
+					ImGui::OpenPopup("RightClickMenuAssets");
+					m_rightClickedPath = rightClickedPath.get();
+				} else if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(1)) {
+					ImGui::OpenPopup("RightClickMenuAssets");
+					m_rightClickedPath.clear();
+				}
+
+				// Right click menu.
+				fs::path importOverAsset;
+				if (ImGui::BeginPopup("RightClickMenuAssets")) {
+					if (ImGui::MenuItem(ICON_FK_DOWNLOAD " Import here...")) {
+						shouldOpenImportPopup = true;
+						openAssetImport_filename.clear();
 					}
-				}
 
-				ImGui::NewLine();
+					if (ImGui::MenuItem(ICON_FK_FOLDER " New Folder")) {
+						shouldOpenNewFolderPopup = true;
+					}
 
-				bool explorePreviewAssetChanged = false;
-				if (explorePreviewAsset) {
-					ImGui::Columns(2);
-				}
+					if (!m_rightClickedPath.empty()) {
+						ImGui::Separator();
 
-				ImGui::Text(ICON_FK_SEARCH " File Filter");
-				ImGui::SameLine();
-				exploreFilter.Draw("##File Filter");
-				if (ImGui::IsItemClicked(2)) {
-					ImGui::ClearActiveID(); // Hack: (if we do not make this call ImGui::InputText will set it's cached value.
-					exploreFilter.Clear();
-				}
-
-				if (ImGui::BeginChildFrame(55322121, ImVec2(-1.f, -1.f))) {
-					try {
-						if (!directoryTree.empty() && ImGui::Selectable(ICON_FK_BACKWARD " [/..]")) {
-							directoryTree.pop_back();
+						if (ImGui::MenuItem(ICON_FK_CLIPBOARD " Copy Path")) {
+							ImGui::SetClipboardText(m_rightClickedPath.string().c_str());
 						}
 
-						bool shouldOpenNewFolderPopup = false;
-
-						std::string label;
-						fs::path pathToAssets = assetLib->getAssetsDirAbs();
-						for (auto& p : directoryTree) {
-							pathToAssets.append(p);
+						if (ImGui::MenuItem(ICON_FK_REFRESH " Import Over")) {
+							importOverAsset = m_rightClickedPath;
+							shouldOpenImportPopup = true;
+							openAssetImport_filename.clear();
 						}
-
-						if (ImGui::Selectable(ICON_FK_FOLDER_O " [New Folder]")) {
-							shouldOpenNewFolderPopup = true;
-						}
-
-						Optional<fs::path> rightClickedPath;
-
-						std::string dirToAdd;
-						for (const fs::directory_entry& entry : fs::directory_iterator(pathToAssets)) {
-							if (entry.is_directory() && exploreFilter.PassFilter(entry.path().filename().string().c_str())) {
-								string_format(label, "%s %s", ICON_FK_FOLDER, entry.path().filename().string().c_str());
-								if (ImGui::Selectable(label.c_str())) {
-									dirToAdd = entry.path().filename().string();
-								}
-
-								if (ImGui::IsItemClicked(1)) {
-									rightClickedPath = entry.path();
-								}
-							}
-						}
-
-						for (const fs::directory_entry& entry : fs::directory_iterator(pathToAssets)) {
-							if (entry.is_regular_file() && exploreFilter.PassFilter(entry.path().filename().string().c_str())) {
-								AssetType assetType = assetType_fromExtension(extractFileExtension(entry.path().string().c_str()).c_str());
-								if (assetType == AssetType::Model) {
-									string_format(label, "%s %s", ICON_FK_CUBE, entry.path().filename().string().c_str());
-								} else if (assetType == AssetType::TextureView) {
-									string_format(label, "%s %s", ICON_FK_PICTURE_O, entry.path().filename().string().c_str());
-								} else if (assetType == AssetType::Text) {
-									string_format(label, "%s %s", ICON_FK_FILE, entry.path().filename().string().c_str());
-								} else {
-									string_format(label, "%s %s", ICON_FK_FILE_TEXT_O, entry.path().filename().string().c_str());
-								}
-
-								if (ImGui::Selectable(label.c_str())) {
-									explorePreviewAssetChanged = true;
-									explorePreviewAsset = assetLib->getAsset(entry.path().string().c_str(), true);
-								}
-								if (ImGui::IsItemClicked(1)) {
-									rightClickedPath = entry.path();
-								}
-							}
-						}
-
-						if (rightClickedPath.hasValue()) {
-							ImGui::OpenPopup("RightClickMenuAssets");
-							m_rightClickedPath = rightClickedPath.get();
-						} else if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(1)) {
-							ImGui::OpenPopup("RightClickMenuAssets");
-							m_rightClickedPath.clear();
-						}
-
-						// Right click menu.
-						bool shouldOpenImportPopup = false;
-						fs::path importOverAsset;
-						if (ImGui::BeginPopup("RightClickMenuAssets")) {
-							if (ImGui::MenuItem(ICON_FK_DOWNLOAD " Import here...")) {
-								shouldOpenImportPopup = true;
-							}
-
-							if (ImGui::MenuItem(ICON_FK_FOLDER " New Folder")) {
-								shouldOpenNewFolderPopup = true;
-							}
-
-							if (!m_rightClickedPath.empty()) {
-								ImGui::Separator();
-
-								if (ImGui::MenuItem(ICON_FK_CLIPBOARD " Copy Path")) {
-									ImGui::SetClipboardText(m_rightClickedPath.string().c_str());
-								}
-
-								if (ImGui::MenuItem(ICON_FK_REFRESH " Import Over")) {
-									importOverAsset = m_rightClickedPath;
-									shouldOpenImportPopup = true;
-								}
 
 #ifdef WIN32
-								if (ImGui::MenuItem(ICON_FK_WINDOWS " Open in Explorer")) {
-									PIDLIST_ABSOLUTE pItem = ILCreateFromPathA(m_rightClickedPath.string().c_str());
-									if (pItem) {
-										SHOpenFolderAndSelectItems(pItem, 0, NULL, 0);
-										ILFree(pItem);
+						if (ImGui::MenuItem(ICON_FK_WINDOWS " Open in Explorer")) {
+							PIDLIST_ABSOLUTE pItem = ILCreateFromPathA(m_rightClickedPath.string().c_str());
+							if (pItem) {
+								SHOpenFolderAndSelectItems(pItem, 0, NULL, 0);
+								ILFree(pItem);
+							}
+						}
+#endif
+					}
+
+					ImGui::EndPopup();
+				}
+
+				// Import Popup
+				if (shouldOpenImportPopup) {
+					ImGui::OpenPopup("SGE Assets Window Import Popup");
+				}
+
+				if (ImGui::BeginPopup("SGE Assets Window Import Popup")) {
+					if (shouldOpenImportPopup) {
+						shouldOpenImportPopup = false;
+						// If this is still true then the popup has just been opened.
+						// Initialize it with the information about the asset we are about to import.
+						m_importAssetToImportInPopup = AssetImportData();
+
+						if (openAssetImport_filename.empty()) {
+							m_importAssetToImportInPopup.filename = FileOpenDialog("Pick a file to import", true, "*.*\0*.*\0", nullptr);
+						} else {
+							m_importAssetToImportInPopup.filename = openAssetImport_filename;
+							openAssetImport_filename.clear();
+						}
+
+						m_importAssetToImportInPopup.assetType =
+						    assetType_fromExtension(extractFileExtension(m_importAssetToImportInPopup.filename.c_str()).c_str(), true);
+
+						m_importAssetToImportInPopup.outputDir = pathToAssets.string();
+						if (importOverAsset.empty()) {
+							m_importAssetToImportInPopup.outputFilename =
+							    extractFileNameWithExt(m_importAssetToImportInPopup.filename.c_str());
+						} else {
+							m_importAssetToImportInPopup.outputFilename = importOverAsset.filename().string();
+							importOverAsset.clear();
+						}
+
+						if (m_importAssetToImportInPopup.assetType == AssetType::Model) {
+							m_importAssetToImportInPopup.outputFilename =
+							    replaceExtension(m_importAssetToImportInPopup.outputFilename.c_str(), "mdl");
+						}
+
+						if (m_importAssetToImportInPopup.filename.empty()) {
+							ImGui::CloseCurrentPopup();
+						}
+					}
+
+					// The UI
+					if (m_importAssetToImportInPopup.assetType == AssetType::Model) {
+						ImGui::Text(ICON_FK_CUBE " 3D Model");
+						ImGui::Checkbox(ICON_FK_CUBES " Import As Multiple Models",
+						                &m_importAssetToImportInPopup.importModelsAsMultipleFiles);
+						ImGuiEx::TextTooltip(
+						    "When multiple game objects are defined in one 3D model file. You can import them as a separate 3D "
+						    "models using this option!");
+					} else if (m_importAssetToImportInPopup.assetType == AssetType::TextureView) {
+						ImGui::Text(ICON_FK_PICTURE_O " Texture");
+					} else if (m_importAssetToImportInPopup.assetType == AssetType::Text) {
+						ImGui::Text(ICON_FK_FILE " Text");
+					} else if (m_importAssetToImportInPopup.assetType == AssetType::Sprite) {
+						ImGui::Text(ICON_FK_FILM " Sprite");
+					} else {
+						ImGui::Text(ICON_FK_FILE_TEXT_O " Unknown, the file is going to be copyied!");
+						ImGui::Text("If you know the type of the asset you can override it below.");
+
+						const char* assetTypeNames[int(AssetType::Count)] = {nullptr};
+						assetTypeNames[int(AssetType::None)] = ICON_FK_FILE_TEXT_O " Unknown";
+						assetTypeNames[int(AssetType::Model)] = ICON_FK_CUBE " 3D Model";
+						assetTypeNames[int(AssetType::TextureView)] = ICON_FK_PICTURE_O " Texture";
+						assetTypeNames[int(AssetType::Text)] = ICON_FK_FILE " Text";
+						assetTypeNames[int(AssetType::Sprite)] = ICON_FK_FILM " Sprite";
+
+						ImGuiEx::Label("Import As:");
+						if (ImGui::BeginCombo("##Import As: ", assetTypeNames[int(m_importAssetToImportInPopup.assetType)])) {
+							for (int t = 0; t < SGE_ARRSZ(assetTypeNames); ++t) {
+								if (assetTypeNames[t] != nullptr) {
+									if (ImGui::Selectable(assetTypeNames[t])) {
+										m_importAssetToImportInPopup.assetType = AssetType(t);
+										if (t == int(AssetType::Model)) {
+											m_importAssetToImportInPopup.outputFilename =
+											    replaceExtension(m_importAssetToImportInPopup.outputFilename.c_str(), "mdl");
+										}
+										if (t == int(AssetType::Sprite)) {
+											m_importAssetToImportInPopup.outputFilename =
+											    replaceExtension(m_importAssetToImportInPopup.outputFilename.c_str(), "sprite");
+										}
 									}
 								}
-#endif
 							}
 
-							ImGui::EndPopup();
-						}
-
-						// Import Popup
-						if (shouldOpenImportPopup) {
-							ImGui::OpenPopup("SGE Assets Window Import Popup");
-						}
-
-						if (ImGui::BeginPopup("SGE Assets Window Import Popup")) {
-							if (shouldOpenImportPopup) {
-								// If this is still true then the popup has just been opened.
-								// Initialize it with the information about the asset we are about to import.
-								m_importAssetToImportInPopup = AssetImportData();
-								m_importAssetToImportInPopup.filename =
-								    FileOpenDialog("Pick a file to import", true, "*.*\0*.*\0", nullptr);
-								m_importAssetToImportInPopup.assetType =
-								    assetType_fromExtension(extractFileExtension(m_importAssetToImportInPopup.filename.c_str()).c_str());
-
-								m_importAssetToImportInPopup.outputDir = pathToAssets.string();
-								if (importOverAsset.empty()) {
-									m_importAssetToImportInPopup.outputFilename =
-									    extractFileNameIncludingExtension(m_importAssetToImportInPopup.filename.c_str());
-
-								} else {
-									m_importAssetToImportInPopup.outputFilename = importOverAsset.filename().string();
-									importOverAsset.clear();
-								}
-								if (m_importAssetToImportInPopup.assetType == AssetType::Model) {
-									m_importAssetToImportInPopup.outputFilename =
-									    replaceExtension(m_importAssetToImportInPopup.outputFilename.c_str(), "mdl");
-								}
-
-								if (m_importAssetToImportInPopup.filename.empty()) {
-									ImGui::CloseCurrentPopup();
-								}
-							}
-
-							// The UI
-							if (m_importAssetToImportInPopup.assetType == AssetType::Model) {
-								ImGui::Text(ICON_FK_CUBE " 3D Model");
-								ImGui::Checkbox("Port As Multiple Models", &m_importAssetToImportInPopup.importModelsAsMultipleFiles);
-								ImGuiEx::TextTooltip(
-								    "When multiple game objects are defined in one 3D model file. You can import them as a separate 3D "
-								    "models using this option!");
-							} else if (m_importAssetToImportInPopup.assetType == AssetType::TextureView) {
-								ImGui::Text(ICON_FK_PICTURE_O " Texture");
-							} else if (m_importAssetToImportInPopup.assetType == AssetType::Text) {
-								ImGui::Text(ICON_FK_FILE " Text");
-							} else {
-								ImGui::Text(ICON_FK_FILE_TEXT_O "Unknown");
-							}
-
-							ImGuiEx::InputText("Read From", m_importAssetToImportInPopup.filename, ImGuiInputTextFlags_ReadOnly);
-
-							if (m_importAssetToImportInPopup.importModelsAsMultipleFiles == false) {
-								ImGuiEx::InputText("Import As", m_importAssetToImportInPopup.filename);
-							}
-
-							// Show a warning that the import will fail if mdlconvlib is not loaded.
-							if (sgeImportFBXFile == nullptr && m_importAssetToImportInPopup.assetType == AssetType::Model) {
-								ImGui::TextColored(ImVec4(1.f, 1.f, 0.f, 1.f),
-								                   "Importing FBX Files cannot be done! mdlconvlib is missing!");
-							}
-
-
-							if (ImGui::Button(ICON_FK_DOWNLOAD " Import")) {
-								importAsset(m_importAssetToImportInPopup);
-								ImGui::CloseCurrentPopup();
-							}
-							ImGui::SameLine();
-							if (ImGui::Button(ICON_FK_DOWNLOAD " Cancel")) {
-								ImGui::CloseCurrentPopup();
-							}
-
-							ImGui::EndPopup();
-						}
-
-						// Create Directory Popup
-						if (shouldOpenNewFolderPopup) {
-							ImGui::OpenPopup("SGE Assets Window Create Dir");
-						}
-
-						static char createDirFileName[1024] = {0};
-						if (ImGui::BeginPopup("SGE Assets Window Create Dir")) {
-							ImGui::InputText(ICON_FK_FOLDER " Folder Name", createDirFileName, SGE_ARRSZ(createDirFileName));
-							if (ImGui::Button(ICON_FK_CHECK " Create")) {
-								createDirectory((pathToAssets.string() + "/" + std::string(createDirFileName)).c_str());
-								createDirFileName[0] = '\0';
-								ImGui::CloseCurrentPopup();
-							}
-
-							if (ImGui::Button("Cancel")) {
-								ImGui::CloseCurrentPopup();
-							}
-
-							ImGui::EndPopup();
-						}
-
-						if (dirToAdd.empty() == false) {
-							directoryTree.emplace_back(std::move(dirToAdd));
+							ImGui::EndCombo();
 						}
 					}
 
+					ImGuiEx::InputText("Read From", m_importAssetToImportInPopup.filename, ImGuiInputTextFlags_ReadOnly);
 
-					catch (...) {
+					if (m_importAssetToImportInPopup.importModelsAsMultipleFiles == false) {
+						ImGuiEx::InputText("Import As", m_importAssetToImportInPopup.filename);
 					}
+
+					// Show a warning that the import will fail if mdlconvlib is not loaded.
+					if (sgeImportFBXFile == nullptr && m_importAssetToImportInPopup.assetType == AssetType::Model) {
+						ImGui::TextColored(ImVec4(1.f, 1.f, 0.f, 1.f), "Importing 3D files cannot be done! mdlconvlib is missing!");
+					}
+
+
+					if (ImGui::Button(ICON_FK_DOWNLOAD " Import")) {
+						importAsset(m_importAssetToImportInPopup);
+						ImGui::CloseCurrentPopup();
+					}
+					ImGui::SameLine();
+					if (ImGui::Button(ICON_FK_DOWNLOAD " Cancel")) {
+						ImGui::CloseCurrentPopup();
+					}
+
+					ImGui::EndPopup();
 				}
-				ImGui::EndChildFrame();
 
-				if (isAssetLoaded(explorePreviewAsset)) {
-					ImGui::NextColumn();
+				// Create Directory Popup
+				if (shouldOpenNewFolderPopup) {
+					ImGui::OpenPopup("SGE Assets Window Create Dir");
+				}
 
-					if (explorePreviewAsset->getType() == AssetType::Model) {
-						if (explorePreviewAssetChanged) {
-							AABox3f bboxModel = explorePreviewAsset->asModel()->staticEval.aabox;
-							if (bboxModel.IsEmpty() == false) {
-								exploreModelPreviewWidget.camera.orbitPoint = bboxModel.center();
-								exploreModelPreviewWidget.camera.radius = bboxModel.diagonal().length() * 1.25f;
-								exploreModelPreviewWidget.camera.yaw = deg2rad(45.f);
-								exploreModelPreviewWidget.camera.pitch = deg2rad(45.f);
-							}
-						}
+				static char createDirFileName[1024] = {0};
+				if (ImGui::BeginPopup("SGE Assets Window Create Dir")) {
+					ImGui::InputText(ICON_FK_FOLDER " Folder Name", createDirFileName, SGE_ARRSZ(createDirFileName));
+					if (ImGui::Button(ICON_FK_CHECK " Create")) {
+						createDirectory((pathToAssets.string() + "/" + std::string(createDirFileName)).c_str());
+						createDirFileName[0] = '\0';
+						ImGui::CloseCurrentPopup();
+					}
 
-						exploreModelPreviewWidget.doWidget(sgecon, is, explorePreviewAsset->asModel()->staticEval);
-					} else if (explorePreviewAsset->getType() == AssetType::TextureView) {
-						auto desc = explorePreviewAsset->asTextureView()->GetPtr()->getDesc().texture2D;
-						ImVec2 sz = ImGui::GetContentRegionAvail();
-						ImGui::Image(explorePreviewAsset->asTextureView()->GetPtr(), sz);
-					} else {
-						ImGui::Text("No Preview");
+					if (ImGui::Button("Cancel")) {
+						ImGui::CloseCurrentPopup();
+					}
+
+					ImGui::EndPopup();
+				}
+
+				if (dirToAdd.empty() == false) {
+					directoryTree.emplace_back(std::move(dirToAdd));
+				}
+			}
+
+
+			catch (...) {
+			}
+		}
+		ImGui::EndChildFrame();
+
+		if (isAssetLoaded(explorePreviewAsset)) {
+			ImGui::NextColumn();
+
+			if (explorePreviewAsset->getType() == AssetType::Model) {
+				if (explorePreviewAssetChanged) {
+					AABox3f bboxModel = explorePreviewAsset->asModel()->staticEval.aabox;
+					if (bboxModel.IsEmpty() == false) {
+						exploreModelPreviewWidget.camera.orbitPoint = bboxModel.center();
+						exploreModelPreviewWidget.camera.radius = bboxModel.diagonal().length() * 1.25f;
+						exploreModelPreviewWidget.camera.yaw = deg2rad(45.f);
+						exploreModelPreviewWidget.camera.pitch = deg2rad(45.f);
 					}
 				}
 
-
-				ImGui::EndTabItem();
+				exploreModelPreviewWidget.doWidget(sgecon, is, explorePreviewAsset->asModel()->staticEval);
+			} else if (explorePreviewAsset->getType() == AssetType::TextureView) {
+				auto desc = explorePreviewAsset->asTextureView()->GetPtr()->getDesc().texture2D;
+				ImVec2 sz = ImGui::GetContentRegionAvail();
+				ImGui::Image(explorePreviewAsset->asTextureView()->GetPtr(), sz);
+			} else if (explorePreviewAsset->getType() == AssetType::Sprite) {
+				if (isAssetLoaded(explorePreviewAsset->asSprite()->textureAsset)) {
+					auto desc = explorePreviewAsset->asSprite()->textureAsset->asTextureView()->GetPtr()->getDesc().texture2D;
+					ImVec2 sz = ImGui::GetContentRegionAvail();
+					ImGui::Image(explorePreviewAsset->asSprite()->textureAsset->asTextureView()->GetPtr(), sz);
+				}
+			} else {
+				ImGui::Text("No Preview");
 			}
-
-			if (ImGui::BeginTabItem(ICON_FK_DOWNLOAD " Import")) {
-				update_assetImport(sgecon, is);
-				ImGui::EndTabItem();
-			}
-
-			ImGui::EndTabBar();
 		}
 	}
 	ImGui::End();

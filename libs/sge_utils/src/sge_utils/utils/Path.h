@@ -18,7 +18,7 @@ namespace sge {
 // Sometimes I wonder if I should use boost or not.
 
 // Extracts the filename form the input path.
-std::string extractFileNameIncludingExtension(const char* filepath);
+std::string extractFileNameWithExt(const char* filepath);
 
 // Extracts the directroy of a given file.
 std::string extractFileDir(const char* filepath, const bool includeSlashInResult);

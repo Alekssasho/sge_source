@@ -1,10 +1,8 @@
 #pragma once
 
-#include "sge_core/sgecore_api.h"
-
-#include "sge_utils/sge_utils.h"
-
 #include "input.h"
+#include "sge_core/sgecore_api.h"
+#include "sge_utils/sge_utils.h"
 #include <map>
 #include <string>
 #include <vector>
@@ -16,6 +14,8 @@ namespace sge {
 //-----------------------------------------------
 // Events and Event data.
 //-----------------------------------------------
+
+/// An enum window messages.
 enum WindowEvent : int {
 	WE_Create,
 	WE_Destroying,
@@ -23,6 +23,7 @@ enum WindowEvent : int {
 	WE_FileDrop,
 };
 
+/// @brief The message data of the WE_Resize event.
 struct WE_Resize_Data {
 	WE_Resize_Data() = default;
 
@@ -34,18 +35,15 @@ struct WE_Resize_Data {
 	int height;
 };
 
+/// @brief The message data of the WE_FileDrop event.
 struct WE_FileDrop_Data {
 	std::string filename;
-
 };
 
 struct WindowBase;
 struct WindowImplData;
-struct ApplicationHandlerImplData;
 
-//-----------------------------------------------
-// ApplicationHandler
-//-----------------------------------------------
+/// @brief Application handler manages all opened windows.
 struct SGE_CORE_API ApplicationHandler {
   private:
 	ApplicationHandler() = default;
@@ -69,17 +67,13 @@ struct SGE_CORE_API ApplicationHandler {
 	}
 
 	void DeregisterWindowInternal(WindowBase* wnd);
-
 	bool HasAliveWindows() const { return m_wnds.size() != 0; }
 	const std::vector<WindowBase*>& getAllWindows() { return m_wnds; }
-
 	bool shouldStopRunning() const { return m_isAppQuitRequested || HasAliveWindows() == false; }
 
   private:
 	WindowBase* findWindowBySDLId(const uint32 id);
-
 	void removeWindow(WindowBase* const wndToRemove);
-
 	void NewWindowInternal(WindowBase* window, const char* windowName, int width, int height, bool isMaximized, bool noResize);
 
   private:
@@ -94,9 +88,7 @@ struct SGE_CORE_API ApplicationHandler {
 	InputState m_inputState;
 };
 
-//-----------------------------------------------
-// WindowBase
-//-----------------------------------------------
+/// @brief An instance of a native window.
 struct SGE_CORE_API WindowBase {
 	WindowBase();
 	virtual ~WindowBase();
@@ -111,26 +103,24 @@ struct SGE_CORE_API WindowBase {
 
 	int GetClientWidth() const;
 	int GetClientHeight() const;
-
 	bool isMaximized() const;
-
 	vec2f getClientSizef() const { return vec2f((float)GetClientWidth(), (float)GetClientHeight()); }
-
-	void setMouseCapture(bool b) { m_shouldCaptureMouse = b; }
-	void setMouseRecenterEveryFrame(bool b) { m_shouldRecenterMouseEveryFrame = b; }
-
 	void setWindowTitle(const char* title);
 
   public:
 	InputState m_inputState;
-
-	// true if the window should caputure the mouse and not letting it get outside of the window
-	bool m_shouldCaptureMouse = false;
-
-	// true if the window should recenter the mouse.
-	bool m_shouldRecenterMouseEveryFrame = false;
-
 	WindowImplData* m_implData;
 };
+
+/// @brief Enables/Disables the mouse being captured.
+/// @param isRelative if true the mouse
+/// will be invisible and will not go ouside the current window. Useful for
+/// camera controls like FPS.
+/// If you are using the SGEEditor with GameWorld, do not call this directly,
+/// instead use GameWorld::setNeedsLockedCursor
+void setMouseCaptureAndCenter(bool isRelative);
+
+/// @brief Retrieves if the mouse if currently captured or not.
+bool getMouseCaptureAndCenter();
 
 } // namespace sge

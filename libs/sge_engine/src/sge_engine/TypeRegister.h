@@ -132,11 +132,9 @@ struct TypeDesc;
 enum MemberFieldFlags : unsigned {
 	MFF_NonEditable = 1 << 0,
 	MFF_NonSaveable = 1 << 1,
-	MFF_StringAsModelAsset = 1 << 2,
-	MFF_StringAsTextureViewAsset = 1 << 3,
-	MFF_FloatAsDegrees = 1 << 4,
-	MFF_Vec3fAsColor = 1 << 5,
-	MFF_PrefabDontCopy = 1 << 6,
+	MFF_FloatAsDegrees = 1 << 2,
+	MFF_Vec3fAsColor = 1 << 3,
+	MFF_PrefabDontCopy = 1 << 4,
 };
 
 struct SGE_ENGINE_API MemberDesc {

@@ -15,7 +15,7 @@ std::string RelativeAssetRelocationPolicy::whatWillBeTheAssetNameOf(
 #if 0
 std::string SeparateTypeAssetRelocationPolicy::whatWillBeTheAssetNameOf(const std::string& askerDir, const char* path)
 {
-	const std::string filename = extractFileNameIncludingExtension(path);
+	const std::string filename = extractFileNameWithExt(path);
 	const std::string ext = extractFileExtension(path);
 
 	std::string result;

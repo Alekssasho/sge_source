@@ -1,8 +1,5 @@
-#include <filesystem>
-#include <stb_image.h>
-
+#include "AssetLibrary.h"
 #include "sge_core/ICore.h"
-
 #include "sge_core/dds/dds.h"
 #include "sge_core/model/EvaluatedModel.h"
 #include "sge_core/model/Model.h"
@@ -13,12 +10,30 @@
 #include "sge_utils/utils/json.h"
 #include "sge_utils/utils/strings.h"
 #include "sge_utils/utils/timer.h"
-
-#include "AssetLibrary.h"
+#include <filesystem>
+#include <stb_image.h>
 
 namespace sge {
 
-AssetType assetType_fromExtension(const char* const ext) {
+SGE_CORE_API const char* assetType_getName(const AssetType type) {
+	switch (type) {
+		case AssetType::None:
+			return "None";
+		case AssetType::Model:
+			return "3D Model";
+		case AssetType::TextureView:
+			return "Texture";
+		case AssetType::Text:
+			return "Text";
+		case AssetType::Sprite:
+			return "Sprite";
+		default:
+			sgeAssertFalse("Not implemented");
+			return "NotImplemented";
+	}
+}
+
+AssetType assetType_fromExtension(const char* const ext, bool includeExternalExtensions) {
 	if (ext == nullptr) {
 		return AssetType::None;
 	}
@@ -27,15 +42,15 @@ AssetType assetType_fromExtension(const char* const ext) {
 		return AssetType::Model;
 	}
 
-	if (sge_stricmp(ext, "fbx") == 0) {
+	if (includeExternalExtensions && sge_stricmp(ext, "fbx") == 0) {
 		return AssetType::Model;
 	}
 
-	if (sge_stricmp(ext, "dae") == 0) {
+	if (includeExternalExtensions && sge_stricmp(ext, "dae") == 0) {
 		return AssetType::Model;
 	}
 
-	if (sge_stricmp(ext, "obj") == 0) {
+	if (includeExternalExtensions && sge_stricmp(ext, "obj") == 0) {
 		return AssetType::Model;
 	}
 
@@ -45,6 +60,10 @@ AssetType assetType_fromExtension(const char* const ext) {
 
 	if (sge_stricmp(ext, "txt") == 0) {
 		return AssetType::Text;
+	}
+
+	if (sge_stricmp(ext, "sprite") == 0) {
+		return AssetType::Sprite;
 	}
 
 	return AssetType::None;
@@ -139,10 +158,6 @@ struct TextureViewAssetFactory : public IAssetFactory {
 	SamplerDesc getTextureSamplerDesc(const char* const pAssetPath) const {
 		std::string const infoPath = std::string(pAssetPath) + ".info";
 		SamplerDesc result;
-
-		if (strstr(pAssetPath, ".pointsamp") != nullptr) {
-			result.filter = TextureFilter::Min_Mag_Mip_Point;
-		}
 
 		FileReadStream frs;
 		if (frs.open(infoPath.c_str())) {
@@ -318,67 +333,13 @@ struct TextAssetFactory : public IAssetFactory {
 };
 
 //-------------------------------------------------------
-// TextAssetFactory
+// SpriteAssetFactory
 //-------------------------------------------------------
 struct SpriteAssetFactory : public IAssetFactory {
 	bool load(void* const pAsset, const char* const pPath, AssetLibrary* const assetLib) final {
-		// Aseprite sprite definition.
-		Sprite& sprite = *(Sprite*)(pAsset);
-
-		FileReadStream frs;
-		frs.open(pPath);
-		if (!frs.open(pPath)) {
-			return false;
-		}
-
-		JsonParser jp;
-		if (jp.parse(&frs) == false) {
-			return false;
-		}
-
-		const JsonValue* const jRoot = jp.getRoot();
-		const JsonValue* const jMeta = jRoot->getMember("meta");
-
-		const char* const imageDirRelative = jMeta->getMember("image")->GetString();
-		const float fFullSheetWidth = (jMeta->getMember("size")->getMember("w")->getNumberAs<float>());
-		const float fFullSheetHeight = (jMeta->getMember("size")->getMember("h")->getNumberAs<float>());
-		const std::string imgPath = extractFileDir(pPath, true) + imageDirRelative;
-		sprite.texture = assetLib->getAsset(AssetType::TextureView, imgPath.c_str(), true);
-
-		if (!sprite.texture) {
-			return false;
-		}
-
-		float totalAnimationDuration = 0.f;
-
-		const JsonValue* const jFrames = jRoot->getMember("frames");
-		for (int iFrame = 0; iFrame < jFrames->arrSize(); ++iFrame) {
-			const JsonValue* const jFrame = jFrames->arrAt(iFrame);
-
-			const JsonValue* const jRegion = jFrame->getMember("frame");
-			const int x = jRegion->getMember("x")->getNumberAs<int>();
-			const int y = jRegion->getMember("y")->getNumberAs<int>();
-			const int w = jRegion->getMember("w")->getNumberAs<int>();
-			const int h = jRegion->getMember("h")->getNumberAs<int>();
-
-			Sprite::Frame frame;
-			frame.xy = vec2i(x, y);
-			frame.wh = vec2i(w, h);
-			frame.uvRegion =
-			    vec4f((float)x / fFullSheetWidth, (float)y / fFullSheetHeight, (float)w / fFullSheetWidth, (float)h / fFullSheetHeight);
-			frame.uvRegion.z += frame.uvRegion.x;
-			frame.uvRegion.w += frame.uvRegion.y;
-			frame.frameStart = totalAnimationDuration;
-			frame.duration = (float)(jFrame->getMember("duration")->getNumberAs<int>()) / 1000.f;
-
-			sprite.frames.push_back(frame);
-
-			totalAnimationDuration += frame.duration;
-		}
-
-		sprite.animationDuration = totalAnimationDuration;
-
-		return true;
+		SpriteAnimationAsset& sprite = *(SpriteAnimationAsset*)(pAsset);
+		const bool success = SpriteAnimationAsset::importSprite(sprite, pPath, *assetLib);
+		return success;
 	}
 
 	void unload(void* const pAsset, AssetLibrary* const UNUSED(pMngr)) final {
@@ -386,7 +347,6 @@ struct SpriteAssetFactory : public IAssetFactory {
 		text = std::string();
 	}
 };
-
 
 //-------------------------------------------------------
 // AssetLibrary
@@ -398,7 +358,7 @@ AssetLibrary::AssetLibrary(SGEDevice* const sgedev) {
 	this->registerAssetType(AssetType::Model, new TAssetAllocatorDefault<AssetModel>(), new ModelAssetFactory());
 	this->registerAssetType(AssetType::TextureView, new TAssetAllocatorDefault<GpuHandle<Texture>>(), new TextureViewAssetFactory());
 	this->registerAssetType(AssetType::Text, new TAssetAllocatorDefault<std::string>(), new TextAssetFactory());
-	this->registerAssetType(AssetType::Sprite, new TAssetAllocatorDefault<Sprite>(), new SpriteAssetFactory());
+	this->registerAssetType(AssetType::Sprite, new TAssetAllocatorDefault<SpriteAnimationAsset>(), new SpriteAssetFactory());
 }
 
 void AssetLibrary::registerAssetType(const AssetType type, IAssetAllocator* const pAllocator, IAssetFactory* const pFactory) {
@@ -443,6 +403,10 @@ std::shared_ptr<Asset> AssetLibrary::makeRuntimeAsset(AssetType type, const char
 std::shared_ptr<Asset> AssetLibrary::getAsset(AssetType type, const char* pPath, const bool loadIfMissing) {
 	if (!pPath || pPath[0] == '\0') {
 		sgeAssert(false);
+		return std::shared_ptr<Asset>();
+	}
+
+	if (AssetType::None == type) {
 		return std::shared_ptr<Asset>();
 	}
 
@@ -529,7 +493,7 @@ std::shared_ptr<Asset> AssetLibrary::getAsset(AssetType type, const char* pPath,
 }
 
 std::shared_ptr<Asset> AssetLibrary::getAsset(const char* pPath, bool loadIfMissing) {
-	AssetType assetType = assetType_fromExtension(extractFileExtension(pPath).c_str());
+	AssetType assetType = assetType_fromExtension(extractFileExtension(pPath).c_str(), false);
 	return getAsset(assetType, pPath, loadIfMissing);
 }
 

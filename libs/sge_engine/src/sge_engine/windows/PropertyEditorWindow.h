@@ -24,7 +24,13 @@ namespace ProperyEditorUIGen {
 	SGE_ENGINE_API void editFloat(GameInspector& inspector, const char* label, GameObject* gameObject, MemberChain chain);
 	SGE_ENGINE_API void editInt(GameInspector& inspector, const char* label, GameObject* gameObject, MemberChain chain);
 	SGE_ENGINE_API void
-	    editString(GameInspector& inspector, const char* label, GameObject* gameObject, MemberChain chain, AssetType assetType);
+	    editString(GameInspector& inspector, const char* label, GameObject* gameObject, MemberChain chain);
+	SGE_ENGINE_API void editStringAsAssetPath(GameInspector& inspector,
+	                               const char* label,
+	                               GameObject* gameObject,
+	                               MemberChain chain,
+	                               const AssetType possibleAssetTypes[],
+	                               const int numPossibleAssetTypes);
 } // namespace ProperyEditorUIGen
 
 //----------------------------------------------------------

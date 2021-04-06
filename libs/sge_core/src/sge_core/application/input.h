@@ -12,23 +12,34 @@ struct SGE_CORE_API GamepadState {
 	bool hooked = false; // True if the gamepad is still hooked to the system.
 	bool hadInputThisPoll = false;
 
-	unsigned char btnA = 0;
-	unsigned char btnB = 0;
-	unsigned char btnX = 0;
-	unsigned char btnY = 0;
-	unsigned char btnShoulderL = 0;
-	unsigned char btnShoulderR = 0;
+	enum Button : int {
+		btn_a,
+		btn_b,
+		btn_x,
+		btn_y,
+		btn_shoulderL,
+		btn_shoulderR,
 
-	unsigned char btnUp = 0;
-	unsigned char btnDown = 0;
-	unsigned char btnLeft = 0;
-	unsigned char btnRight = 0;
+		btn_up,
+		btn_down,
+		btn_left,
+		btn_right,
 
-	unsigned char btnThumbL = 0;
-	unsigned char btnThumbR = 0;
+		btn_thumbL,
+		btn_thumbR,
 
-	unsigned char btnBack = 0;
-	unsigned char btnStart = 0;
+		btn_back,
+		btn_start,
+
+		btn_numButtons
+	};
+
+	bool isBtnDown(Button btn) const;
+	bool isBtnUp(Button btn) const;
+	bool isBtnPressed(Button btn) const;
+	bool isBtnReleased(Button btn) const;
+
+	unsigned char btnState[btn_numButtons] = { 0 };
 
 	vec2f axisL = vec2f(0.f);
 	vec2f axisR = vec2f(0.f);
@@ -190,7 +201,6 @@ struct SGE_CORE_API InputState {
 	void setWasActiveDuringPoll(bool v) { m_wasActiveWhilePolling = v; }
 	bool wasActiveWhilePolling() const { return m_wasActiveWhilePolling; }
 
-
 	const char* GetText() const { return m_inputText.c_str(); }
 
 	const vec2f& GetCursorPos() const { return m_cursorDomain; }
@@ -216,31 +226,8 @@ struct SGE_CORE_API InputState {
 
 	bool AnyWASDDown() const { return IsKeyDown(Key_W) || IsKeyDown(Key_A) || IsKeyDown(Key_S) || IsKeyDown(Key_D); }
 
-	// Retrieves the vetor pointed by the arrow keys using +X right, +Y up.
-	vec2f GetArrowKeysDir(const bool normalize, bool includeWASD = false) const {
-		vec2f result(0.f);
-
-		bool const left = IsKeyDown(Key_Left) || (includeWASD && IsKeyDown(Key_A));
-		bool const right = IsKeyDown(Key_Right) || (includeWASD && IsKeyDown(Key_D));
-		bool const up = IsKeyDown(Key_Up) || (includeWASD && IsKeyDown(Key_W));
-		bool const down = IsKeyDown(Key_Down) || (includeWASD && IsKeyDown(Key_S));
-
-
-		result.x = (left ? -1.f : 0.f) + (right ? 1.f : 0.f);
-		result.y = (down ? -1.f : 0.f) + (up ? 1.f : 0.f);
-
-		return normalize ? normalized0(result) : result;
-	}
-
-	// Retrieves the vetor pointed by the WASD keys using +X right, +Y up.
-	vec2f GetWASDsDir(const bool normalize) const {
-		vec2f result(0.f);
-
-		result.x = (IsKeyDown(Key_A) ? -1.f : 0.f) + (IsKeyDown(Key_D) ? 1.f : 0.f);
-		result.y = (IsKeyDown(Key_S) ? -1.f : 0.f) + (IsKeyDown(Key_W) ? 1.f : 0.f);
-
-		return normalize ? normalized0(result) : result;
-	}
+	/// Retrieves the vetor pointed by the arrow keys using +X right, +Y up.
+	vec2f GetArrowKeysDir(const bool normalize, bool includeWASD = false, int useGamePadAtIndex = -1) const;
 
 	const GamepadState* getHookedGemepad(const int playerIndex) const;
 

@@ -171,7 +171,7 @@ void ProperyEditorUIGen::doMemberUI(GameInspector& inspector, GameObject* const 
 				float uniformScalePreDiff = v.s.x;
 				float uniformScale = v.s.x;
 				change |= SGEImGui::DragFloats("##Scaling", &uniformScale, 1, &justReleased, &justActivated, 1.f, 0.01f);
-				float diff = uniformScale/uniformScalePreDiff;
+				float diff = uniformScale / uniformScalePreDiff;
 				v.s *= diff;
 
 			} else {
@@ -247,7 +247,8 @@ void ProperyEditorUIGen::doMemberUI(GameInspector& inspector, GameObject* const 
 
 		if (assetPropery.m_uiPossibleAssets.size() == 0) {
 			chain.add(typeLib().findMember(&AssetProperty::m_targetAsset));
-			editString(inspector, memberName, gameObject, chain, assetPropery.m_assetType);
+			editStringAsAssetPath(inspector, memberName, gameObject, chain, assetPropery.m_acceptedAssetTypes.data(),
+			                      assetPropery.m_acceptedAssetTypes.size());
 			chain.pop();
 		} else {
 			ImGuiEx::Label("Asset");
@@ -429,13 +430,7 @@ void ProperyEditorUIGen::doMemberUI(GameInspector& inspector, GameObject* const 
 		}
 	} else if (memberTypeDesc->typeId == sgeTypeId(std::string)) {
 		ImGuiEx::Label(memberName);
-		AssetType assetType = AssetType::None;
-		if (member.flags & MFF_StringAsModelAsset)
-			assetType = AssetType::Model;
-		if (member.flags & MFF_StringAsTextureViewAsset)
-			assetType = AssetType::TextureView;
-
-		editString(inspector, "##editString", gameObject, chain, assetType);
+		editString(inspector, "##editString", gameObject, chain);
 	} else if (memberTypeDesc->enumUnderlayingType.isValid()) {
 		int enumAsInt;
 
@@ -621,16 +616,33 @@ void ProperyEditorUIGen::editInt(GameInspector& inspector, const char* label, Ga
 		}
 	}
 }
-void ProperyEditorUIGen::editString(
-    GameInspector& inspector, const char* label, GameObject* gameObject, MemberChain chain, AssetType assetType) {
+void ProperyEditorUIGen::editString(GameInspector& inspector, const char* label, GameObject* gameObject, MemberChain chain) {
 	std::string& srcString = *(std::string*)chain.follow(gameObject);
 
-	char stringEdit[512] = {0};
-	strncpy(stringEdit, srcString.c_str(), SGE_ARRSZ(stringEdit));
+	std::string stringEdit = srcString;
 
-	bool const change = (assetType != AssetType::None)
-	                        ? assetPicker(label, stringEdit, SGE_ARRSZ(stringEdit), getCore()->getAssetLib(), assetType)
-	                        : ImGui::InputText(label, stringEdit, SGE_ARRSZ(stringEdit), ImGuiInputTextFlags_EnterReturnsTrue);
+	bool const change = ImGuiEx::InputText(label, stringEdit, ImGuiInputTextFlags_EnterReturnsTrue);
+	if (change) {
+		std::string newData = stringEdit;
+		CmdMemberChange* const cmd = new CmdMemberChange;
+		cmd->setup(gameObject, chain, &srcString, &newData, nullptr);
+		inspector.appendCommand(cmd, true);
+
+		srcString = stringEdit;
+	}
+}
+
+void ProperyEditorUIGen::editStringAsAssetPath(GameInspector& inspector,
+                                               const char* label,
+                                               GameObject* gameObject,
+                                               MemberChain chain,
+                                               const AssetType possibleAssetTypes[],
+                                               const int numPossibleAssetTypes) {
+	std::string& srcString = *(std::string*)chain.follow(gameObject);
+
+	std::string stringEdit = srcString;
+
+	 bool const change = assetPicker(label, stringEdit, getCore()->getAssetLib(), possibleAssetTypes, numPossibleAssetTypes);
 
 	if (change) {
 		std::string newData = stringEdit;

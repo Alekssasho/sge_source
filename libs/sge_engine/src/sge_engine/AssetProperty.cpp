@@ -10,7 +10,7 @@ bool AssetProperty::update() {
 
 	m_currentAsset = m_targetAsset;
 	if (m_currentAsset.empty() == false) {
-		m_asset = getCore()->getAssetLib()->getAsset(m_assetType, m_currentAsset.c_str(), true);
+		m_asset = getCore()->getAssetLib()->getAsset(m_currentAsset.c_str(), true);
 	} else {
 		m_asset = std::shared_ptr<Asset>();
 	}
@@ -48,14 +48,26 @@ const GpuHandle<Texture>* AssetProperty::getAssetTexture() const {
 	return m_asset->asTextureView();
 }
 
+SpriteAnimationAsset* AssetProperty::getAssetSprite() {
+	if (isAssetLoaded(m_asset) == false || m_asset->getType() != AssetType::Sprite) {
+		return nullptr;
+	}
+
+	return m_asset->asSprite();
+}
+
+const SpriteAnimationAsset* AssetProperty::getAssetSprite() const {
+	if (isAssetLoaded(m_asset) == false || m_asset->getType() != AssetType::Sprite) {
+		return nullptr;
+	}
+
+	return m_asset->asSprite();
+}
+
 void AssetProperty::setAsset(std::shared_ptr<Asset>& asset) {
-	if (asset && asset->getType() == m_assetType) {
 		m_asset = asset;
 		m_targetAsset = asset->getPath();
 		m_currentAsset = m_asset->getPath();
-	} else {
-		sgeAssert(false);
-	}
 }
 
 void AssetProperty::setTargetAsset(const char* const assetPath) {

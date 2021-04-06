@@ -198,7 +198,7 @@ void GameInspector::duplicateSelection(vector_set<ObjectId>* outNewObjects) {
 void GameInspector::deleteSelection(bool const deleteHierarchyUnderSelectedObjects) {
 	CmdCompound* const compoundCmd = new CmdCompound();
 
-	std::map<Actor*, vector_set<SelectedItem>> perActorSelection;
+	std::map<GameObject*, vector_set<SelectedItem>> perObjectSelection;
 
 	for (const SelectedItem& sel : m_selection) {
 		// Filter by the current mode to avoid complications.
@@ -206,8 +206,8 @@ void GameInspector::deleteSelection(bool const deleteHierarchyUnderSelectedObjec
 			continue;
 		}
 
-		Actor* const actor = m_world->getActorById(sel.objectId);
-		if_checked(actor) { perActorSelection[actor].add(sel); }
+		GameObject* const object = m_world->getObjectById(sel.objectId);
+		if_checked(object) { perObjectSelection[object].add(sel); }
 	}
 
 	deselectAll();
@@ -216,7 +216,7 @@ void GameInspector::deleteSelection(bool const deleteHierarchyUnderSelectedObjec
 	// Batch them in a single command as a simple optimization.
 	if (editMode == editMode_actors) {
 		vector_set<ObjectId> actorsToDelete;
-		for (auto& pair : perActorSelection) {
+		for (auto& pair : perObjectSelection) {
 			actorsToDelete.insert(pair.first->getId());
 		}
 
@@ -224,9 +224,18 @@ void GameInspector::deleteSelection(bool const deleteHierarchyUnderSelectedObjec
 		cmd->setupDeletion(*getWorld(), actorsToDelete);
 		appendCommand(cmd, true);
 	} else {
-		for (auto& itr : perActorSelection) {
-			InspectorCmd* const cmd =
-			    itr.first->generateDeleteItemCmd(this, itr.second.data(), itr.second.size(), deleteHierarchyUnderSelectedObjects);
+		for (auto& itr : perObjectSelection) {
+			Actor* actor = dynamic_cast<Actor*>(itr.first);
+			InspectorCmd* cmd = nullptr;
+			if (actor) {
+				cmd = actor->generateDeleteItemCmd(this, itr.second.data(), itr.second.size(), deleteHierarchyUnderSelectedObjects);
+			} else {
+				CmdObjectDeletion* cmdDel = new CmdObjectDeletion;
+				vector_set<ObjectId> objToDel;
+				objToDel.insert(itr.first->getId());
+				cmdDel->setupDeletion(*getWorld(), objToDel);
+				cmd = cmdDel;
+			}
 			if (cmd) {
 				compoundCmd->addCommand(cmd);
 			}

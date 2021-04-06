@@ -20,9 +20,9 @@ struct Player : public Actor {
 
 	float wobbleAmplitude = 1.f;
 	float wobbleForce = 0.f;
-	float stretch = 0.f;
-	vec3f prePos = vec3f(0.f);
-	float wobbleTime = 0.f;
+
+	float jumpButtonHeldTime = 0.f;
+	static inline const float kMaxJumpHeldTime = 1.f;
 
 	virtual AABox3f getBBoxOS() const { return AABox3f(); }
 
@@ -44,7 +44,6 @@ struct Player : public Actor {
 		Actor::onPlayStateChanged(isStartingToPlay);
 		if (isStartingToPlay) {
 			respawnPosition = this->getPosition();
-			prePos = getPosition();
 		}
 	}
 
@@ -53,22 +52,16 @@ struct Player : public Actor {
 			return;
 		}
 
-		getWorld()->needsLockedCursor = true;
+		// Lock the cursor to the center of the screen and hide it 
+		// as we want to control the camera with the mouse.
+		getWorld()->setNeedsLockedCursor(true);
 
 		if (this->getPosition().y < yPositionRestart) {
 			this->setPosition(respawnPosition);
-			prePos = vec3f(0.f);
 			wobbleAmplitude = 1.f;
 			wobbleForce = 0.f;
+			jumpButtonHeldTime = 0.f;
 		}
-
-		const vec3f vel = getPosition() - prePos;
-		prePos = getPosition();
-
-		float timeScale = 2.f;
-		wobbleAmplitude -= ttRigidbody.getRigidBody()->getLinearVel().x0z().length() * u.dt * 0.1f * timeScale;
-		wobbleAmplitude -= ttRigidbody.getRigidBody()->getLinearVel().y * u.dt * 0.15f * timeScale;
-		//wobbleAmplitude = clamp(wobbleAmplitude, 0.4f, 1.2f);
 
 		Actor* const cameraActor = getWorld()->getActorById(cameraObject);
 
@@ -76,35 +69,56 @@ struct Player : public Actor {
 		vec3f wsRight = vec3f(1.f, 0.f, 0.f);
 
 		if (cameraActor) {
-			cameraOffset = quat_mul_pos(quatf::getAxisAngle(vec3f::axis_y(), -u.is.GetCursorMotion().x * deg2rad(1.f)), cameraOffset);
+			float motionCamera = -u.is.GetCursorMotion().x;
+			if (auto gamepad = u.is.getHookedGemepad(0); gamepad && motionCamera == 0) {
+				motionCamera = -gamepad->axisR.x * 3.f;
+			}
+
+			quatf rotationQuat = quatf::getAxisAngle(vec3f::axis_y(), motionCamera * deg2rad(60.f) * u.dt);
+
+			cameraOffset = quat_mul_pos(rotationQuat, cameraOffset);
 
 			transf3d cameraTransform = cameraActor->getTransform();
 			cameraTransform.p = getTransform().p + cameraOffset;
 			//cameraTransform.r = quatf::getAxisAngle(vec3f::axis_x(), -deg2rad(30.f)) * quatf::getAxisAngle(vec3f::axis_y(), deg2rad(90.f));
-			cameraTransform.r = quatf::getAxisAngle(vec3f::axis_y(), -u.is.GetCursorMotion().x * deg2rad(1.f)) * cameraTransform.r;
+			cameraTransform.r = rotationQuat * cameraTransform.r;
 			cameraActor->setTransform(cameraTransform);
 
 			wsForward = cameraActor->getTransformMtx().c0.xyz().x0z().normalized0();
 			wsRight = cameraActor->getTransformMtx().c2.xyz().x0z().normalized0();
 		}
 
+		wobbleAmplitude -= ttRigidbody.getRigidBody()->getLinearVel().x0z().length() * u.dt * 0.2f;
+		wobbleAmplitude -= ttRigidbody.getRigidBody()->getLinearVel().y * u.dt * 0.30f;
 		wobbleForce += (0.85f - wobbleAmplitude) * 1.75f;
-		wobbleForce -= wobbleForce * u.dt * timeScale ;
-		wobbleAmplitude += wobbleForce * u.dt * 0.5f * timeScale;
+		wobbleForce -= wobbleForce * u.dt * 2.f;
+		wobbleAmplitude += wobbleForce * u.dt;
 
-		const vec2f inputDir = u.is.GetArrowKeysDir(true, true);
+		const vec2f inputDir = u.is.GetArrowKeysDir(true, true, 0);
 		const vec3f inputDirWs = wsRight * inputDir.x +  inputDir.y * wsForward;
 		const vec3f inputDirWsRight = vec3f(-inputDirWs.z, 0.f, inputDirWs.x);
+
+		if (u.is.IsKeyDown(Key_Space) || u.is.getXInputDevice(0).isBtnDown(GamepadState::btn_a)) {
+			wobbleForce -= 16.f * u.dt;
+			jumpButtonHeldTime += u.dt;
+			jumpButtonHeldTime = clamp(kMaxJumpHeldTime, 0.f, kMaxJumpHeldTime);
+		}
+
 
 		vec3f additionalForce = vec3f(0.f);
 		float dr = inputDirWsRight.dot(ttRigidbody.getRigidBody()->getLinearVel().x0z());
 		float df = inputDirWs.dot(ttRigidbody.getRigidBody()->getLinearVel().x0z());
-		additionalForce = -dr * inputDirWsRight * 100.f;
+		additionalForce = -dr * inputDirWsRight * 1.5f;
 		if (df < 0.f) {
-			additionalForce += -df * inputDirWs * 50.f;
+			additionalForce += -df * inputDirWs * 3.f;
 		}
 
-		ttRigidbody.getRigidBody()->applyForce((inputDirWs * 300.f + additionalForce) * u.dt, vec3f(0.f, 0.65f, 0.f));
+		if (u.is.IsKeyReleased(Key_Space) || u.is.getXInputDevice(0).isBtnReleased(GamepadState::btn_a)) {
+			ttRigidbody.getRigidBody()->applyLinearVelocity(vec3f(0.f, 15.f * jumpButtonHeldTime / kMaxJumpHeldTime + 1.f, 0.f));
+			jumpButtonHeldTime = 0.f;
+		}
+
+		ttRigidbody.getRigidBody()->applyForce((inputDirWs * 10.f + additionalForce), vec3f(0.f, 0.65f, 0.f));
 
 		float squash = wobbleAmplitude; 
 

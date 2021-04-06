@@ -258,6 +258,17 @@ struct SGE_ENGINE_API GameWorld {
 
 	ICamera* getRenderCamera();
 
+	/// Sets if the cursor needs to be hidden and locked to the center of the window.
+	/// Useful for situations like first person mouse control.
+	/// This will take effect only when in gameplay and when we look trough the game play camera.
+	void setNeedsLockedCursor(bool isLocked) {
+		needsLockedCursor = isLocked;
+	}
+
+	bool getNeedsLockedCursor() const {
+		return needsLockedCursor;
+	}
+
   public:
 	/// The update settings passed to the current update() function call.
 	GameUpdateSets m_cachedUpdateSets;

@@ -5,7 +5,9 @@
 
 namespace sge {
 
-
+//--------------------------------------------------------------------
+// AStaticObstacle
+//--------------------------------------------------------------------
 DefineTypeId(CollisionShapeSource, 20'03'02'0005);
 ReflBlock() {
 	ReflAddType(CollisionShapeSource)
@@ -14,10 +16,6 @@ ReflBlock() {
 		ReflEnumVal((int)CollisionShapeSource::FromConvexHulls, "FromConvexHulls")
 	;
 }
-
-//--------------------------------------------------------------------
-// AStaticObstacle
-//--------------------------------------------------------------------
 
 DefineTypeId(AStaticObstacle, 20'03'02'0006);
 ReflBlock() {
