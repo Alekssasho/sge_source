@@ -15,7 +15,7 @@ The main features of the engine are:
  - Path finding.
  - Timeline animations.
 
-[![Watch the video](https://user-images.githubusercontent.com/6237727/114287179-95c8a700-9a6d-11eb-9fdd-54009834ef2f.mp4)
+[!Watch the video](https://user-images.githubusercontent.com/6237727/114287179-95c8a700-9a6d-11eb-9fdd-54009834ef2f.mp4)
 
 
 <img src="./docs/img/editor_ss0.png" alt="alt text" width="50%" height="50%"><img src="./docs/img/editor_ss1.png" alt="alt text" width="50%" height="50%">
