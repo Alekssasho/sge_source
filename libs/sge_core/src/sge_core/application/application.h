@@ -7,14 +7,11 @@
 #include <string>
 #include <vector>
 
-int sge_main(int argc, char* argv[]);
-
 namespace sge {
 
 //-----------------------------------------------
 // Events and Event data.
 //-----------------------------------------------
-
 /// An enum window messages.
 enum WindowEvent : int {
 	WE_Create,

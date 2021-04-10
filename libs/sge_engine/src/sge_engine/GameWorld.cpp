@@ -243,7 +243,7 @@ void GameWorld::clear() {
 
 	m_nextNameIndex = 0;
 	totalStepsTaken = 0;
-	gameTime = 0.f;
+	timeSpendPlaying = 0.f;
 
 	m_defaultGravity = vec3f(0.f, -10.f, 0.f);
 	m_physicsSimNumSubSteps = 3;
@@ -409,7 +409,7 @@ void GameWorld::update(const GameUpdateSets& updateSets) {
 		}
 
 		if (updateSets.isGamePaused() == false) {
-			gameTime += updateSets.dt;
+			timeSpendPlaying += updateSets.dt;
 			totalStepsTaken++;
 		}
 	}

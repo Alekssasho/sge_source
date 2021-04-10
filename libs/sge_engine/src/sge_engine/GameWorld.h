@@ -50,30 +50,29 @@ struct SGE_ENGINE_API PostSceneUpdateTaskLoadWorldFormFile final : public IPostS
 	bool noPauseNoEditorCamera = false;
 };
 
-//--------------------------------------------------------------------
-//
-//--------------------------------------------------------------------
+/// @brief A struct describing the settings to be passed to the GameWorld when updating the game.
+/// Keep in mind that the world is always getting updated, even when paused even in edit mode.
+/// The game objects need to be aware that they will get updated and the editor might suddenly change them.
 struct GameUpdateSets {
 	GameUpdateSets() = default;
 	GameUpdateSets(float const dt, bool const isPaused, InputState const is /*, SGEContext* const sgecon*/)
 	    : dt(dt)
 	    , isPaused(isPaused)
-	    , is(is)
-	/*, sgecon(sgecon)*/ {}
+	    , is(is) {}
 
+	/// @brief Returns true if the game is paused for some reason.
 	bool isGamePaused() const { return isPaused; }
 
+	/// @brief Returns true if the game is not paused.
 	bool isPlaying() const { return !isGamePaused(); }
 
-	float dt = 0.f;
-	bool isPaused = true;
-	InputState is;
-	// SGEContext* sgecon = nullptr;
+	float dt = 0.f;       ///< The delta time to be used when updateing.
+	bool isPaused = true; ///< True if the game is paused for any reason (usually we are in the editor and the game is paused there).
+	InputState is;        ///< The input state to be used when updateing the scene.
 };
 
-//--------------------------------------------------------------------
-// GameWorld
-//--------------------------------------------------------------------
+/// @brief GameWorld is the main class that hold all alocated GameObject (Material, Scripts, Actors and so on),
+/// Maintains their lifetime, as well as stepping the game simulation.
 struct SGE_ENGINE_API GameWorld {
 	GameWorld() {
 		userProjectionSettings.fov = deg2rad(60.f);
@@ -89,42 +88,51 @@ struct SGE_ENGINE_API GameWorld {
   public:
 	void clear();
 
-	// Steps the game simulation. GameInspectors may intercept the execution of that function.
+	/// Steps the game simulation. GameInspectors may intercept the execution of that function.
 	void update(const GameUpdateSets& updateSets);
 
-	// Returns an unique ID for the current scene.
+	/// Returns an unique ID for the current scene.
 	ObjectId getNewId();
 
-	// Checks is an object already uses the specified id.
+	/// Checks is an object already uses the specified id.
 	bool isIdTaken(ObjectId const id) const;
 
-	// Create a new object of the specified type.
+	/// Create a new object of the specified type.
 	GameObject* allocObject(TypeId const type, ObjectId const specificId = ObjectId(), const char* name = nullptr);
 	Actor* allocActor(TypeId const type, ObjectId const specificId = ObjectId(), const char* name = nullptr);
 
+	/// @brief Type-safe allocation of a GameObject.
 	template <typename T>
 	T* alloc(ObjectId const specificId = ObjectId(), const char* name = nullptr) {
 		return dynamic_cast<T*>(allocObject(sgeTypeId(T), specificId, name));
 	}
 
-	// Permanently deletes the specified object, wthout giving it a chance of recovery.
-	// Example usage: in gameplay when destroying bullets or killing enemies.
-	// The object isn't going to be deleted immediatley, instead it is going to get added to a list of object that want to get killed.
-	// At the begining of the next update() they are going to get deleted.
+	/// Permanently deletes the specified object, wthout giving it a chance of recovery.
+	/// Example usage: in gameplay when destroying bullets or killing enemies.
+	/// The object isn't going to be deleted immediatley, instead it is going to get added to a list of object that want to get killed.
+	/// At the begining of the next update() they are going to get deleted.
 	void objectDelete(const ObjectId& id);
 
 	GameObject* getObjectById(const ObjectId& id);
+
+	/// @brief Retrieves an Actor object by id,
+	/// if the object exist but it is not an actor the function will return nullptr.
 	Actor* getActorById(const ObjectId& id);
 
-	// Todo: implement this a bit faster...
-	// Searches for an actor by name, the first actor with the specified name gets returned.
+	/// Searches for an actor by name, the first actor with the specified name gets returned.
 	GameObject* getObjectByName(const char* name);
+	/// Searches for an actor by name, the first actor with the specified name gets returned.
+	/// If the object exists, but it is not an Actor the function will return nullptr.
 	Actor* getActorByName(const char* name);
 
 	/// Iterates over all playing and awaiting creation game objects.
-	/// @param [in] lambda the lambda-function to get called to get called for each game object. The lambda should return true if it wants
-	/// to get called for the next object.
+	/// @param [in] lambda the lambda-function to get called to get called for each game object.
+	/// The lambda should return true if it wants to get called for the next object.
 	void iterateOverPlayingObjects(const std::function<bool(GameObject*)>& lambda, bool includeAwaitCreationObject);
+
+	/// Iterates over all playing and awaiting creation game objects.
+	/// @param [in] lambda the lambda-function to get called to get called for each game object.
+	/// The lambda should return true if it wants to get called for the next object.
 	void iterateOverPlayingObjects(const std::function<bool(const GameObject*)>& lambda, bool includeAwaitCreationObject) const;
 
 	/// @brief Retrieves a list of all playing object of the specified type. May be nullptr.
@@ -171,6 +179,8 @@ struct SGE_ENGINE_API GameWorld {
 	///             object is resotred it, the command will try to resore the original hierarchy and will succeeded if all objects exist in
 	///             the scene.
 	bool setParentOf(ObjectId const child, ObjectId const newParent, bool doNotAssert = false);
+
+	/// @brief Retrives the parent object id of the specified object (by its id).
 	ObjectId getParentId(ObjectId const child) const;
 
 	/// @brief Retrieves the parent actor of the specified actor.
@@ -228,7 +238,6 @@ struct SGE_ENGINE_API GameWorld {
 	                  bool shouldKeepOriginalObjectIds,
 	                  const vector_set<ObjectId>* const pOblectsToInstantiate) const;
 
-
 	/// @brief Used for giving object unique-ish names. However the GameWorld still supports objects with same name.
 	int getNextNameIndex();
 
@@ -236,9 +245,11 @@ struct SGE_ENGINE_API GameWorld {
 	GameInspector* getInspector() { return inspector; }
 
 	/// @brief Retrieves the amount of time passed while not being paused.
-	float getGameTime() const { return gameTime; }
+	float getGameTime() const { return timeSpendPlaying; }
 
+	/// @brief Returns true if the scene is in edit mode. Could be true only in the SGEEditor.
 	bool isInEditMode() const { return isEdited; }
+
 	void toggleEditMode() { isEdited = !isEdited; }
 
 	/// @brief Adds a task to be executed after the scene update has finished.
@@ -261,27 +272,24 @@ struct SGE_ENGINE_API GameWorld {
 	/// Sets if the cursor needs to be hidden and locked to the center of the window.
 	/// Useful for situations like first person mouse control.
 	/// This will take effect only when in gameplay and when we look trough the game play camera.
-	void setNeedsLockedCursor(bool isLocked) {
-		needsLockedCursor = isLocked;
-	}
+	void setNeedsLockedCursor(bool isLocked) { needsLockedCursor = isLocked; }
 
-	bool getNeedsLockedCursor() const {
-		return needsLockedCursor;
-	}
+	bool getNeedsLockedCursor() const { return needsLockedCursor; }
 
   public:
 	/// The update settings passed to the current update() function call.
 	GameUpdateSets m_cachedUpdateSets;
 
-	/// The projection settings specified by the user. (Some of them are window dependad and we update them manully)
+	/// The projection settings specified by the user. (Some of them are window dependad and we update them manully).
+	/// TODO: This is an old idea, and no longer has its place in the game world.
 	CameraProjectionSettings userProjectionSettings;
 
-	//
+	/// Game camera for gameplay.
 	ObjectId m_cameraPovider = ObjectId();
 	bool m_useEditorCamera = true;
 	EditorCamera m_editorCamera;
 
-	// Lighting.
+	// Scene default ambient lighting.
 	vec3f m_ambientLight = vec3f(0.25f);
 	vec3f m_rimLight = vec3f(0.1f);
 	vec3f m_skyColorBottom = vec3f(0.419f);
@@ -313,13 +321,13 @@ struct SGE_ENGINE_API GameWorld {
 	/// When creating new nodes or duplicating existing we use these indices for naming new nodes.
 	int m_nextNameIndex = 0;
 
-	int totalStepsTaken = 0;
-	float gameTime = 0.f;
+	int totalStepsTaken = 0; ///< The number of updates done, both paused and playing.
+	float timeSpendPlaying = 0.f; ///< The total time spend playing in seconds.
 
 	int m_physicsSimNumSubSteps = 3;
 	vec3f m_defaultGravity = vec3f(0.f, -10.f, 0.f);
 
-	/// Called when a level has just been loaded after done deserializing.
+	/// Called when a level has just been loaded after deserializing is done.
 	EventEmitter<> onWorldLoaded;
 
 	std::vector<std::unique_ptr<IPostSceneUpdateTask>> m_postSceneUpdateTasks;
@@ -327,7 +335,7 @@ struct SGE_ENGINE_API GameWorld {
 	/// If set this is the file that we are currently working with. Otherwise we are not working with a saved level.
 	std::string m_workingFilePath;
 
-	/// Scripting
+	/// Script objects to get called.
 	std::vector<ObjectId> m_scriptObjects;
 
 	/// True if the game is in edit mode

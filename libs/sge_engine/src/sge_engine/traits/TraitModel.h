@@ -45,15 +45,16 @@ struct SGE_ENGINE_API TraitModel : public Trait {
 	void setModel(std::shared_ptr<Asset>& asset, bool updateNow) {
 		m_assetProperty.setAsset(asset);
 		if (updateNow) {
-			postUpdate();
+			updateAssetProperty();
 		}
 	}
 
 	/// Not called automatically see the class comment above.
 	/// Updates the working model.
 	/// Returns true if the model has been changed (no matter if it is valid or not).
-	bool postUpdate() { return m_assetProperty.update(); }
+	bool postUpdate() { return updateAssetProperty(); }
 
+	/// Invalidates the asset property focing an update.
 	void clear() { m_assetProperty.clear(); }
 
 	AssetProperty& getAssetProperty() { return m_assetProperty; }
@@ -61,8 +62,6 @@ struct SGE_ENGINE_API TraitModel : public Trait {
 
 	mat4f getAdditionalTransform() const { return m_additionalTransform; }
 	void setAdditionalTransform(const mat4f& tr) { m_additionalTransform = tr; }
-
-	mat4f getFullWorldMtx() const { return getActor()->getTransformMtx() * m_additionalTransform; }
 
 	AABox3f getBBoxOS() const {
 		const AssetModel* const assetModel = getAssetProperty().getAssetModel();
@@ -78,13 +77,13 @@ struct SGE_ENGINE_API TraitModel : public Trait {
 	bool getRenderable() const { return isRenderable; }
 	void setNoLighting(bool v) { instanceDrawMods.forceNoLighting = v; }
 	bool getNoLighting() const { return instanceDrawMods.forceNoLighting; }
-	bool showOnlyInEditMode() const { return m_showOnlyInEditmode; }
-	void setShowOnlyInEditMode(bool v) { m_showOnlyInEditmode = v; }
 
 	void computeNodeToBoneIds();
 	void computeSkeleton(vector_map<const Model::Node*, mat4f>& boneOverrides);
 
   private:
+	bool updateAssetProperty() { return m_assetProperty.update(); }
+
 	void onModelChanged() {
 		useSkeleton = false;
 		rootSkeletonId = ObjectId();
@@ -98,21 +97,22 @@ struct SGE_ENGINE_API TraitModel : public Trait {
 	};
 
 	mat4f m_additionalTransform = mat4f::getIdentity();
-	InstanceDrawMods instanceDrawMods;
 	AssetProperty m_assetProperty;
+
+	// 3D model specific properties.
+	// TODO: move them in a strcuture.
+	InstanceDrawMods instanceDrawMods;
 	std::string animationName;
 	float animationTime = 0.f;
 	bool isRenderable = true;
-	bool m_showOnlyInEditmode = false;
-
+	std::vector<MaterialOverride> m_materialOverrides;
+	
+	// External skeleton, useful for IK. Not sure for regular skinned meshes.
 	bool useSkeleton = false;
 	ObjectId rootSkeletonId;
-
-	std::vector<MaterialOverride> m_materialOverrides;
-
-	// Skeleton.
 	std::unordered_map<const Model::Node*, ObjectId> nodeToBoneId;
 
+	/// @brief A struct holding the rendering options of a sprite or a texture in 3D.
 	struct ImageSettings {
 		mat4f getAnchorAlignMtxOS(float imageWidth, float imageHeight) const {
 			const float sz = imageWidth / m_pixelsPerUnit;

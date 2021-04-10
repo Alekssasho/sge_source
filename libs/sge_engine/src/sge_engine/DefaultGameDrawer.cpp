@@ -598,7 +598,7 @@ void DefaultGameDrawer::drawTraitTexturedPlane(TraitTexturedPlane* traitTexPlane
 			Material texPlaneMtl = m_texturedPlaneDraw.getMaterial(texture);
 
 			InstanceDrawMods mods;
-			mods.gameTime = getWorld()->gameTime;
+			mods.gameTime = getWorld()->timeSpendPlaying;
 
 			m_modeldraw.drawGeometry(drawSets.rdest, camPos, camLookDir, drawSets.drawCamera->getProjView(), objToWorld, generalMods,
 			                         &texPlaneGeom, texPlaneMtl, mods);
@@ -627,14 +627,17 @@ void DefaultGameDrawer::drawTraitStaticModel(TraitModel* modelTrait,
                                              const GameDrawSets& drawSets,
                                              const GeneralDrawMod& generalMods,
                                              DrawReason const drawReason) {
+	if (modelTrait->getRenderable() == false) {
+		return;
+	}
+
 	const vec3f camPos = drawSets.drawCamera->getCameraPosition();
 	const vec3f camLookDir = drawSets.drawCamera->getCameraLookDir();
-	Actor* actor = modelTrait->getActor();
+	Actor* const actor = modelTrait->getActor();
 
 	PAsset const asset = modelTrait->getAssetProperty().getAsset();
 
-	const bool shouldDisplay = modelTrait->showOnlyInEditMode() ? drawReason_IsEditOrSelection(drawReason) : true;
-	if (shouldDisplay && modelTrait->getRenderable() && isAssetLoaded(asset) && asset->getType() == AssetType::Model) {
+	if (isAssetLoaded(asset) && asset->getType() == AssetType::Model) {
 		AssetModel* const model = modelTrait->getAssetProperty().getAssetModel();
 
 		std::vector<MaterialOverride> mtlOverrides;
@@ -715,13 +718,13 @@ void DefaultGameDrawer::drawTraitStaticModel(TraitModel* modelTrait,
 				const mat4f billboardFacingMtx =
 				    billboarding_getOrentationMtx(modelTrait->imageSettings.m_billboarding, actor->getTransform(),
 				                                  drawSets.drawCamera->getCameraPosition(), drawSets.drawCamera->getView());
-				const mat4f objToWorld = billboardFacingMtx * anchorAlignMtx * localOffsetmtx;
+				const mat4f objToWorld = billboardFacingMtx * anchorAlignMtx * localOffsetmtx * modelTrait->m_additionalTransform;
 
 				Geometry texPlaneGeom = m_texturedPlaneDraw.getGeometry(drawSets.rdest.getDevice());
 				Material texPlaneMtl = m_texturedPlaneDraw.getMaterial(texture);
 
 				InstanceDrawMods mods;
-				mods.gameTime = getWorld()->gameTime;
+				mods.gameTime = getWorld()->timeSpendPlaying;
 				mods.forceNoLighting = modelTrait->imageSettings.forceNoLighting;
 				mods.forceNoCulling = modelTrait->imageSettings.forceNoCulling;
 
@@ -741,16 +744,16 @@ void DefaultGameDrawer::drawTraitStaticModel(TraitModel* modelTrait,
 				const mat4f billboardFacingMtx =
 				    billboarding_getOrentationMtx(modelTrait->imageSettings.m_billboarding, actor->getTransform(),
 				                                  drawSets.drawCamera->getCameraPosition(), drawSets.drawCamera->getView());
-				const mat4f objToWorld = billboardFacingMtx * anchorAlignMtx * localOffsetmtx;
+				const mat4f objToWorld = billboardFacingMtx * anchorAlignMtx * localOffsetmtx * modelTrait->m_additionalTransform;
 
 				Geometry texPlaneGeom = m_texturedPlaneDraw.getGeometry(drawSets.rdest.getDevice());
 				Material texPlaneMtl = m_texturedPlaneDraw.getMaterial(pSprite->textureAsset->asTextureView()->GetPtr());
 
 				InstanceDrawMods mods;
-				mods.gameTime = getWorld()->gameTime;
+				mods.gameTime = getWorld()->timeSpendPlaying;
 				mods.forceNoLighting = modelTrait->imageSettings.forceNoLighting;
 				mods.forceNoCulling = modelTrait->imageSettings.forceNoCulling;
-				
+
 				// Compute the UVW transform so we get only this frame portion of the texture to be displayed.
 				texPlaneMtl.uvwTransform =
 				    mat4f::getTranslation(frame->uvRegion.x, frame->uvRegion.y, 0.f) *

@@ -15,6 +15,8 @@ namespace sge {
 // ATimeline
 //--------------------------------------------------------
 struct ATimeline : public Actor, public IActorCustomAttributeEditorTrait {
+
+
 	enum PlaybackMethod : int {
 		playbackMethod_reset,
 		playbackMethod_stop,
@@ -37,6 +39,9 @@ struct ATimeline : public Actor, public IActorCustomAttributeEditorTrait {
   public:
 	TraitViewportIcon ttViewportIcon;
 
+	bool relativeMode = false; ///< If true, the animation should be played relative to the timeline node.
+	transf3d relativeModeOrigin; ///< This is the transform that we are going to use to make the keyfames 
+
 	bool isInEditMode = false;
 	bool doesEditModeNeedsUpdate = false;
 
@@ -48,11 +53,13 @@ struct ATimeline : public Actor, public IActorCustomAttributeEditorTrait {
 
 	PlaybackMethod playbackMethod = playbackMethod_reset;
 	float flipFlopDir = 1.f;
-	ObjectId targetActorId; // The object that we are going to move.
+
 	int framesPerSecond = 30;
 	int frameCount = 30;
 
-	vector_map<int, transf3d> keyFrames;
+	vector_set<ObjectId> affectedActorsIds;
+
+	vector_map<int, vector_map<ObjectId, transf3d>> keyFrames;
 };
 
 

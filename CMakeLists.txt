@@ -237,7 +237,6 @@ sge_mark_internal_lib(sge_core)
 sge_mark_internal_lib(sge_engine)
 sge_mark_internal_lib(mdlconvlib)
 
-sge_mark_internal_tools(project_maker)
 sge_mark_internal_tools(sge_player)
 sge_mark_internal_tools(sge_editor)
 

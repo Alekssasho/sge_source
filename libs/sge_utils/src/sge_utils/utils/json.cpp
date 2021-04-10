@@ -1,8 +1,8 @@
 #include "json.h"
 #include "FileStream.h"
 #include "IStream.h"
-#include "strings.h"
 #include "sge_utils/sge_utils.h"
+#include "strings.h"
 #include <charconv>
 #include <cstring>
 
@@ -26,7 +26,7 @@ float cstr2float(const char* cstr) {
 	// if (res.ec == std::errc()) {
 	// 	return float(value);
 	// }
-	//throw JsonParseError("cannot convert string to float");
+	// throw JsonParseError("cannot convert string to float");
 	return float(atof(cstr));
 }
 
@@ -202,10 +202,27 @@ JsonValue* JsonValue::setMember(const char* const name, JsonValue* value) {
 const JsonValue* JsonValue::getMember(const char* const name) const {
 	sgeAssert(jid == JID_MAP_BEGIN);
 	for (size_t t = 0; t < members.size(); ++t) {
-		if (strcmp((char*)members[t].first.data(), name) == 0)
+		if (strcmp((char*)members[t].first.data(), name) == 0) {
 			return members[t].second;
+		}
 	}
 	return nullptr;
+}
+
+const JsonValue& JsonValue::getMemberOrThrow(const char* const name, JID explectedType) const {
+	sgeAssert(jid == JID_MAP_BEGIN);
+	for (size_t t = 0; t < members.size(); ++t) {
+		if (strcmp((char*)members[t].first.data(), name) == 0) {
+			if (members[t].second != nullptr) {
+				if (explectedType != JID_NULL && members[t].second->jid != explectedType) {
+					throw JsonExceptAccess();
+				}
+
+				return *members[t].second;
+			}
+		}
+	}
+	throw JsonExceptAccess();
 }
 
 JsonValue* JsonValue::arrPush(JsonValue* value) {

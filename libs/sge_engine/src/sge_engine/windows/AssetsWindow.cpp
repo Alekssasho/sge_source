@@ -307,6 +307,7 @@ void AssetsWindow::update(SGEContext* const sgecon, const InputState& is) {
 			exploreFilter.Clear();
 		}
 
+		// List all files in the currently selected directory in the interfance.
 		if (ImGui::BeginChildFrame(ImGui::GetID("FilesChildFrameID"), ImVec2(-1.f, -1.f))) {
 			try {
 				if (!directoryTree.empty() && ImGui::Selectable(ICON_FK_BACKWARD " [/..]")) {
@@ -341,6 +342,7 @@ void AssetsWindow::update(SGEContext* const sgecon, const InputState& is) {
 					}
 				}
 
+				// Show every file in the current directory with an icon next to it.
 				for (const fs::directory_entry& entry : fs::directory_iterator(pathToAssets)) {
 					if (entry.is_regular_file() && exploreFilter.PassFilter(entry.path().filename().string().c_str())) {
 						AssetType assetType = assetType_fromExtension(extractFileExtension(entry.path().string().c_str()).c_str(), false);
@@ -364,6 +366,7 @@ void AssetsWindow::update(SGEContext* const sgecon, const InputState& is) {
 					}
 				}
 
+				// Handle right-clicking over an asset in the explorer.
 				if (rightClickedPath.hasValue()) {
 					ImGui::OpenPopup("RightClickMenuAssets");
 					m_rightClickedPath = rightClickedPath.get();
@@ -423,6 +426,8 @@ void AssetsWindow::update(SGEContext* const sgecon, const InputState& is) {
 						// Initialize it with the information about the asset we are about to import.
 						m_importAssetToImportInPopup = AssetImportData();
 
+						// If openAssetImport_filename is specified then we must use it, it means that the popup was somehow forced
+						// externally like a drag-and-drop.
 						if (openAssetImport_filename.empty()) {
 							m_importAssetToImportInPopup.filename = FileOpenDialog("Pick a file to import", true, "*.*\0*.*\0", nullptr);
 						} else {
@@ -430,9 +435,8 @@ void AssetsWindow::update(SGEContext* const sgecon, const InputState& is) {
 							openAssetImport_filename.clear();
 						}
 
-						m_importAssetToImportInPopup.assetType =
-						    assetType_fromExtension(extractFileExtension(m_importAssetToImportInPopup.filename.c_str()).c_str(), true);
-
+						// If the user clicked over an assed and clicked import over, use the name of already imported asset,
+						// otherwise create a new name based on the input name.
 						m_importAssetToImportInPopup.outputDir = pathToAssets.string();
 						if (importOverAsset.empty()) {
 							m_importAssetToImportInPopup.outputFilename =
@@ -442,9 +446,33 @@ void AssetsWindow::update(SGEContext* const sgecon, const InputState& is) {
 							importOverAsset.clear();
 						}
 
+						// Guess the type of the inpute asset.
+						const std::string inputExtension = extractFileExtension(m_importAssetToImportInPopup.filename.c_str());
+						m_importAssetToImportInPopup.assetType = assetType_fromExtension(inputExtension.c_str(), true);
+
+						// If the asset type is None, maybe the asset has a commonly used extension
+						// like Aseprite json sprite sheet descriptors, or they might be just generic
+						// files that the user wants to copy. Try to guess the type of this generic file
+						// for convinice of the user.
+						if (m_importAssetToImportInPopup.assetType == AssetType::None) {
+							if (inputExtension == "json") {
+								SpriteAnimation tempSpriteAnimation;
+								if (SpriteAnimation::importFromAsepriteSpriteSheetJsonFile(tempSpriteAnimation,
+								                                                           m_importAssetToImportInPopup.filename.c_str())) {
+									m_importAssetToImportInPopup.assetType = AssetType::Sprite;
+								}
+							}
+						}
+
+						// Change the extension of the imported file based on the asset type.
 						if (m_importAssetToImportInPopup.assetType == AssetType::Model) {
 							m_importAssetToImportInPopup.outputFilename =
 							    replaceExtension(m_importAssetToImportInPopup.outputFilename.c_str(), "mdl");
+						}
+
+						if (m_importAssetToImportInPopup.assetType == AssetType::Sprite) {
+							m_importAssetToImportInPopup.outputFilename =
+							    replaceExtension(m_importAssetToImportInPopup.outputFilename.c_str(), "sprite");
 						}
 
 						if (m_importAssetToImportInPopup.filename.empty()) {
@@ -452,7 +480,7 @@ void AssetsWindow::update(SGEContext* const sgecon, const InputState& is) {
 						}
 					}
 
-					// The UI
+					// The UI of the pop-up itself:
 					if (m_importAssetToImportInPopup.assetType == AssetType::Model) {
 						ImGui::Text(ICON_FK_CUBE " 3D Model");
 						ImGui::Checkbox(ICON_FK_CUBES " Import As Multiple Models",
@@ -523,29 +551,31 @@ void AssetsWindow::update(SGEContext* const sgecon, const InputState& is) {
 					ImGui::EndPopup();
 				}
 
-				// Create Directory Popup
-				if (shouldOpenNewFolderPopup) {
-					ImGui::OpenPopup("SGE Assets Window Create Dir");
-				}
-
-				static char createDirFileName[1024] = {0};
-				if (ImGui::BeginPopup("SGE Assets Window Create Dir")) {
-					ImGui::InputText(ICON_FK_FOLDER " Folder Name", createDirFileName, SGE_ARRSZ(createDirFileName));
-					if (ImGui::Button(ICON_FK_CHECK " Create")) {
-						createDirectory((pathToAssets.string() + "/" + std::string(createDirFileName)).c_str());
-						createDirFileName[0] = '\0';
-						ImGui::CloseCurrentPopup();
+				// Create Directory Popup.
+				{
+					if (shouldOpenNewFolderPopup) {
+						ImGui::OpenPopup("SGE Assets Window Create Dir");
 					}
 
-					if (ImGui::Button("Cancel")) {
-						ImGui::CloseCurrentPopup();
+					static char createDirFileName[1024] = {0};
+					if (ImGui::BeginPopup("SGE Assets Window Create Dir")) {
+						ImGui::InputText(ICON_FK_FOLDER " Folder Name", createDirFileName, SGE_ARRSZ(createDirFileName));
+						if (ImGui::Button(ICON_FK_CHECK " Create")) {
+							createDirectory((pathToAssets.string() + "/" + std::string(createDirFileName)).c_str());
+							createDirFileName[0] = '\0';
+							ImGui::CloseCurrentPopup();
+						}
+
+						if (ImGui::Button("Cancel")) {
+							ImGui::CloseCurrentPopup();
+						}
+
+						ImGui::EndPopup();
 					}
 
-					ImGui::EndPopup();
-				}
-
-				if (dirToAdd.empty() == false) {
-					directoryTree.emplace_back(std::move(dirToAdd));
+					if (dirToAdd.empty() == false) {
+						directoryTree.emplace_back(std::move(dirToAdd));
+					}
 				}
 			}
 

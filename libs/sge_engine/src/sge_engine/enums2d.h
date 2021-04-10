@@ -5,7 +5,7 @@
 
 namespace sge {
 
-// Describes a textured plane facing +X with bottom,left point being at (0,0,0) in object space.
+/// Describes a textured plane orientation that in object space is facing +X with (bottom,left) point being at (0,0,0) in object space.
 enum Billboarding : int {
 	billboarding_none,
 	billboarding_yOnly,
@@ -27,7 +27,7 @@ mat4f anchor_getPlaneAlignMatrix(const Anchor anchor, const vec2f& planeSizeZY);
 
 /// Computes the transformation of an object, so it faces the camera, based on the
 /// @billboarding parameter.
-/// The object is assumed that it is going to facing +X.
+/// The object is assumed that the face being rendered faces +X axis.
 SGE_ENGINE_API mat4f billboarding_getOrentationMtx(const Billboarding billboarding,
                                                    const transf3d& objectTr,
                                                    const vec3f& camPos,

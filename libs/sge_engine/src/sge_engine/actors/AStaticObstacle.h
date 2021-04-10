@@ -5,8 +5,6 @@
 #include "sge_engine/Actor.h"
 #include "sge_engine/traits/TraitRigidBody.h"
 #include "sge_engine/traits/TraitModel.h"
-#include "sge_engine/traits/TraitTexturedPlane.h"
-
 
 namespace sge {
 

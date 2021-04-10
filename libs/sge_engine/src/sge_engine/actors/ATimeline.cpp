@@ -19,12 +19,17 @@
 
 namespace sge {
 
-typedef vector_map<int, transf3d> vector_map_int_transf3d;
+typedef vector_map<ObjectId, transf3d> vector_map_ObjectId_transf3d;
+typedef vector_map<int, vector_map_ObjectId_transf3d> vector_map_int_KeyFrames;
 
 // clang-format off
-DefineTypeId(vector_map_int_transf3d, 20'03'01'0013);
+DefineTypeId(vector_map_ObjectId_transf3d, 21'04'11'0001);
+DefineTypeId(vector_map_int_KeyFrames, 21'04'11'0002);
+DefineTypeId(std::vector<vector_map_ObjectId_transf3d>, 21'04'11'0003);
+
 DefineTypeId(ATimeline, 20'03'01'0014);
 DefineTypeId(ATimeline::PlaybackMethod, 21'03'07'0001);
+
 
 ReflBlock() {
 
@@ -34,9 +39,16 @@ ReflBlock() {
 		.addEnumMember(ATimeline::PlaybackMethod::playbackMethod_flipflop, "Flip-Flop")
 	;
 
-	ReflAddTypeWithName(vector_map_int_transf3d, "vector_map<int, transf3d>")
-		ReflMember(vector_map_int_transf3d, keys)
-		ReflMember(vector_map_int_transf3d, values)
+	ReflAddTypeWithName(vector_map_ObjectId_transf3d, "vector_map<ObjectId, transf3d>")
+		ReflMember(vector_map_ObjectId_transf3d, keys)
+		ReflMember(vector_map_ObjectId_transf3d, values)
+	;
+
+	ReflAddType(std::vector<vector_map_ObjectId_transf3d>);
+
+	ReflAddTypeWithName(vector_map_int_KeyFrames, "vector_map<int, vector_map<ObjectId, transf3d>>")
+		ReflMember(vector_map_int_KeyFrames, keys)
+		ReflMember(vector_map_int_KeyFrames, values)
 	;
 	    //.member2<vector_map<int, transf3d>, std::vector<int>, &vector_map<int, transf3d>::getAllKeys,
 	    //         &vector_map<int, transf3d>::serializationSetKeys>("keys")
@@ -45,8 +57,8 @@ ReflBlock() {
 
 	ReflAddActor(ATimeline)
 		ReflMember(ATimeline, m_isEnabled)
+		
 		ReflMember(ATimeline, m_useSmoothInterpolation)
-		ReflMember(ATimeline, targetActorId)
 		ReflMember(ATimeline, keyFrames)
 		ReflMember(ATimeline, framesPerSecond)
 		ReflMember(ATimeline, frameCount)
@@ -55,6 +67,8 @@ ReflBlock() {
 		ReflMember(ATimeline, m_editingEvaltime)
 		ReflMember(ATimeline, moveObjectsOnTop)
 		ReflMember(ATimeline, flipFlopDir).addMemberFlag(MFF_NonEditable)
+		ReflMember(ATimeline, relativeMode)
+		ReflMember(ATimeline, relativeModeOrigin)
 	;
 }
 // clang-format on
@@ -82,12 +96,12 @@ struct TimelineWindow final : public IImGuiWindow {
 
 	ObjectId timelineActorId;
 	int m_lastRightClickedFrame = -1;
-	Optional<transf3d> m_copiedFrame;
+	Optional<vector_map<ObjectId, transf3d>> m_copiedFrame;
 
 	// Temp variables, that could be novrmal variables, but exists to
 	// reducce the number of allocations:
 	std::string frameNumText;
-	vector_map<int, transf3d> oldKeyFrames;
+	vector_map<int, vector_map<ObjectId, transf3d>> oldKeyFrames;
 };
 
 
@@ -100,6 +114,8 @@ void TimelineWindow::update(SGEContext* const UNUSED(sgecon), const InputState& 
 		m_isOpened = false;
 		return;
 	}
+
+	GameWorld& world = *m_inspector->getWorld();
 
 	ATimeline* const timeline = (ATimeline*)m_inspector->getWorld()->getActorById(timelineActorId);
 	if (timeline == nullptr) {
@@ -234,9 +250,17 @@ void TimelineWindow::update(SGEContext* const UNUSED(sgecon), const InputState& 
 			const bool hasKeyframe = timeline->keyFrames.find_element_index(m_lastRightClickedFrame) > -1;
 
 			if (ImGui::MenuItem(ICON_FK_KEY " Set Key")) {
-				const Actor* const targetActor = m_inspector->getWorld()->getActorById(timeline->targetActorId);
-				if (targetActor) {
-					timeline->keyFrames[m_lastRightClickedFrame] = targetActor->getTransform();
+				bool hadAChange = false;
+				for (const SelectedItem& sel : m_inspector->getSelection()) {
+					if (sel.objectId != timeline->getId()) { // Do not keyframe the timeline. the user might have selected it by mistake.
+						if (Actor* actor = world.getActorById(sel.objectId)) {
+							timeline->keyFrames[m_lastRightClickedFrame][actor->getId()] = actor->getTransform();
+							hadAChange = true;
+						}
+					}
+				}
+
+				if (hadAChange) {
 					createUndo();
 				}
 			}
@@ -306,15 +330,10 @@ void ATimeline::postUpdate(const GameUpdateSets& u) {
 		return;
 	}
 
-	Actor* const targetActor = getWorld()->getActorById(targetActorId);
-	if (!targetActor) {
-		return;
-	}
-
 	frameCount = std::max(1, frameCount);
 
-	const float frameTime = framesPerSecond != 0 ? 1.f / float(framesPerSecond) : 0.f;
-	const float totalAnimLength = float(frameCount - 1) * frameTime;
+	const float singleFrameTime = framesPerSecond != 0 ? 1.f / float(framesPerSecond) : 0.f;
+	const float totalAnimLength = float(frameCount - 1) * singleFrameTime;
 
 	const bool shouldUpdate = (u.isPlaying() && !isInEditMode && m_isEnabled) || (isInEditMode && doesEditModeNeedsUpdate);
 
@@ -348,66 +367,103 @@ void ATimeline::postUpdate(const GameUpdateSets& u) {
 			evalTime = smoothstep(evalTime / totalAnimLength) * totalAnimLength;
 		}
 
-		// Find the keys that we need to use to compute the final transform.
-		int iKey = 0;
-		for (int frame = 1; frame < keyFrames.size(); ++frame) {
-			const bool isLast = (frame + 1) == keyFrames.size();
+		affectedActorsIds.clear();
 
-			if (isLast || (keyFrames.getAllKeys()[frame] * frameLengthSeconds >= evalTime)) {
-				iKey = frame - 1;
-				break;
+		for (auto& pair : keyFrames) {
+			for (auto& pair2 : pair.value()) {
+				affectedActorsIds.insert(pair2.key());
 			}
 		}
 
-		// Interpolate the two nearing keyframes to get the transform for the current settings.
-		const transf3d oldTransform = targetActor->getTransform();
-		transf3d newTransfrom = keyFrames.valueAtIdx(0);
+		for (ObjectId actorId : affectedActorsIds) {
+			Actor* actor = getWorld()->getActorById(actorId);
+			if (actor) {
+				int iKey0 = -1;
+				int iKey1 = -1;
 
-		if (keyFrames.size() > 1) {
-			const float t0 = keyFrames.keyAtIdx(iKey) * frameLengthSeconds;
-			const float t1 = keyFrames.keyAtIdx(iKey + 1) * frameLengthSeconds;
-			const float k = std::min(1.f, (evalTime - t0) / (t1 - t0));
+				float iKey0FrameTime = 0.f;
+				float iKey1FrameTime = 0.f;
 
-			newTransfrom = lerp(keyFrames.valueAtIdx(iKey), keyFrames.valueAtIdx(iKey + 1), k);
-		}
+				transf3d iKey0Transform;
+				transf3d iKey1Transform;
 
-		const transf3d diffTransform = newTransfrom.computeBindingTransform(oldTransform);
+				for (int iFrame = 0; iFrame < keyFrames.size(); ++iFrame) {
+					if (keyFrames.getAllValues()[iFrame].find_element(actorId)) {
+						const float thisFrameTime = keyFrames.getAllKeys()[iFrame] * frameLengthSeconds;
 
-		if (moveObjectsOnTop) {
-			// Now find and move all actors that are on top of our target actor.
-			vector_map<Actor*, FindActorsOnTopResult> actorsToMove;
-			findActorsOnTop(actorsToMove, targetActor);
+						if (iKey0 >= 0) {
+							iKey1 = iFrame;
+							iKey1FrameTime = thisFrameTime;
+							iKey1Transform = *keyFrames.getAllValues()[iKey1].find_element(actorId);
 
-			for (auto pair : actorsToMove) {
-				if (!pair.key() || pair.key() == targetActor) {
-					continue;
+							if (thisFrameTime > evalTime) {
+								break;
+							}
+						}
+
+						if (thisFrameTime <= evalTime) {
+							iKey0 = iFrame;
+							iKey1 = iFrame;
+
+							iKey0FrameTime = thisFrameTime;
+							iKey1FrameTime = thisFrameTime;
+
+							iKey0Transform = *keyFrames.getAllValues()[iKey0].find_element(actorId);
+							iKey1Transform = iKey0Transform;
+						}
+					}
 				}
 
+				if (iKey0 >= 0 && iKey1 >= iKey0) {
+					transf3d newTransfrom = iKey0Transform;
+					if (iKey0 != iKey1) {
+						const float k = std::min(1.f, (evalTime - iKey0FrameTime) / (iKey1FrameTime - iKey0FrameTime));
+						newTransfrom = lerp(iKey0Transform, iKey1Transform, k);
+					}
 
-				TraitRigidBody* const actorTraitRB = getTrait<TraitRigidBody>(pair.key());
-				bool applyRotation = true;
-				if (actorTraitRB) {
-					const btVector3 actorAngFactor = actorTraitRB->getRigidBody()->getBulletRigidBody()->getAngularFactor();
+					if (relativeMode) {
+						newTransfrom = newTransfrom.computeBindingTransform(relativeModeOrigin);
+						newTransfrom = getTransform() * newTransfrom;
+					}
 
-					applyRotation &= isEpsEqual(actorAngFactor.getX(), 1.f);
-					applyRotation &= isEpsEqual(actorAngFactor.getY(), 1.f);
-					applyRotation &= isEpsEqual(actorAngFactor.getZ(), 1.f);
+					const transf3d oldTransform = actor->getTransform();
+					const transf3d diffTransform = newTransfrom.computeBindingTransform(oldTransform);
+
+					if (!isInEditMode || (isInEditMode && doesEditModeNeedsUpdate)) {
+						if (moveObjectsOnTop) {
+							// Now find and move all actors that are on top of our target actor.
+							vector_map<Actor*, FindActorsOnTopResult> actorsToMove;
+							findActorsOnTop(actorsToMove, actor);
+
+							for (auto pair : actorsToMove) {
+								if (!pair.key() || pair.key() == actor) {
+									continue;
+								}
+
+								TraitRigidBody* const actorTraitRB = getTrait<TraitRigidBody>(pair.key());
+								bool applyRotation = true;
+								if (actorTraitRB) {
+									const btVector3 actorAngFactor = actorTraitRB->getRigidBody()->getBulletRigidBody()->getAngularFactor();
+
+									applyRotation &= isEpsEqual(actorAngFactor.getX(), 1.f);
+									applyRotation &= isEpsEqual(actorAngFactor.getY(), 1.f);
+									applyRotation &= isEpsEqual(actorAngFactor.getZ(), 1.f);
+								}
+
+								transf3d newActorTform = pair.key()->getTransform();
+								if (applyRotation) {
+									newActorTform = diffTransform * newActorTform;
+								} else {
+									newActorTform.p = (diffTransform * newActorTform).p;
+								}
+
+								pair.key()->setTransform(newActorTform, false);
+							}
+						}
+
+						actor->setTransform(newTransfrom, true);
+					}
 				}
-
-				transf3d newActorTform = pair.key()->getTransform();
-				if (applyRotation) {
-					newActorTform = diffTransform * newActorTform;
-				} else {
-					newActorTform.p = (diffTransform * newActorTform).p;
-				}
-
-				pair.key()->setTransform(newActorTform, false);
-			}
-		}
-
-		if (targetActor) {
-			if (!isInEditMode || (isInEditMode && doesEditModeNeedsUpdate)) {
-				targetActor->setTransform(newTransfrom, true);
 			}
 		}
 
@@ -419,10 +475,6 @@ void ATimeline::postUpdate(const GameUpdateSets& u) {
 
 void ATimeline::doAttributeEditor(GameInspector* inspector) {
 	MemberChain chain;
-
-	chain.add(typeLib().findMember(&ATimeline::targetActorId));
-	ProperyEditorUIGen::doMemberUI(*inspector, this, chain);
-	chain.pop();
 
 	chain.add(typeLib().findMember(&ATimeline::m_isEnabled));
 	ProperyEditorUIGen::doMemberUI(*inspector, this, chain);
@@ -444,7 +496,7 @@ void ATimeline::doAttributeEditor(GameInspector* inspector) {
 	ProperyEditorUIGen::doMemberUI(*inspector, this, chain);
 	chain.pop();
 
-	if (ImGui::Button("Edit")) {
+	if (ImGui::Button(ICON_FK_FILM " Animate")) {
 		std::string windowName = string_format(ICON_FK_TIMES " Timeline %s##%d", this->getDisplayName().c_str(), this->getId().id);
 
 		IImGuiWindow* wnd = getEngineGlobal()->findWindowByName(windowName.c_str());
@@ -453,6 +505,23 @@ void ATimeline::doAttributeEditor(GameInspector* inspector) {
 		} else {
 			getEngineGlobal()->addWindow(new TimelineWindow(windowName.c_str(), this));
 		}
+	}
+
+	chain.add(typeLib().findMember(&ATimeline::relativeMode));
+	ProperyEditorUIGen::doMemberUI(*inspector, this, chain);
+	chain.pop();
+
+	chain.add(typeLib().findMember(&ATimeline::relativeModeOrigin));
+	ProperyEditorUIGen::doMemberUI(*inspector, this, chain);
+	chain.pop();
+
+	if (ImGui::Button(ICON_FK_CROP " Set Current Position As Relative Origin")) {
+		transf3d newOrigin = this->getTransform();
+
+		CmdMemberChange* cmd = new CmdMemberChange();
+		chain.add(typeLib().findMember(&ATimeline::relativeModeOrigin));
+		cmd->setup(this->getId(), chain, &relativeModeOrigin, &newOrigin, nullptr);
+		inspector->appendCommand(cmd, true);
 	}
 }
 

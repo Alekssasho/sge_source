@@ -5,8 +5,9 @@
 namespace sge {
 
 bool AssetProperty::update() {
-	if (isUpToDate())
+	if (isUpToDate()) {
 		return false;
+	}
 
 	m_currentAsset = m_targetAsset;
 	if (m_currentAsset.empty() == false) {
@@ -65,9 +66,9 @@ const SpriteAnimationAsset* AssetProperty::getAssetSprite() const {
 }
 
 void AssetProperty::setAsset(std::shared_ptr<Asset>& asset) {
-		m_asset = asset;
-		m_targetAsset = asset->getPath();
-		m_currentAsset = m_asset->getPath();
+	m_asset = asset;
+	m_targetAsset = asset->getPath();
+	m_currentAsset = m_asset->getPath();
 }
 
 void AssetProperty::setTargetAsset(const char* const assetPath) {

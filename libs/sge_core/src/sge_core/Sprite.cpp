@@ -48,66 +48,73 @@ bool SpriteAnimation::importSprite(SpriteAnimation& outSprite, const char* const
 }
 
 bool SpriteAnimation::importFromAsepriteSpriteSheetJsonFile(SpriteAnimation& outSprite, const char* const filename) {
-	outSprite = SpriteAnimation();
+	try {
+		outSprite = SpriteAnimation();
 
-	FileReadStream frs;
-	frs.open(filename);
-	if (!frs.open(filename)) {
+		FileReadStream frs;
+		frs.open(filename);
+		if (!frs.open(filename)) {
+			return false;
+		}
+
+		JsonParser jp;
+		if (jp.parse(&frs) == false) {
+			return false;
+		}
+
+		const JsonValue* const jRoot = jp.getRoot();
+		const JsonValue* const jMeta = jRoot->getMember("meta");
+
+		if (!jRoot || !jMeta) {
+			return false;
+		}
+
+		outSprite.texturePath = jMeta->getMemberOrThrow("image").GetStringOrThrow();
+
+		auto jMetaSize = jMeta->getMemberOrThrow("size");
+		float fFullSheetWidth = jMetaSize.getMemberOrThrow("w").getNumberAsOrThrow<float>();
+		float fFullSheetHeight = jMetaSize.getMemberOrThrow("h").getNumberAsOrThrow<float>();
+
+		const JsonValue* const jFrames = jRoot->getMember("frames");
+
+		if (!jFrames || jFrames->jid != JID_ARRAY) {
+			sgeAssert("Importing Aseprite Sprite Sheets in 'hash' mode is not supported. Use 'array'");
+			return false;
+		}
+
+		float totalAnimationDuration = 0.f;
+		for (int iFrame = 0; iFrame < jFrames->arrSize(); ++iFrame) {
+			const JsonValue* const jFrame = jFrames->arrAt(iFrame);
+			if (!jFrame) {
+				return false;
+			}
+
+			const JsonValue& jRegion = jFrame->getMemberOrThrow("frame");
+			const int x = jRegion.getMemberOrThrow("x").getNumberAsOrThrow<int>();
+			const int y = jRegion.getMemberOrThrow("y").getNumberAsOrThrow<int>();
+			const int w = jRegion.getMemberOrThrow("w").getNumberAsOrThrow<int>();
+			const int h = jRegion.getMemberOrThrow("h").getNumberAsOrThrow<int>();
+
+			Frame frame;
+			frame.xy = vec2i(x, y);
+			frame.wh = vec2i(w, h);
+			frame.uvRegion =
+			    vec4f(float(x) / fFullSheetWidth, float(y) / fFullSheetHeight, float(w) / fFullSheetWidth, float(h) / fFullSheetHeight);
+			frame.uvRegion.z += frame.uvRegion.x;
+			frame.uvRegion.w += frame.uvRegion.y;
+			frame.frameStart = totalAnimationDuration;
+			// Aseprite store duration in miliseconds while we need seconds.
+			frame.duration = (float)(jFrame->getMemberOrThrow("duration").getNumberAsOrThrow<int>()) / 1000.f;
+
+			outSprite.frames.push_back(frame);
+
+			totalAnimationDuration += frame.duration;
+		}
+
+		outSprite.animationDuration = totalAnimationDuration;
+	} catch (...) {
 		return false;
 	}
-
-	JsonParser jp;
-	if (jp.parse(&frs) == false) {
-		return false;
-	}
-
-	const JsonValue* const jRoot = jp.getRoot();
-	const JsonValue* const jMeta = jRoot->getMember("meta");
-
-	if (!jRoot || !jMeta) {
-		return false;
-	}
-
-	const char* const imageDirRaw = jMeta->getMember("image")->GetString();
-	const float fFullSheetWidth = (jMeta->getMember("size")->getMember("w")->getNumberAs<float>());
-	const float fFullSheetHeight = (jMeta->getMember("size")->getMember("h")->getNumberAs<float>());
-	const JsonValue* const jFrames = jRoot->getMember("frames");
-
-	if (jFrames->jid != JID_ARRAY) {
-		sgeAssert("Importing Aseprite Sprite Sheets in 'hash' mode is not supported. Use 'array'");
-		return false;
-	}
-
-	outSprite.texturePath = imageDirRaw;
-
-	float totalAnimationDuration = 0.f;
-
-	for (int iFrame = 0; iFrame < jFrames->arrSize(); ++iFrame) {
-		const JsonValue* const jFrame = jFrames->arrAt(iFrame);
-
-		const JsonValue* const jRegion = jFrame->getMember("frame");
-		const int x = jRegion->getMember("x")->getNumberAs<int>();
-		const int y = jRegion->getMember("y")->getNumberAs<int>();
-		const int w = jRegion->getMember("w")->getNumberAs<int>();
-		const int h = jRegion->getMember("h")->getNumberAs<int>();
-
-		Frame frame;
-		frame.xy = vec2i(x, y);
-		frame.wh = vec2i(w, h);
-		frame.uvRegion =
-		    vec4f(float(x) / fFullSheetWidth, float(y) / fFullSheetHeight, float(w) / fFullSheetWidth, float(h) / fFullSheetHeight);
-		frame.uvRegion.z += frame.uvRegion.x;
-		frame.uvRegion.w += frame.uvRegion.y;
-		frame.frameStart = totalAnimationDuration;
-		// Aseprite store duration in miliseconds while we need seconds.
-		frame.duration = (float)(jFrame->getMember("duration")->getNumberAs<int>()) / 1000.f;
-
-		outSprite.frames.push_back(frame);
-
-		totalAnimationDuration += frame.duration;
-	}
-
-	outSprite.animationDuration = totalAnimationDuration;
 
 	return true;
 }
