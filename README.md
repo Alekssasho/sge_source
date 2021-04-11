@@ -1,3 +1,5 @@
+
+
 Work-in-Progress The official "early alpha" release should be available around April 2021
 
 # SGEEngine
@@ -17,8 +19,13 @@ __The main features of the engine are:__
  - Direct3D 11 and OpenGL 3.3 (with WebGL in mind) rendering backends possible.
  - Physics.
  - Path finding.
+
  - Importing external assets like FBX, DAE and OBJ (with Autodesk FBX SDK)
   - Rich math library.
+ - Timeline animations.
+
+[](https://user-images.githubusercontent.com/6237727/114287179-95c8a700-9a6d-11eb-9fdd-54009834ef2f.mp4)
+>>>>>>> 2210545169dc35f6df4587bfc08a7d56cc5110d1
 
  __Roadmap:__
   - Flexible rendering pipeline.
