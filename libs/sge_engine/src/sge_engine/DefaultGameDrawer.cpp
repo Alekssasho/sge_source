@@ -591,7 +591,7 @@ void DefaultGameDrawer::drawTraitTexturedPlane(TraitTexturedPlane* traitTexPlane
 			const mat4f anchorAlignMtx = traitTexPlane->getAnchorAlignMtxOS();
 			const mat4f billboardFacingMtx =
 			    billboarding_getOrentationMtx(traitTexPlane->m_billboarding, actor->getTransform(),
-			                                  drawSets.drawCamera->getCameraPosition(), drawSets.drawCamera->getView());
+			                                  drawSets.drawCamera->getCameraPosition(), drawSets.drawCamera->getView(), false);
 			const mat4f objToWorld = billboardFacingMtx * anchorAlignMtx * localOffsetmtx;
 
 			Geometry texPlaneGeom = m_texturedPlaneDraw.getGeometry(drawSets.rdest.getDevice());
@@ -717,7 +717,7 @@ void DefaultGameDrawer::drawTraitStaticModel(TraitModel* modelTrait,
 				                                                                           float(texture->getDesc().texture2D.height));
 				const mat4f billboardFacingMtx =
 				    billboarding_getOrentationMtx(modelTrait->imageSettings.m_billboarding, actor->getTransform(),
-				                                  drawSets.drawCamera->getCameraPosition(), drawSets.drawCamera->getView());
+				                                  drawSets.drawCamera->getCameraPosition(), drawSets.drawCamera->getView(), modelTrait->imageSettings.defaultFacingAxisZ);
 				const mat4f objToWorld = billboardFacingMtx * anchorAlignMtx * localOffsetmtx * modelTrait->m_additionalTransform;
 
 				Geometry texPlaneGeom = m_texturedPlaneDraw.getGeometry(drawSets.rdest.getDevice());
@@ -743,7 +743,7 @@ void DefaultGameDrawer::drawTraitStaticModel(TraitModel* modelTrait,
 				const mat4f anchorAlignMtx = modelTrait->imageSettings.getAnchorAlignMtxOS(float(frame->wh.x), float(frame->wh.y));
 				const mat4f billboardFacingMtx =
 				    billboarding_getOrentationMtx(modelTrait->imageSettings.m_billboarding, actor->getTransform(),
-				                                  drawSets.drawCamera->getCameraPosition(), drawSets.drawCamera->getView());
+				                                  drawSets.drawCamera->getCameraPosition(), drawSets.drawCamera->getView(), modelTrait->imageSettings.defaultFacingAxisZ);
 				const mat4f objToWorld = billboardFacingMtx * anchorAlignMtx * localOffsetmtx * modelTrait->m_additionalTransform;
 
 				Geometry texPlaneGeom = m_texturedPlaneDraw.getGeometry(drawSets.rdest.getDevice());

@@ -27,6 +27,7 @@ ReflBlock() {
 
 	ReflAddType(TraitModel::ImageSettings)
 		ReflMember(TraitModel::ImageSettings, m_anchor)
+		ReflMember(TraitModel::ImageSettings, defaultFacingAxisZ)
 		ReflMember(TraitModel::ImageSettings, m_localXOffset).uiRange(-FLT_MAX, FLT_MAX, 0.01f)
 		ReflMember(TraitModel::ImageSettings, m_pixelsPerUnit).uiRange(0.00001f, 100000.f, 0.1f)
 		ReflMember(TraitModel::ImageSettings, m_billboarding)

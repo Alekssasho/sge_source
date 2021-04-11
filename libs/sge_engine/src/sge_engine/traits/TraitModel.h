@@ -114,6 +114,8 @@ struct SGE_ENGINE_API TraitModel : public Trait {
 
 	/// @brief A struct holding the rendering options of a sprite or a texture in 3D.
 	struct ImageSettings {
+
+		/// @brief Computes the object-to-node transformation of the sprite so i has its origin in the deisiered location.
 		mat4f getAnchorAlignMtxOS(float imageWidth, float imageHeight) const {
 			const float sz = imageWidth / m_pixelsPerUnit;
 			const float sy = imageHeight / m_pixelsPerUnit;
@@ -144,6 +146,9 @@ struct SGE_ENGINE_API TraitModel : public Trait {
 		/// @brief if true the plane will not get any culling applied. Useful if we want the
 		/// texture to be visible from both sides.
 		bool forceNoCulling = true;
+
+		/// @brief If true, the sprite plane will, by default look towards +Z, otherwise it will be facing +X.
+		bool defaultFacingAxisZ = true;
 
 		float spriteFrameTime = 0.f;
 	};

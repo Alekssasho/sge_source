@@ -565,8 +565,7 @@ void AssetLibrary::scanForAvailableAssets(const char* const path) {
 					} else {
 						markThatAssetExists(entry.path().generic_u8string().c_str(), AssetType::TextureView);
 					}
-				} else if (ext == ".json") {
-					// todo 08-2019 change json extension for sprites to something else.
+				} else if (ext == ".sprite") {
 					markThatAssetExists(entry.path().generic_u8string().c_str(), AssetType::Sprite);
 				}
 			}

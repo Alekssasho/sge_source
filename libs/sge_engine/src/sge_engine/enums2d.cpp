@@ -41,13 +41,16 @@ mat4f anchor_getPlaneAlignMatrix(const Anchor anchor, const vec2f& planeSizeZY) 
 	}
 }
 
-mat4f billboarding_getOrentationMtx(const Billboarding billboarding,
-                                    const transf3d& objectTr,
-                                    const vec3f& camPos,
-                                    const mat4f& camViewMtx) {
+mat4f billboarding_getOrentationMtx(
+    const Billboarding billboarding, const transf3d& objectTr, const vec3f& camPos, const mat4f& camViewMtx, const bool makeFacingPosZ) {
 	switch (billboarding) {
 		case billboarding_none: {
-			return objectTr.toMatrix();
+			mat4f result = objectTr.toMatrix();
+
+			if (makeFacingPosZ) {
+				result = result * mat4f::getRotationY(deg2rad(-90.f));
+			}
+			return result;
 		} break;
 		case billboarding_yOnly: {
 			vec3f diff = objectTr.p - camPos;
@@ -55,8 +58,9 @@ mat4f billboarding_getOrentationMtx(const Billboarding billboarding,
 			transf3d trNoRotation = objectTr;
 			trNoRotation.r = quatf::getIdentity();
 
-			return trNoRotation.toMatrix() * mat4f::getRotationY(angle);
-		};
+			mat4f result = trNoRotation.toMatrix() * mat4f::getRotationY(angle);
+			return result;
+		} break;
 		case billboarding_faceCamera: {
 			transf3d trNoRotation = objectTr;
 			trNoRotation.r = quatf::getIdentity();
@@ -65,8 +69,9 @@ mat4f billboarding_getOrentationMtx(const Billboarding billboarding,
 			faceCameraMtx.c3 = vec4f(0.f, 0.f, 0.f, 1.f);                                 // kill the translation.
 			faceCameraMtx = inverse(faceCameraMtx) * mat4f::getRotationY(-deg2rad(90.f)); // TODO: Optimize.
 
-			return trNoRotation.toMatrix() * faceCameraMtx;
-		};
+			mat4f result = trNoRotation.toMatrix() * faceCameraMtx;
+			return result;
+		} break;
 		default: {
 			sgeAssert(false && "Unknown Billboarding type");
 			return objectTr.toMatrix();
