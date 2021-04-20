@@ -119,7 +119,6 @@ bool ShaderGL::createNative(const ShaderType::Enum type, const char* pCode, cons
 		// Obtain the error message.
 		GLint logLenght = 0;// The lenght of the error message.
 		glGetShaderiv(m_glShader, GL_INFO_LOG_LENGTH, &logLenght);
-
 		if(logLenght != 0)
 		{
 			GLint temp;

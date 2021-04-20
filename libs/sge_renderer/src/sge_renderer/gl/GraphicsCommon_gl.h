@@ -8,7 +8,9 @@ namespace sge {
 GLenum ResourceUsage_GetGLNative(const ResourceUsage::Enum type);
 
 // GL_READ_ONLY, GL_WRITE_ONLY, or GL_READ_WRITE
+#if !defined(__EMSCRIPTEN__)
 GLenum Map_GetGLNative(const Map::Enum map);
+#endif
 
 void TextureFormat_GetGLNative(const TextureFormat::Enum format, GLint& glInternalFormat, GLenum& glFormat, GLenum& glType);
 
@@ -23,7 +25,9 @@ void UniformType_ToGLUniformType(const UniformType::Enum type, GLenum& glType, G
 
 GLenum ShaderType_GetGLNative(const ShaderType::Enum type);
 
+#if !defined(__EMSCRIPTEN__)
 GLenum FillMode_GetGLNative(const FillMode::Enum& fillMode);
+#endif
 
 GLenum CullMode_GetGLNative(const CullMode::Enum& cullMode);
 

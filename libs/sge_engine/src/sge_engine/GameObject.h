@@ -256,14 +256,18 @@ struct SGE_ENGINE_API Trait {
 	GameObject* m_owner = nullptr;
 };
 
+/// Defines a trait that is going to be inherited and extended
+/// Enabling to have different kinds of the same trait.
 #define SGE_TraitDecl_Base(BaseTrait) \
 	typedef BaseTrait TraitFamily;    \
 	TypeId getFamily() const final { return sgeTypeId(BaseTrait); }
 
+/// Defines that this is the last override of the trait that we've extended.
 #define SGE_TraitDecl_Final(TraitSelf) \
 	typedef TraitSelf TraitType;       \
 	//TypeId getExactType() const final { return sgeTypeId(TraitSelf); } \
 
+/// Defines a trait that is not going to be extendable ready to be used directly in game objects.
 #define SGE_TraitDecl_Full(TraitSelf)                               \
 	typedef TraitSelf TraitFamily;                                  \
 	typedef TraitSelf TraitType;                                    \

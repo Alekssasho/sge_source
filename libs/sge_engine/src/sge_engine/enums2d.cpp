@@ -26,7 +26,7 @@ mat4f anchor_getPlaneAlignMatrix(const Anchor anchor, const vec2f& planeSizeZY) 
 
 	switch (anchor) {
 		case anchor_bottomLeft: {
-			return orientationMtx;
+			return mat4f::getTranslation(0.f, -0.f, -planeSizeZY.x) * orientationMtx;
 		};
 		case anchor_bottomMid: {
 			return mat4f::getTranslation(0.f, 0.f, -planeSizeZY.x * 0.5f) * orientationMtx;
@@ -34,6 +34,9 @@ mat4f anchor_getPlaneAlignMatrix(const Anchor anchor, const vec2f& planeSizeZY) 
 		case anchor_mid: {
 			return mat4f::getTranslation(0.f, -planeSizeZY.y * 0.5f, -planeSizeZY.x * 0.5f) * orientationMtx;
 		}
+		case anchor_topLeft: {
+			return mat4f::getTranslation(0.f, -planeSizeZY.y, -planeSizeZY.x) * orientationMtx;
+		};
 		default: {
 			sgeAssert(false && "Unknown Anchor type");
 			return orientationMtx;

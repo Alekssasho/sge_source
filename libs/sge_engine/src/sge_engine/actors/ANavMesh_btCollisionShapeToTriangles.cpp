@@ -352,7 +352,7 @@ bool btBvhTriangleMeshShapeToTriangles(const btBvhTriangleMeshShape* bvhTriMeshS
 	const btStridingMeshInterface* const bulletMeshInterface = bvhTriMeshShape->getMeshInterface();
 
 	if (bulletMeshInterface == nullptr) {
-		return nullptr;
+		return false;
 	}
 
 	auto processTriangle = [&](btVector3 triangleVertsScaled[3]) -> void {

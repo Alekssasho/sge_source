@@ -1,5 +1,5 @@
-#include <iostream>
 #include "sge_utils/utils/timer.h"
+#include <iostream>
 
 #include "GraphicsCommon_gl.h"
 #include "GraphicsInterface_gl.h"
@@ -99,16 +99,20 @@ bool SGEDeviceImpl::Create(const MainFrameTargetDesc& frameTargetDesc) {
 #endif
 	DumpAllGLErrors();
 
+#if !defined(__EMSCRIPTEN__)
 	glewExperimental = true;
 	if (glewInit() != GLEW_OK) {
 		sgeAssert(false);
 		return false;
 	}
+#endif
+
+
 
 	DumpAllGLErrors();
 
-	[[maybe_unused]] const GLubyte* glVersion = glGetString(GL_VERSION);
-	//SGE_DEBUG_LOG("OpenGL Version = %s\n", glVersion);
+	//[[maybe_unused]] const GLubyte* glVersion = glGetString(GL_VERSION);
+	// SGE_DEBUG_LOG("OpenGL Version = %s\n", glVersion);
 
 	m_immContext = new SGEContextImmediate;
 	m_immContext->SetSGEDevice(this);
@@ -118,8 +122,8 @@ bool SGEDeviceImpl::Create(const MainFrameTargetDesc& frameTargetDesc) {
 
 	setVsync(frameTargetDesc.vSync);
 
-	[[maybe_unused]] const GLubyte* vendor = glGetString(GL_VENDOR);     // Returns the vendor
-	[[maybe_unused]] const GLubyte* renderer = glGetString(GL_RENDERER); // Returns a hint to the model
+	//[[maybe_unused]] const GLubyte* vendor = glGetString(GL_VENDOR);     // Returns the vendor
+	//[[maybe_unused]] const GLubyte* renderer = glGetString(GL_RENDERER); // Returns a hint to the model
 
 	// SGE_DEBUG_LOG("Vendor = %s\nRenderer = %s\n", vendor, renderer);
 
@@ -309,12 +313,13 @@ void SGEContextImmediate::clearDepth(FrameTarget* target, float depth) {
 	const GLuint fbo = ((FrameTargetGL*)target)->GL_GetResource();
 	GL_GetContextStateCache()->BindFBO(fbo);
 
-#if 1
-	glClearDepth(depth);
+#if defined(__EMSCRIPTEN__)
+	glClearDepthf(depth);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	DumpAllGLErrors();
 #else
-	glClearBufferfv(GL_DEPTH, 0, &depth);
+	glClearDepth(depth);
+	glClear(GL_DEPTH_BUFFER_BIT);
 	DumpAllGLErrors();
 #endif
 }
@@ -432,9 +437,11 @@ void SGEContextImmediate::executeDrawCall(DrawCall& drawCall,
 			case UniformType::Texture3D: {
 				GLenum textureTarget = GL_NONE;
 				switch (uniformType) {
+#if !defined(__EMSCRIPTEN__)
 					case UniformType::Texture1D:
 						textureTarget = GL_TEXTURE_1D;
 						break;
+#endif
 					case UniformType::Texture2D:
 						textureTarget = GL_TEXTURE_2D;
 						break;
@@ -455,10 +462,10 @@ void SGEContextImmediate::executeDrawCall(DrawCall& drawCall,
 					// Bind the texture.
 					TextureGL* const textureGL = ((TextureGL*)(binding.texture));
 					const GLint texture = textureGL ? ((TextureGL*)(binding.texture))->GL_GetResource() : GL_NONE;
-					glcon->BindTextureEx(textureTarget, GL_TEXTURE0 + binding.bindLocation.bindLocation, texture);
+					glcon->BindTextureEx(textureTarget, GL_TEXTURE0 + binding.bindLocation.glTextureUnit, texture);
 					DumpAllGLErrors();
 
-					glUniform1i(binding.bindLocation.bindLocation, binding.bindLocation.bindLocation);
+					glUniform1i(binding.bindLocation.bindLocation, binding.bindLocation.glTextureUnit);
 					DumpAllGLErrors();
 				} else {
 					for (int t = 0; t < binding.bindLocation.glArraySize; ++t) {
@@ -583,62 +590,102 @@ void SGEContextImmediate::executeDrawCall(DrawCall& drawCall,
 	getDeviceImpl()->m_frameStatistics.numPrimitiveDrawn += numPrimitivesDrawn;
 }
 
-void glDebugOutput(GLenum source, 
-                            GLenum type, 
-                            unsigned int id, 
-                            GLenum severity, 
-                            GLsizei UNUSED(length), 
-                            const char *message, 
-                            const void *UNUSED(userParam))
-{
-    // ignore non-significant error/warning codes
-    //if(id == 131169 || id == 131185 || id == 131218 || id == 131204) return; 
+#if !defined(__EMSCRIPTEN__)
+void glDebugOutput(GLenum source,
+                   GLenum type,
+                   unsigned int id,
+                   GLenum severity,
+                   GLsizei UNUSED(length),
+                   const char* message,
+                   const void* UNUSED(userParam)) {
+	// ignore non-significant error/warning codes
+	// if(id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
 
-    std::cout << "---------------" << std::endl;
-    std::cout << "Debug message (" << id << "): " <<  message << std::endl;
+	std::cout << "---------------" << std::endl;
+	std::cout << "Debug message (" << id << "): " << message << std::endl;
 
-    switch (source)
-    {
-        case GL_DEBUG_SOURCE_API:             std::cout << "Source: API"; break;
-        case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   std::cout << "Source: Window System"; break;
-        case GL_DEBUG_SOURCE_SHADER_COMPILER: std::cout << "Source: Shader Compiler"; break;
-        case GL_DEBUG_SOURCE_THIRD_PARTY:     std::cout << "Source: Third Party"; break;
-        case GL_DEBUG_SOURCE_APPLICATION:     std::cout << "Source: Application"; break;
-        case GL_DEBUG_SOURCE_OTHER:           std::cout << "Source: Other"; break;
-    } std::cout << std::endl;
+	switch (source) {
+		case GL_DEBUG_SOURCE_API:
+			std::cout << "Source: API";
+			break;
+		case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+			std::cout << "Source: Window System";
+			break;
+		case GL_DEBUG_SOURCE_SHADER_COMPILER:
+			std::cout << "Source: Shader Compiler";
+			break;
+		case GL_DEBUG_SOURCE_THIRD_PARTY:
+			std::cout << "Source: Third Party";
+			break;
+		case GL_DEBUG_SOURCE_APPLICATION:
+			std::cout << "Source: Application";
+			break;
+		case GL_DEBUG_SOURCE_OTHER:
+			std::cout << "Source: Other";
+			break;
+	}
+	std::cout << std::endl;
 
-    switch (type)
-    {
-        case GL_DEBUG_TYPE_ERROR:               std::cout << "Type: Error"; break;
-        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: std::cout << "Type: Deprecated Behaviour"; break;
-        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  std::cout << "Type: Undefined Behaviour"; break; 
-        case GL_DEBUG_TYPE_PORTABILITY:         std::cout << "Type: Portability"; break;
-        case GL_DEBUG_TYPE_PERFORMANCE:         std::cout << "Type: Performance"; break;
-        case GL_DEBUG_TYPE_MARKER:              std::cout << "Type: Marker"; break;
-        case GL_DEBUG_TYPE_PUSH_GROUP:          std::cout << "Type: Push Group"; break;
-        case GL_DEBUG_TYPE_POP_GROUP:           std::cout << "Type: Pop Group"; break;
-        case GL_DEBUG_TYPE_OTHER:               std::cout << "Type: Other"; break;
-    } std::cout << std::endl;
-    
-    switch (severity)
-    {
-        case GL_DEBUG_SEVERITY_HIGH:         std::cout << "Severity: high"; break;
-        case GL_DEBUG_SEVERITY_MEDIUM:       std::cout << "Severity: medium"; break;
-        case GL_DEBUG_SEVERITY_LOW:          std::cout << "Severity: low"; break;
-        case GL_DEBUG_SEVERITY_NOTIFICATION: std::cout << "Severity: notification"; break;
-    } std::cout << std::endl;
-    std::cout << std::endl;
+	switch (type) {
+		case GL_DEBUG_TYPE_ERROR:
+			std::cout << "Type: Error";
+			break;
+		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+			std::cout << "Type: Deprecated Behaviour";
+			break;
+		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+			std::cout << "Type: Undefined Behaviour";
+			break;
+		case GL_DEBUG_TYPE_PORTABILITY:
+			std::cout << "Type: Portability";
+			break;
+		case GL_DEBUG_TYPE_PERFORMANCE:
+			std::cout << "Type: Performance";
+			break;
+		case GL_DEBUG_TYPE_MARKER:
+			std::cout << "Type: Marker";
+			break;
+		case GL_DEBUG_TYPE_PUSH_GROUP:
+			std::cout << "Type: Push Group";
+			break;
+		case GL_DEBUG_TYPE_POP_GROUP:
+			std::cout << "Type: Pop Group";
+			break;
+		case GL_DEBUG_TYPE_OTHER:
+			std::cout << "Type: Other";
+			break;
+	}
+	std::cout << std::endl;
+
+	switch (severity) {
+		case GL_DEBUG_SEVERITY_HIGH:
+			std::cout << "Severity: high";
+			break;
+		case GL_DEBUG_SEVERITY_MEDIUM:
+			std::cout << "Severity: medium";
+			break;
+		case GL_DEBUG_SEVERITY_LOW:
+			std::cout << "Severity: low";
+			break;
+		case GL_DEBUG_SEVERITY_NOTIFICATION:
+			std::cout << "Severity: notification";
+			break;
+	}
+	std::cout << std::endl;
+	std::cout << std::endl;
 }
+#endif
 
 SGEDevice* SGEDevice::create(const MainFrameTargetDesc& frameTargetDesc) {
 	SGEDeviceImpl* s = new SGEDeviceImpl();
 	s->Create(frameTargetDesc);
 
+#if !defined(__EMSCRIPTEN__)
 	glEnable(GL_DEBUG_OUTPUT);
-    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); 
-    glDebugMessageCallback(glDebugOutput, nullptr);
-    glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-
+	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+	glDebugMessageCallback(glDebugOutput, nullptr);
+	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+#endif
 	return s;
 }
 
@@ -712,8 +759,8 @@ DepthStencilState* SGEDeviceImpl::requestDepthStencilState(const DepthStencilDes
 
 	// Create the new resource;
 	DepthStencilState* const state = (DepthStencilState*)requestResource(ResourceType::DepthStencilState);
-	state->create(desc); 
-	sgeAssert(state->isValid());  
+	state->create(desc);
+	sgeAssert(state->isValid());
 
 	// Add the 1 ref to the resource (this cointainer holds it).
 	state->addRef();

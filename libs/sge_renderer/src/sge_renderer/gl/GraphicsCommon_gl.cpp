@@ -23,6 +23,7 @@ GLenum ResourceUsage_GetGLNative(const ResourceUsage::Enum type) {
 //
 // GL_READ_ONLY, GL_WRITE_ONLY, or GL_READ_WRITE
 //------------------------------------------------------------------------------
+#if !defined(__EMSCRIPTEN__)
 GLenum Map_GetGLNative(const Map::Enum map) {
 	switch (map) {
 		case Map::Read:
@@ -38,6 +39,7 @@ GLenum Map_GetGLNative(const Map::Enum map) {
 	sgeAssert(false); // Unknown type
 	return GL_READ_ONLY;
 }
+#endif
 
 //------------------------------------------------------------------------------
 // TextureFormat
@@ -85,9 +87,11 @@ void TextureFormat_GetGLNative(const TextureFormat::Enum format, GLint& glIntern
 			glType = GL_HALF_FLOAT;
 			return;
 		case TextureFormat::R16G16B16A16_UNORM:
+#if !defined(__EMSCRIPTEN__)
 			glInternalFormat = GL_RGBA16;
 			glFormat = GL_RGBA;
 			glType = GL_UNSIGNED_SHORT;
+#endif
 			return;
 		case TextureFormat::R16G16B16A16_UINT:
 			glInternalFormat = GL_RGBA16UI;
@@ -95,9 +99,11 @@ void TextureFormat_GetGLNative(const TextureFormat::Enum format, GLint& glIntern
 			glType = GL_UNSIGNED_SHORT;
 			return;
 		case TextureFormat::R16G16B16A16_SNORM:
+#if !defined(__EMSCRIPTEN__)
 			glInternalFormat = GL_RGBA16_SNORM;
 			glFormat = GL_RGBA;
 			glType = GL_SHORT;
+#endif
 			return;
 		case TextureFormat::R16G16B16A16_SINT:
 			glInternalFormat = GL_RGBA16I;
@@ -119,6 +125,7 @@ void TextureFormat_GetGLNative(const TextureFormat::Enum format, GLint& glIntern
 			glFormat = GL_RG_INTEGER;
 			glType = GL_INT;
 			return;
+#if !defined(__EMSCRIPTEN__)
 		case TextureFormat::R10G10B10A2_UNORM:
 			glInternalFormat = GL_RGB10_A2;
 			glFormat = GL_RGBA;
@@ -129,13 +136,14 @@ void TextureFormat_GetGLNative(const TextureFormat::Enum format, GLint& glIntern
 			glFormat = GL_RGBA_INTEGER;
 			glType = GL_UNSIGNED_INT_10_10_10_2;
 			return;
+#endif
 		case TextureFormat::R11G11B10_FLOAT:
 			glInternalFormat = GL_R11F_G11F_B10F;
 			glFormat = GL_RGB;
 			glType = GL_UNSIGNED_INT_10F_11F_11F_REV;
 			return;
 		case TextureFormat::R8G8B8A8_UNORM:
-			glInternalFormat = GL_RGBA8;
+			glInternalFormat = GL_RGBA; // GL_RGBA8 works on Desktop but not on WebGL for some alien reason.
 			glFormat = GL_RGBA;
 			glType = GL_UNSIGNED_BYTE;
 			return;
@@ -159,6 +167,7 @@ void TextureFormat_GetGLNative(const TextureFormat::Enum format, GLint& glIntern
 			glFormat = GL_RGBA_INTEGER;
 			glType = GL_BYTE;
 			return;
+#if !defined(__EMSCRIPTEN__)
 		case TextureFormat::R16G16_FLOAT:
 			glInternalFormat = GL_RG16F;
 			glFormat = GL_RG;
@@ -184,6 +193,7 @@ void TextureFormat_GetGLNative(const TextureFormat::Enum format, GLint& glIntern
 			glFormat = GL_RG_INTEGER;
 			glType = GL_SHORT;
 			return;
+#endif
 		case TextureFormat::R32_FLOAT:
 			glInternalFormat = GL_R32F;
 			glFormat = GL_RED;
@@ -219,6 +229,7 @@ void TextureFormat_GetGLNative(const TextureFormat::Enum format, GLint& glIntern
 			glFormat = GL_RG_INTEGER;
 			glType = GL_BYTE;
 			return;
+#if !defined(__EMSCRIPTEN__)
 		case TextureFormat::R16_FLOAT:
 			glInternalFormat = GL_R16F;
 			glFormat = GL_RED;
@@ -244,6 +255,7 @@ void TextureFormat_GetGLNative(const TextureFormat::Enum format, GLint& glIntern
 			glFormat = GL_RED_INTEGER;
 			glType = GL_SHORT;
 			return;
+#endif
 		case TextureFormat::R8_UNORM:
 			glInternalFormat = GL_R8;
 			glFormat = GL_RED;
@@ -264,12 +276,12 @@ void TextureFormat_GetGLNative(const TextureFormat::Enum format, GLint& glIntern
 			glFormat = GL_RED_INTEGER;
 			glType = GL_BYTE;
 			return;
+#if !defined(__EMSCRIPTEN__)
 		case TextureFormat::A8_UNORM:
 			glInternalFormat = GL_ALPHA8;
 			glFormat = GL_ALPHA;
 			glType = GL_UNSIGNED_BYTE;
 			return;
-
 		case TextureFormat::BC1_UNORM:
 			glInternalFormat = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
 			glFormat = GL_NONE;
@@ -284,6 +296,13 @@ void TextureFormat_GetGLNative(const TextureFormat::Enum format, GLint& glIntern
 			glInternalFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
 			glFormat = GL_NONE;
 			glType = GL_NONE;
+			return;
+#endif
+
+		case TextureFormat::D24:
+			glInternalFormat = GL_DEPTH_COMPONENT24;
+			glFormat = GL_DEPTH_COMPONENT;
+			glType = GL_UNSIGNED_INT;
 			return;
 
 		case TextureFormat::D24_UNORM_S8_UINT:
@@ -307,17 +326,27 @@ void TextureFormat_GetGLNative(const TextureFormat::Enum format, GLint& glIntern
 //------------------------------------------------------------------------------
 GLenum TextureDesc_GetGLNativeTextureTartget(const TextureDesc& desc) {
 	if (desc.textureType == UniformType::Texture1D) {
+#if !defined(__EMSCRIPTEN__)
 		return desc.texture1D.arraySize == 1 ? GL_TEXTURE_1D : GL_TEXTURE_1D_ARRAY;
+#endif
 	} else if (desc.textureType == UniformType::Texture2D) {
 		if (desc.texture2D.numSamples == 1) {
 			return desc.texture2D.arraySize == 1 ? GL_TEXTURE_2D : GL_TEXTURE_2D_ARRAY;
 		} else {
+#if !defined(__EMSCRIPTEN__)
 			return desc.texture2D.arraySize == 1 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D_MULTISAMPLE_ARRAY;
+#endif
 		}
 	} else if (desc.textureType == UniformType::Texture3D) {
 		return GL_TEXTURE_3D;
 	} else if (desc.textureType == UniformType::TextureCube) {
+#if !defined(__EMSCRIPTEN__)
 		return (desc.textureCube.arraySize == 1) ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_CUBE_MAP_ARRAY;
+#else
+		if(desc.textureCube.arraySize == 1) {
+			return GL_TEXTURE_CUBE_MAP;
+		}
+#endif
 	}
 
 	// Should never happen.
@@ -341,6 +370,7 @@ UniformType::Enum UniformType_FromGLNumericUniformType(const GLenum uniformType)
 		case GL_FLOAT_VEC4:
 			return UniformType::Float4;
 
+#if !defined(__EMSCRIPTEN__)
 		case GL_DOUBLE:
 			return UniformType::Double;
 		case GL_DOUBLE_VEC2:
@@ -349,6 +379,7 @@ UniformType::Enum UniformType_FromGLNumericUniformType(const GLenum uniformType)
 			return UniformType::Double3;
 		case GL_DOUBLE_VEC4:
 			return UniformType::Double4;
+#endif
 
 		case GL_INT:
 			return UniformType::Int;
@@ -407,6 +438,7 @@ void UniformType_ToGLUniformType(const UniformType::Enum type, GLenum& glType, G
 			elemCnt = 4;
 			return;
 
+#if !defined(__EMSCRIPTEN__)
 		case UniformType::Double:
 			glType = GL_DOUBLE;
 			elemCnt = 1;
@@ -423,6 +455,7 @@ void UniformType_ToGLUniformType(const UniformType::Enum type, GLenum& glType, G
 			glType = GL_DOUBLE;
 			elemCnt = 4;
 			return;
+#endif
 
 		case UniformType::Int:
 			glType = GL_INT;
@@ -507,11 +540,13 @@ GLenum ShaderType_GetGLNative(const ShaderType::Enum type) {
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
+#if !defined(__EMSCRIPTEN__)
 GLenum FillMode_GetGLNative(const FillMode::Enum& fillMode) {
 	if (fillMode == FillMode::Solid)
 		return GL_FILL;
 	return GL_LINE;
 }
+#endif
 
 //------------------------------------------------------------------------------
 //
@@ -635,7 +670,11 @@ GLenum BlendOp_GetGLNative(BlendOp::Enum blendOp) {
 GLenum QueryType_GetGLnative(QueryType::Enum const queryType) {
 	switch (queryType) {
 		case QueryType::NumSamplesPassedDepthStencilTest:
+#if !defined(__EMSCRIPTEN__)
 			return GL_SAMPLES_PASSED;
+#else
+			break;
+#endif
 		case QueryType::AnySamplePassedDepthStencilTest:
 			return GL_ANY_SAMPLES_PASSED;
 	}

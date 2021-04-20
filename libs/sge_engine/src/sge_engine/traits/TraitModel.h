@@ -123,6 +123,9 @@ struct SGE_ENGINE_API TraitModel : public Trait {
 			const mat4f anchorAlineMtx = anchor_getPlaneAlignMatrix(m_anchor, vec2f(sz, sy));
 			return anchorAlineMtx;
 		}
+		
+		/// Adds a color tint to the final color and the alpha of the object.
+		vec4f colorTint = vec4f(1.f);
 
 		// Sprite and texture drawing.
 		/// @brief Describes where the (0,0,0) point of the plane should be relative to the object.
@@ -150,6 +153,11 @@ struct SGE_ENGINE_API TraitModel : public Trait {
 		/// @brief If true, the sprite plane will, by default look towards +Z, otherwise it will be facing +X.
 		bool defaultFacingAxisZ = true;
 
+		/// Flips the sprite horizontally while maintaining its origin at the same place.
+		/// Useful if we are building a 2D game where the character is a sprite that can walk left and right.
+		bool flipHorizontally = false;
+
+		/// Sprite (if any) evaluation time in seconds.
 		float spriteFrameTime = 0.f;
 	};
 

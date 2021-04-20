@@ -1,7 +1,7 @@
 {
 	"version":0,
-	"nextNameIndex":1014,
-	"nextActorId":184,
+	"nextNameIndex":1301,
+	"nextActorId":189,
 	"actors":[
 		{
 			"type":"ALight",
@@ -57,12 +57,6 @@
 						"x":-51.112228,
 						"y":5.999999,
 						"z":12.614376
-					},
-					"r":{
-						"x":-0.000000,
-						"y":-0.000000,
-						"z":0.000000,
-						"w":1.000000
 					}
 				},
 				"m_id":{
@@ -138,9 +132,6 @@
 				"m_displayName":"ATimeline_624",
 				"m_isEnabled":true,
 				"m_useSmoothInterpolation":true,
-				"targetActorId":{
-					"id":152
-				},
 				"keyFrames":{
 					"keys":[
 						0,
@@ -148,28 +139,20 @@
 					],
 					"values":[
 						{
-							"p":{
-								"x":28.000000,
-								"y":10.000000,
-								"z":4.500000
-							},
-							"s":{
-								"x":1.000000,
-								"y":1.000000,
-								"z":-1.000000
-							}
+							"keys":[
+								
+							],
+							"values":[
+								
+							]
 						},
 						{
-							"p":{
-								"x":28.000000,
-								"y":17.000000,
-								"z":4.500000
-							},
-							"s":{
-								"x":1.000000,
-								"y":1.000000,
-								"z":-1.000000
-							}
+							"keys":[
+								
+							],
+							"values":[
+								
+							]
 						}
 					]
 				},
@@ -179,7 +162,11 @@
 				"m_gameplayEvalTime":1.344296,
 				"m_editingEvaltime":0.000000,
 				"moveObjectsOnTop":true,
-				"flipFlopDir":-1.000000
+				"flipFlopDir":-1.000000,
+				"relativeMode":false,
+				"relativeModeOrigin":{
+					
+				}
 			}
 		},
 		{
@@ -264,6 +251,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -349,6 +353,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -429,6 +450,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -509,6 +547,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -589,6 +644,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -669,6 +741,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -755,6 +844,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -835,6 +941,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -915,6 +1038,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -995,6 +1135,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -1075,6 +1232,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -1155,6 +1329,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -1235,6 +1426,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -1321,6 +1529,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -1407,6 +1632,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -1493,6 +1735,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -1579,6 +1838,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -1665,6 +1941,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -1751,6 +2044,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -1831,6 +2141,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -1911,92 +2238,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
-					}
-				}
-			}
-		},
-		{
-			"type":"AStaticObstacle",
-			"id":85,
-			"members":{
-				"m_bindingIgnoreRotation":false,
-				"m_bindingToParentTransform":{
-					
-				},
-				"m_logicTransform":{
-					"p":{
-						"x":-15.000000,
-						"y":1.000002,
-						"z":16.000000
 					},
-					"r":{
-						"x":-0.000000,
-						"y":-0.707107,
-						"z":0.000000,
-						"w":0.707107
-					}
-				},
-				"m_id":{
-					"id":85
-				},
-				"m_displayName":"AStaticObstacle_327",
-				"m_traitModel":{
-					"m_assetProperty":{
-						"m_targetAsset":"assets/models/level.parapet0.mdl"
-					},
-					"m_materialOverrides":[
-						{
-							"materialName":"StingrayPBS1",
-							"materialObjId":{
-								"id":0
-							}
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
 						},
-						{
-							"materialName":"Material",
-							"materialObjId":{
-								"id":0
-							}
-						},
-						{
-							"materialName":"Material.001",
-							"materialObjId":{
-								"id":0
-							}
-						},
-						{
-							"materialName":"Material.004",
-							"materialObjId":{
-								"id":0
-							}
-						},
-						{
-							"materialName":"Material.005",
-							"materialObjId":{
-								"id":0
-							}
-						},
-						{
-							"materialName":"Material.007",
-							"materialObjId":{
-								"id":0
-							}
-						},
-						{
-							"materialName":"Material.008",
-							"materialObjId":{
-								"id":0
-							}
-						},
-						{
-							"materialName":"Material.009",
-							"materialObjId":{
-								"id":0
-							}
-						}
-					],
-					"useSkeleton":false,
-					"rootSkeletonId":{
-						"id":0
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -2083,6 +2341,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -2169,92 +2444,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
-					}
-				}
-			}
-		},
-		{
-			"type":"AStaticObstacle",
-			"id":89,
-			"members":{
-				"m_bindingIgnoreRotation":false,
-				"m_bindingToParentTransform":{
-					
-				},
-				"m_logicTransform":{
-					"p":{
-						"x":-11.000000,
-						"y":1.000002,
-						"z":16.000000
 					},
-					"r":{
-						"x":-0.000000,
-						"y":-0.707107,
-						"z":0.000000,
-						"w":0.707107
-					}
-				},
-				"m_id":{
-					"id":89
-				},
-				"m_displayName":"AStaticObstacle_331",
-				"m_traitModel":{
-					"m_assetProperty":{
-						"m_targetAsset":"assets/models/level.parapet0.mdl"
-					},
-					"m_materialOverrides":[
-						{
-							"materialName":"StingrayPBS1",
-							"materialObjId":{
-								"id":0
-							}
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
 						},
-						{
-							"materialName":"Material",
-							"materialObjId":{
-								"id":0
-							}
-						},
-						{
-							"materialName":"Material.001",
-							"materialObjId":{
-								"id":0
-							}
-						},
-						{
-							"materialName":"Material.004",
-							"materialObjId":{
-								"id":0
-							}
-						},
-						{
-							"materialName":"Material.005",
-							"materialObjId":{
-								"id":0
-							}
-						},
-						{
-							"materialName":"Material.007",
-							"materialObjId":{
-								"id":0
-							}
-						},
-						{
-							"materialName":"Material.008",
-							"materialObjId":{
-								"id":0
-							}
-						},
-						{
-							"materialName":"Material.009",
-							"materialObjId":{
-								"id":0
-							}
-						}
-					],
-					"useSkeleton":false,
-					"rootSkeletonId":{
-						"id":0
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -2341,6 +2547,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -2421,6 +2644,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -2512,6 +2752,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -2592,6 +2849,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -2672,6 +2946,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -2758,6 +3049,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -2838,6 +3146,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -2918,6 +3243,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -2998,6 +3340,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -3078,6 +3437,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -3158,6 +3534,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -3238,6 +3631,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -3318,6 +3728,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -3409,6 +3836,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -3495,6 +3939,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -3581,6 +4042,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -3661,6 +4139,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -3747,6 +4242,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -3827,6 +4339,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -3907,6 +4436,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -3987,6 +4533,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -4067,6 +4630,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -4153,6 +4733,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -4239,6 +4836,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -4325,6 +4939,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -4411,6 +5042,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -4497,6 +5145,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -4583,6 +5248,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -4663,6 +5345,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -4743,6 +5442,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -4823,6 +5539,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -4903,6 +5636,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -4983,6 +5733,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -5063,6 +5830,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -5143,6 +5927,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -5223,6 +6024,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -5303,6 +6121,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -5383,6 +6218,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -5463,6 +6315,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -5543,6 +6412,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -5623,6 +6509,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -5703,6 +6606,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -5783,6 +6703,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -5863,6 +6800,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -5954,6 +6908,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -6045,6 +7016,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -6136,6 +7124,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -6227,6 +7232,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -6307,6 +7329,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -6387,6 +7426,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -6467,6 +7523,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -6553,6 +7626,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -6644,6 +7734,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -6730,6 +7837,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -6816,6 +7940,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -6901,6 +8042,526 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
+					}
+				}
+			}
+		},
+		{
+			"type":"AStaticObstacle",
+			"id":184,
+			"members":{
+				"m_bindingIgnoreRotation":false,
+				"m_bindingToParentTransform":{
+					
+				},
+				"m_logicTransform":{
+					"p":{
+						"x":-10.500000,
+						"y":1.000000,
+						"z":16.500000
+					},
+					"r":{
+						"x":0.000000,
+						"y":-0.707107,
+						"z":0.000000,
+						"w":0.707107
+					}
+				},
+				"m_id":{
+					"id":184
+				},
+				"m_displayName":"AStaticObstacle_1296",
+				"m_traitModel":{
+					"m_assetProperty":{
+						"m_targetAsset":"assets/models/level.ground_4x4.mdl"
+					},
+					"m_materialOverrides":[
+						{
+							"materialName":"StingrayPBS1",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.001",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.004",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.005",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.007",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.008",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.009",
+							"materialObjId":{
+								"id":0
+							}
+						}
+					],
+					"useSkeleton":false,
+					"rootSkeletonId":{
+						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
+					}
+				}
+			}
+		},
+		{
+			"type":"AStaticObstacle",
+			"id":185,
+			"members":{
+				"m_bindingIgnoreRotation":false,
+				"m_bindingToParentTransform":{
+					
+				},
+				"m_logicTransform":{
+					"p":{
+						"x":-18.500000,
+						"y":1.000000,
+						"z":24.500000
+					}
+				},
+				"m_id":{
+					"id":185
+				},
+				"m_displayName":"AStaticObstacle_1297",
+				"m_traitModel":{
+					"m_assetProperty":{
+						"m_targetAsset":"assets/models/level.ground_2x4.mdl"
+					},
+					"m_materialOverrides":[
+						{
+							"materialName":"StingrayPBS1",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.001",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.004",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.005",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.007",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.008",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.009",
+							"materialObjId":{
+								"id":0
+							}
+						}
+					],
+					"useSkeleton":false,
+					"rootSkeletonId":{
+						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
+					}
+				}
+			}
+		},
+		{
+			"type":"AStaticObstacle",
+			"id":186,
+			"members":{
+				"m_bindingIgnoreRotation":false,
+				"m_bindingToParentTransform":{
+					
+				},
+				"m_logicTransform":{
+					"p":{
+						"x":-18.500000,
+						"y":1.000000,
+						"z":20.500000
+					}
+				},
+				"m_id":{
+					"id":186
+				},
+				"m_displayName":"AStaticObstacle_1298",
+				"m_traitModel":{
+					"m_assetProperty":{
+						"m_targetAsset":"assets/models/level.ground_2x4.mdl"
+					},
+					"m_materialOverrides":[
+						{
+							"materialName":"StingrayPBS1",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.001",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.004",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.005",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.007",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.008",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.009",
+							"materialObjId":{
+								"id":0
+							}
+						}
+					],
+					"useSkeleton":false,
+					"rootSkeletonId":{
+						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
+					}
+				}
+			}
+		},
+		{
+			"type":"AStaticObstacle",
+			"id":187,
+			"members":{
+				"m_bindingIgnoreRotation":false,
+				"m_bindingToParentTransform":{
+					
+				},
+				"m_logicTransform":{
+					"p":{
+						"x":-8.000000,
+						"y":1.000000,
+						"z":22.000000
+					},
+					"r":{
+						"x":0.000000,
+						"y":0.000000,
+						"z":0.702250,
+						"w":0.711931
+					}
+				},
+				"m_id":{
+					"id":187
+				},
+				"m_displayName":"AStaticObstacle_1299",
+				"m_traitModel":{
+					"m_assetProperty":{
+						"m_targetAsset":"assets/models/level.ground_2x4.mdl"
+					},
+					"m_materialOverrides":[
+						{
+							"materialName":"StingrayPBS1",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.001",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.004",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.005",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.007",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.008",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.009",
+							"materialObjId":{
+								"id":0
+							}
+						}
+					],
+					"useSkeleton":false,
+					"rootSkeletonId":{
+						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
+					}
+				}
+			}
+		},
+		{
+			"type":"AStaticObstacle",
+			"id":188,
+			"members":{
+				"m_bindingIgnoreRotation":false,
+				"m_bindingToParentTransform":{
+					
+				},
+				"m_logicTransform":{
+					"p":{
+						"x":-14.218262,
+						"y":1.000000,
+						"z":21.862907
+					},
+					"r":{
+						"x":0.000000,
+						"y":0.000000,
+						"z":0.702250,
+						"w":0.711931
+					}
+				},
+				"m_id":{
+					"id":188
+				},
+				"m_displayName":"AStaticObstacle_1300",
+				"m_traitModel":{
+					"m_assetProperty":{
+						"m_targetAsset":"assets/models/level.ground_2x4.mdl"
+					},
+					"m_materialOverrides":[
+						{
+							"materialName":"StingrayPBS1",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.001",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.004",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.005",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.007",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.008",
+							"materialObjId":{
+								"id":0
+							}
+						},
+						{
+							"materialName":"Material.009",
+							"materialObjId":{
+								"id":0
+							}
+						}
+					],
+					"useSkeleton":false,
+					"rootSkeletonId":{
+						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				}
 			}
@@ -6981,6 +8642,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				},
 				"m_rbConfig":{
@@ -7026,12 +8704,6 @@
 						"x":-8.000000,
 						"y":6.073632,
 						"z":-16.500000
-					},
-					"r":{
-						"x":-0.000000,
-						"y":-0.000000,
-						"z":-0.000000,
-						"w":1.000000
 					}
 				},
 				"m_id":{
@@ -7089,6 +8761,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				},
 				"m_rbConfig":{
@@ -7197,6 +8886,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				},
 				"m_rbConfig":{
@@ -7242,12 +8948,6 @@
 						"x":-8.000000,
 						"y":6.073632,
 						"z":-14.000000
-					},
-					"r":{
-						"x":-0.000000,
-						"y":-0.000000,
-						"z":-0.000000,
-						"w":1.000000
 					}
 				},
 				"m_id":{
@@ -7305,6 +9005,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				},
 				"m_rbConfig":{
@@ -7413,6 +9130,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				},
 				"m_rbConfig":{
@@ -7521,6 +9255,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				},
 				"m_rbConfig":{
@@ -7629,6 +9380,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				},
 				"m_rbConfig":{
@@ -7737,6 +9505,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				},
 				"m_rbConfig":{
@@ -7845,6 +9630,23 @@
 					"useSkeleton":false,
 					"rootSkeletonId":{
 						"id":0
+					},
+					"imageSettings":{
+						"m_anchor":0,
+						"colorTint":{
+							"x":1.000000,
+							"y":1.000000,
+							"z":1.000000,
+							"w":1.000000
+						},
+						"defaultFacingAxisZ":true,
+						"m_localXOffset":0.010000,
+						"m_pixelsPerUnit":64.000000,
+						"m_billboarding":0,
+						"forceNoLighting":true,
+						"forceNoCulling":true,
+						"flipHorizontally":false,
+						"spriteFrameTime":0.000000
 					}
 				},
 				"m_rbConfig":{
@@ -7912,6 +9714,7 @@
 		"z":0.000000
 	},
 	"physicsSimNumSubSteps":3,
+	"needsLockedCursor":false,
 	"worldScripts":[
 		
 	],

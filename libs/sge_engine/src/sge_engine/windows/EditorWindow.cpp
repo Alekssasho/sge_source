@@ -285,7 +285,7 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 
 		GamePlayWindow* gameplayWindow = getEngineGlobal()->findFirstWindowOfType<GamePlayWindow>();
 
-		if (gameplayWindow == false) {
+		if (gameplayWindow == nullptr) {
 			JsonValueBuffer jvb;
 			JsonValue* jWorld = serializeGameWorld(&m_sceneInstance.getWorld(), jvb);
 			JsonWriter jw;
@@ -417,7 +417,7 @@ void EditorWindow::update(SGEContext* const sgecon, const InputState& is) {
 			if (ImGui::MenuItem("Game Play")) {
 				GamePlayWindow* gameplayWindow = getEngineGlobal()->findFirstWindowOfType<GamePlayWindow>();
 
-				if (gameplayWindow == false) {
+				if (gameplayWindow == nullptr) {
 					JsonValueBuffer jvb;
 					JsonValue* jWorld = serializeGameWorld(&m_sceneInstance.getWorld(), jvb);
 					JsonWriter jw;

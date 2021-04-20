@@ -40,8 +40,9 @@ endif()
 
 if(EMSCRIPTEN)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=1")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s WASM=0") # Did not worked correctly last tile I've tried, it complained about some streaming API things when reading WASM code.
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL=2")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_WEBGL2=1")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s FULL_ES3=1") # TODO: Does it work without this one?
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s ALLOW_MEMORY_GROWTH=1") # By default Emscripten has a fixed pool size for dynamic allocations.
 endif()
 
@@ -169,9 +170,11 @@ add_subdirectory(./libs_ext/doctest)
 # Use SDL2 as a dll.
 # The code shouldn't depend on SDL2 being a DLL
 # it should work fine if it is a static library.
-set(SDL_STATIC OFF CACHE BOOL "  " FORCE)
-set(SDL_SHARED ON CACHE BOOL "  " FORCE)
-add_subdirectory(./libs_ext/SDL2)
+if(NOT EMSCRIPTEN)
+	set(SDL_STATIC OFF CACHE BOOL "  " FORCE)
+	set(SDL_SHARED ON CACHE BOOL "  " FORCE)
+	add_subdirectory(./libs_ext/SDL2)
+endif()
 
 # Add SGEEngine and all of its targets.
 add_subdirectory(./libs/sge_utils)
@@ -240,10 +243,11 @@ sge_mark_internal_lib(mdlconvlib)
 sge_mark_internal_tools(sge_player)
 sge_mark_internal_tools(sge_editor)
 
-include(engine_install.cmake)
+#include(engine_install.cmake)
 include(copy_engine_helper.cmake)
 
 # Samples
 add_subdirectory(samples/Demo)
 add_subdirectory(samples/TemplateGame)
 add_subdirectory(samples/CharacterGame)
+add_subdirectory(samples/SpriteGame2D)

@@ -108,7 +108,7 @@ struct GetPerBuildTypeId_t {
 	}
 };
 
-#define sgePerBuildTypeId(T) (GetPerBuildTypeId_t<T>::value)
+#define sgePerBuildTypeId(T) (&GetPerBuildTypeId_t<T>::value)
 
 template <typename T>
 struct is_compareable {

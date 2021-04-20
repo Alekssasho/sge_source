@@ -37,6 +37,10 @@ __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 
 #include "MiniDump.h"
 
+#if defined(__EMSCRIPTEN__)
+sge::IPlugin* getInterop();
+#endif
+
 using namespace sge;
 
 int g_argc = 0;
@@ -56,7 +60,7 @@ struct SGEGameWindow : public WindowBase {
 
 	vec2i cachedWindowSize = vec2i(0);
 
-	void HandleEvent(const WindowEvent event, const void* const eventData) final {
+	void HandleEvent(const WindowEvent event, const void* const eventData) override {
 		if (event == WE_Create) {
 			OnCreate();
 		}
@@ -101,12 +105,18 @@ struct SGEGameWindow : public WindowBase {
 
 		SGEImGui::initialize(device->getContext(), device->getWindowFrameTarget(), &GetInputState(),
 		                     device->getWindowFrameTarget()->getViewport());
+		
+#if !defined(__EMSCRIPTEN__)
 		ImGui::SetCurrentContext(getImGuiContextCore());
 		setImGuiContextEngine(getImGuiContextCore());
+#endif
+		ImGui::GetIO().IniFilename = NULL;
+		ImGui::GetIO().LogFilename = NULL;
 
 		getCore()->setup(device);
 		getCore()->getAssetLib()->scanForAvailableAssets("assets");
 
+#if !defined(__EMSCRIPTEN__)
 		for (auto const& entry : std::filesystem::directory_iterator("./")) {
 			if (std::filesystem::is_regular_file(entry) && entry.path().extension() == ".gll") {
 				pluginName = entry.path().string();
@@ -118,11 +128,14 @@ struct SGEGameWindow : public WindowBase {
 		} else {
 			loadPlugin();
 		}
+#else
+		loadPlugin();
+#endif
 
 		m_pGameDrawer = m_pluginInst->allocateGameDrawer();
 
 		typeLib().performRegistration();
-		getEngineGlobal()->initialize();
+		getEngineGlobal()->initialize(); 
 
 		gameMode.create(m_pGameDrawer, g_playerSettings.initalLevel.c_str());
 	}
@@ -131,6 +144,7 @@ struct SGEGameWindow : public WindowBase {
 		// Notify that we are about to unload the plugin.
 		getEngineGlobal()->notifyOnPluginPreUnload();
 
+#if !defined(__EMSCRIPTEN__)
 		// Unload the old plugin DLL and load the new one.
 		m_dllHandler.load(pluginName.c_str());
 
@@ -140,6 +154,9 @@ struct SGEGameWindow : public WindowBase {
 		if (interopGetter) {
 			m_pluginInst = interopGetter();
 		}
+#else
+		m_pluginInst = getInterop();
+#endif
 
 		getEngineGlobal()->changeActivePlugin(m_pluginInst);
 	}
@@ -229,17 +246,23 @@ int sge_main(int argc, char** argv) {
 // Caution:
 // SDL2 might have a macro (depending on the target platform) for the main function!
 int main(int argc, char* argv[]) {
+
+#ifdef __EMSCRIPTEN__
+	std::filesystem::current_path("/home/game");
+#endif
+
+
 	SGE_DEBUG_LOG("main()\n");
 	sgeRegisterMiniDumpHandler();
 
 
-	SDL_SetHint(SDL_HINT_VIDEO_HIGHDPI_DISABLED, "1");
 #ifdef __EMSCRIPTEN__
-
 	SDL_Init(SDL_INIT_VIDEO);
-	SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
 #else
 	SDL_Init(SDL_INIT_EVERYTHING);

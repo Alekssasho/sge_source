@@ -127,7 +127,7 @@ bool FrameTargetD3D11::create2D(int width, int height, TextureFormat::Enum rende
 	if (renderTargetFmt != TextureFormat::Unknown) {
 		renderTarget = getDevice()->requestResource<Texture>();
 
-		const TextureDesc renderTargetDesc = TextureDesc::GetDefaultRenderTarget(width, height);
+		const TextureDesc renderTargetDesc = TextureDesc::GetDefaultRenderTarget(width, height, renderTargetFmt);
 		const bool succeeded = renderTarget->create(renderTargetDesc, NULL);
 	}
 
@@ -135,7 +135,7 @@ bool FrameTargetD3D11::create2D(int width, int height, TextureFormat::Enum rende
 	GpuHandle<TextureD3D11> depthStencilTexture;
 	if (TextureFormat::IsDepth(depthTextureFmt)) {
 		depthStencilTexture = getDevice()->requestResource<Texture>();
-		const TextureDesc depthStencilDesc = TextureDesc::GetDefaultDepthStencil(width, height);
+		const TextureDesc depthStencilDesc = TextureDesc::GetDefaultDepthStencil(width, height, depthTextureFmt);
 		const bool succeeded = depthStencilTexture->create(depthStencilDesc, NULL);
 	} else {
 		sgeAssert(depthTextureFmt == TextureFormat::Unknown);

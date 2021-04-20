@@ -178,6 +178,8 @@ void DefaultGameDrawer::updateShadowMaps(const GameDrawSets& drawSets) {
 			                                             shadowFrameTarget->getHeight() != shadowMapHegiht;
 
 			if (shouldCreateNewShadowMapTexture) {
+				// Caution, TODO: On Safari (the web browser) I've read that it needs a color render target.
+				// Keep that in mind when testing and developing.
 				shadowFrameTarget = getCore()->getDevice()->requestResource<FrameTarget>();
 				shadowFrameTarget->create2D(shadowMapWidth, shadowMapHegiht, TextureFormat::Unknown, TextureFormat::D24_UNORM_S8_UINT);
 			}
@@ -715,13 +717,15 @@ void DefaultGameDrawer::drawTraitStaticModel(TraitModel* modelTrait,
 				const mat4f localOffsetmtx = mat4f::getTranslation(modelTrait->imageSettings.m_localXOffset, 0.f, 0.f);
 				const mat4f anchorAlignMtx = modelTrait->imageSettings.getAnchorAlignMtxOS(float(texture->getDesc().texture2D.width),
 				                                                                           float(texture->getDesc().texture2D.height));
-				const mat4f billboardFacingMtx =
-				    billboarding_getOrentationMtx(modelTrait->imageSettings.m_billboarding, actor->getTransform(),
-				                                  drawSets.drawCamera->getCameraPosition(), drawSets.drawCamera->getView(), modelTrait->imageSettings.defaultFacingAxisZ);
-				const mat4f objToWorld = billboardFacingMtx * anchorAlignMtx * localOffsetmtx * modelTrait->m_additionalTransform;
+				const mat4f billboardFacingMtx = billboarding_getOrentationMtx(
+				    modelTrait->imageSettings.m_billboarding, actor->getTransform(), drawSets.drawCamera->getCameraPosition(),
+				    drawSets.drawCamera->getView(), modelTrait->imageSettings.defaultFacingAxisZ);
+				const mat4f objToWorld = billboardFacingMtx * anchorAlignMtx * localOffsetmtx * modelTrait->m_additionalTransform *
+				                         mat4f::getScaling(1.f, 1.f, modelTrait->imageSettings.flipHorizontally ? -1.f : 1.f);
 
 				Geometry texPlaneGeom = m_texturedPlaneDraw.getGeometry(drawSets.rdest.getDevice());
 				Material texPlaneMtl = m_texturedPlaneDraw.getMaterial(texture);
+				texPlaneMtl.diffuseColor = vec4f(modelTrait->imageSettings.colorTint);
 
 				InstanceDrawMods mods;
 				mods.gameTime = getWorld()->timeSpendPlaying;
@@ -741,18 +745,23 @@ void DefaultGameDrawer::drawTraitStaticModel(TraitModel* modelTrait,
 			if (frame) {
 				const mat4f localOffsetmtx = mat4f::getTranslation(modelTrait->imageSettings.m_localXOffset, 0.f, 0.f);
 				const mat4f anchorAlignMtx = modelTrait->imageSettings.getAnchorAlignMtxOS(float(frame->wh.x), float(frame->wh.y));
-				const mat4f billboardFacingMtx =
-				    billboarding_getOrentationMtx(modelTrait->imageSettings.m_billboarding, actor->getTransform(),
-				                                  drawSets.drawCamera->getCameraPosition(), drawSets.drawCamera->getView(), modelTrait->imageSettings.defaultFacingAxisZ);
-				const mat4f objToWorld = billboardFacingMtx * anchorAlignMtx * localOffsetmtx * modelTrait->m_additionalTransform;
+				const mat4f billboardFacingMtx = billboarding_getOrentationMtx(
+				    modelTrait->imageSettings.m_billboarding, actor->getTransform(), drawSets.drawCamera->getCameraPosition(),
+				    drawSets.drawCamera->getView(), modelTrait->imageSettings.defaultFacingAxisZ);
+				mat4f objToWorld = billboardFacingMtx * anchorAlignMtx * localOffsetmtx * modelTrait->m_additionalTransform;
+
+				if (modelTrait->imageSettings.flipHorizontally) {
+					objToWorld = objToWorld * mat4f::getTranslation(0.f, 0.f, 1.f) * mat4f::getScaling(1.f, 1.f, -1.f);
+				}
 
 				Geometry texPlaneGeom = m_texturedPlaneDraw.getGeometry(drawSets.rdest.getDevice());
 				Material texPlaneMtl = m_texturedPlaneDraw.getMaterial(pSprite->textureAsset->asTextureView()->GetPtr());
+				texPlaneMtl.diffuseColor = vec4f(modelTrait->imageSettings.colorTint);
 
 				InstanceDrawMods mods;
 				mods.gameTime = getWorld()->timeSpendPlaying;
 				mods.forceNoLighting = modelTrait->imageSettings.forceNoLighting;
-				mods.forceNoCulling = modelTrait->imageSettings.forceNoCulling;
+				mods.forceNoCulling = true; // modelTrait->imageSettings.forceNoCulling;
 
 				// Compute the UVW transform so we get only this frame portion of the texture to be displayed.
 				texPlaneMtl.uvwTransform =

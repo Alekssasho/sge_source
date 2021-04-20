@@ -12,6 +12,7 @@
 #ifdef __EMSCRIPTEN__
 #include <SDL2/SDL.h>
 #include <emscripten.h>
+#include <emscripten/html5_webgl.h>
 //#include <GLES3/gl3.h> // WebGL2 + GLES 3 emulation.
 #else
 #include <SDL.h>
@@ -224,6 +225,8 @@ void ApplicationHandler::NewWindowInternal(
 	[[maybe_unused]] const SDL_GLContext context = SDL_GL_CreateContext(window->m_implData->window);
 	sgeAssert(context != nullptr);
 	DumpAllGLErrors();
+	
+	// emscripten_webgl_get_current_context emscripten_webgl_enable_extension
 #if !defined(__EMSCRIPTEN__)
 	SDL_GL_SetSwapInterval(1);
 #endif

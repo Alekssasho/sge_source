@@ -2,14 +2,14 @@
 #include <mutex>
 #include <unordered_map>
 // HLSLParser +  MCPP
+#include "HLSLTranslator.h"
 #include "sge_mcpp.h"
+#include "sge_utils/utils/FileStream.h"
+#include "sge_utils/utils/strings.h"
 #include <Engine.h>
 #include <GLSLGenerator.h>
 #include <HLSLGenerator.h>
 #include <HLSLParser.h>
-#include "sge_utils/utils/strings.h"
-#include "HLSLTranslator.h"
-#include "sge_utils/utils/FileStream.h"
 
 constexpr const char* const SGE_FAKE_SHADER_SRC_FILE = "no_file.nope";
 
@@ -155,6 +155,11 @@ bool translateHLSL(const char* const pCode,
 		macros.push_back(mOpenGL);
 	}
 
+	if (shaderType == ShaderType::PixelShader) {
+		macros.push_back("SGE_PIXEL_SHADER");
+	}
+
+
 	const std::string processsedCode = preprocessor::preprocess(pCode, macros.data(), int(macros.size()));
 
 	M4::Allocator m4Alloc;
@@ -172,7 +177,11 @@ bool translateHLSL(const char* const pCode,
 		auto mainFnName = shaderType == ShaderType::VertexShader ? "vsMain" : "psMain";
 
 		M4::GLSLGenerator gen;
+#if defined(__EMSCRIPTEN__)
+		if (gen.Generate(&tree, target, M4::GLSLGenerator::Version_300_ES, mainFnName) == false) {
+#else
 		if (gen.Generate(&tree, target, M4::GLSLGenerator::Version_150, mainFnName) == false) {
+#endif
 			compilationErrors = M4::g_hlslParserErrors;
 			return false;
 		}

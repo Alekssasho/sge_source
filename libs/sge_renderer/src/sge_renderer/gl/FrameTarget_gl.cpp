@@ -90,6 +90,8 @@ void FrameTargetGL::setRenderTarget(const int slot, Texture* texture, const Targ
 		// The shortcut with glFramebufferTexture3D doesn't work on nVidia.
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + slot, GL_TEXTURE_2D, ((TextureGL*)texture)->GL_GetResource(),
 		                       targetDesc.texture2D.mipLevel);
+
+		DumpAllGLErrors();
 	} else {
 		// Unimplemented...
 		sgeAssert(false);
@@ -109,6 +111,8 @@ void FrameTargetGL::setDepthStencil(Texture* texture, const TargetDesc& targetDe
 		return;
 	}
 
+	GLContextStateCache* const glcon = getDevice<SGEDeviceImpl>()->GL_GetContextStateCache();
+
 	const TextureDesc& texToBindDesc = texture->getDesc();
 
 	// pick if this is a depth-stencil of just depth texture
@@ -117,9 +121,10 @@ void FrameTargetGL::setDepthStencil(Texture* texture, const TargetDesc& targetDe
 
 	if (texToBindDesc.textureType == UniformType::Texture2D) {
 		updateAttachmentsInfo(texture);
-
+		glcon->BindFBO(m_frameBuffer_gl);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, GL_TEXTURE_2D, ((TextureGL*)texture)->GL_GetResource(),
 		                       targetDesc.texture2D.mipLevel);
+		DumpAllGLErrors();
 
 		// Only works on AMD:
 		// glFramebufferTexture3D(
@@ -130,8 +135,11 @@ void FrameTargetGL::setDepthStencil(Texture* texture, const TargetDesc& targetDe
 
 		// Binding a face from a cube texture as a depth-stencil.
 		const GLenum faceGL = signedAxis_toTexCubeFaceIdx_OpenGL(targetDesc.textureCube.face);
+		glcon->BindFBO(m_frameBuffer_gl);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, faceGL, ((TextureGL*)texture)->GL_GetResource(),
 		                       targetDesc.textureCube.mipLevel);
+
+		DumpAllGLErrors();
 	} else {
 		sgeAssert(false);
 	}
@@ -238,7 +246,7 @@ bool FrameTargetGL::create2D(int width, int height, TextureFormat::Enum renderTa
 	if (renderTargetFmt != TextureFormat::Unknown) {
 		renderTarget = getDevice()->requestResource<Texture>();
 
-		const TextureDesc renderTargetDesc = TextureDesc::GetDefaultRenderTarget(width, height);
+		const TextureDesc renderTargetDesc = TextureDesc::GetDefaultRenderTarget(width, height, renderTargetFmt);
 		const bool succeeded = renderTarget->create(renderTargetDesc, nullptr);
 	}
 
@@ -246,7 +254,7 @@ bool FrameTargetGL::create2D(int width, int height, TextureFormat::Enum renderTa
 	GpuHandle<TextureGL> depthStencilTexture;
 	if (TextureFormat::IsDepth(depthTextureFmt)) {
 		depthStencilTexture = getDevice()->requestResource<Texture>();
-		const TextureDesc depthStencilDesc = TextureDesc::GetDefaultDepthStencil(width, height);
+		const TextureDesc depthStencilDesc = TextureDesc::GetDefaultDepthStencil(width, height, depthTextureFmt);
 		const bool succeeded = depthStencilTexture->create(depthStencilDesc, nullptr);
 	} else {
 		sgeAssert(depthTextureFmt == TextureFormat::Unknown);

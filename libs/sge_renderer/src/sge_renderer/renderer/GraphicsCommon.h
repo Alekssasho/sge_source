@@ -259,6 +259,9 @@ struct TextureFormat {
 
 		// Depth and depth stencil formats.
 		MARKER_DEPTH_BEGIN,
+
+		D24,
+
 		MARKER_DEPTH_HAS_STENCIL_BEGIN,
 
 		D24_UNORM_S8_UINT, // On D3D11 this is only RED channel is set. On OpenGL All channels should be 1.f
@@ -489,8 +492,17 @@ struct TextureDesc {
 		return false;
 	}
 
-	static TextureDesc GetDefaultRenderTarget(int width, int height, TextureFormat::Enum format = TextureFormat::R8G8B8A8_UNORM);
-	static TextureDesc GetDefaultDepthStencil(int width, int height, TextureFormat::Enum format = TextureFormat::D24_UNORM_S8_UINT);
+	/// @brief Creates a TextureDesc for a color render target.
+	/// @param width of the texture.
+	/// @param height of the texture.
+	/// @param pixel format of the texture. Good default is TextureFormat::R8G8B8A8_UNORM.
+	static TextureDesc GetDefaultRenderTarget(int width, int height, TextureFormat::Enum format);
+
+	/// @brief Create a TextureDFesc for depth render target (depth buffer, depth texure).
+	/// @param width of the texture.
+	/// @param height of the texture.
+	/// @param pixel format of the texture. Good default is TextureFormat::D24_UNORM_S8_UINT
+	static TextureDesc GetDefaultDepthStencil(int width, int height, TextureFormat::Enum format);
 };
 
 // [TODO] Concider arrays for RT and DB

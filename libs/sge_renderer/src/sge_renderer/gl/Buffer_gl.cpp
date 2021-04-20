@@ -32,7 +32,7 @@ bool BufferGL::create(const BufferDesc& desc, const void* const pInitalData)
 	glBufferData(bufferBinding, desc.sizeBytes, pInitalData, ResourceUsage_GetGLNative(desc.usage));
 	DumpAllGLErrors();
 
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__)
 	m_emsc_mapBufferHelper.resize(desc.sizeBytes);
 #endif
 
@@ -72,9 +72,9 @@ GLenum BufferGL::GL_GetTargetBufferType() const
 	return target;
 }
 
-void* BufferGL::map(const Map::Enum map, SGEContext* UNUSED(sgecon))
+void* BufferGL::map([[maybe_unused]] const Map::Enum map, SGEContext* UNUSED(sgecon))
 {
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__)
 	sgeAssert(m_emsc_mapBufferHelper.size() == m_bufferDesc.sizeBytes);
 	return (void*)m_emsc_mapBufferHelper.data();
 #else
@@ -89,7 +89,7 @@ void* BufferGL::map(const Map::Enum map, SGEContext* UNUSED(sgecon))
 
 void BufferGL::unMap(SGEContext* UNUSED(sgecon))
 {
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__)
 	GLContextStateCache* const glcon = getDevice<SGEDeviceImpl>()->GL_GetContextStateCache();
 
 	glcon->BindBuffer(GL_GetTargetBufferType(), m_glBuffer);

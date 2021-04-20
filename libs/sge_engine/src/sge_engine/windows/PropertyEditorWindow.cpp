@@ -413,6 +413,39 @@ void ProperyEditorUIGen::doMemberUI(GameInspector& inspector, GameObject* const 
 				g_propWidgetState.widgetSavedData.Destroy();
 			}
 		}
+	} else if (memberTypeDesc->typeId == sgeTypeId(vec4f)) {
+		vec4f& v4ref = *(vec4f*)(pMember);
+		vec4f v4edit = v4ref;
+
+		bool justReleased = false;
+		bool justActivated = false;
+		bool change = false;
+
+		ImGuiEx::Label(memberName);
+		if (member.flags & MFF_Vec4fAsColor) {
+			change = SGEImGui::ColorPicker4(memberName, v4edit.data, &justReleased, &justActivated, 0);
+		} else {
+			change = SGEImGui::DragFloats(memberName, v4edit.data, 4, &justReleased, &justActivated);
+		}
+
+		if (justActivated) {
+			g_propWidgetState.widgetSavedData.resetVariantToValue<vec4f>(v4ref);
+		}
+
+		if (change) {
+			v4ref = v4edit;
+		}
+
+		if (justReleased) {
+			// Check if the new data is actually different, as the UI may fire a lot of updates at us.
+			if (*g_propWidgetState.widgetSavedData.get<vec4f>() != v4ref) {
+				CmdMemberChange* cmd = new CmdMemberChange;
+				cmd->setup(gameObject, chain, g_propWidgetState.widgetSavedData.get<vec4f>(), &v4edit, nullptr);
+				inspector.appendCommand(cmd, true);
+
+				g_propWidgetState.widgetSavedData.Destroy();
+			}
+		}
 	} else if (memberTypeDesc->typeId == sgeTypeId(MultiCurve2D)) {
 		MultiCurve2D& curveRef = *(MultiCurve2D*)(pMember);
 		MultiCurve2DEditor(memberName, curveRef);
@@ -642,7 +675,7 @@ void ProperyEditorUIGen::editStringAsAssetPath(GameInspector& inspector,
 
 	std::string stringEdit = srcString;
 
-	 bool const change = assetPicker(label, stringEdit, getCore()->getAssetLib(), possibleAssetTypes, numPossibleAssetTypes);
+	bool const change = assetPicker(label, stringEdit, getCore()->getAssetLib(), possibleAssetTypes, numPossibleAssetTypes);
 
 	if (change) {
 		std::string newData = stringEdit;
