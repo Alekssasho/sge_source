@@ -130,7 +130,9 @@ struct Player : public Actor {
 
 DefineTypeId(Player, 30'02'22'0001);
 ReflBlock() {
-	ReflAddActor(Player) ReflMember(Player, cameraObject) ReflMember(Player, cameraOffset);
+	ReflAddActor(Player) 
+		ReflMember(Player, cameraObject)
+		ReflMember(Player, cameraOffset);
 }
 
 } // namespace sge

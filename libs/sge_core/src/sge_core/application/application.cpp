@@ -23,7 +23,6 @@
 
 namespace sge {
 
-
 struct WindowImplData {
 	SDL_Window* window = nullptr;
 	bool isActive = 0;
@@ -618,6 +617,11 @@ void* WindowBase::GetNativeHandle() const {
 
 bool WindowBase::IsActive() const {
 	return bool(SDL_WINDOW_INPUT_FOCUS & SDL_GetWindowFlags(m_implData->window));
+}
+
+
+void WindowBase::resizeWindow(int width, int height) {
+	SDL_SetWindowSize(m_implData->window, width, height);
 }
 
 int WindowBase::GetClientWidth() const {

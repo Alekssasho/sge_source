@@ -98,6 +98,7 @@ struct SGE_CORE_API WindowBase {
 	bool IsActive() const;
 	const InputState& GetInputState() { return m_inputState; }
 
+	void resizeWindow(int width, int height);
 	int GetClientWidth() const;
 	int GetClientHeight() const;
 	bool isMaximized() const;
