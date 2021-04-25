@@ -123,15 +123,14 @@ struct SGEGameWindow : public WindowBase {
 				pluginName = entry.path().string();
 			}
 		}
+		typeLib().performRegistration();
+		createAndInitializeEngineGlobal();
 
 		if (pluginName.empty()) {
 			getEngineGlobal()->changeActivePlugin(&dummyPlugin);
 		} else {
 			loadPlugin();
 		}
-
-		typeLib().performRegistration();
-		getEngineGlobal()->initialize();
 
 		getEngineGlobal()->addWindow(new EditorWindow(*this, "Editor Window Main"));
 	}
@@ -180,7 +179,6 @@ struct SGEGameWindow : public WindowBase {
 			if (m_pluginInst) {
 				m_pluginInst->onLoaded(ImGui::GetCurrentContext(), getCore());
 				typeLib().performRegistration();
-				getEngineGlobal()->initialize();
 				if (shouldCurrentWorldBeReloaded) {
 					getEngineGlobal()->getEditorWindow()->loadWorldFromFile(
 					    "reload_level.lvl", !workingFilename.empty() ? workingFilename.c_str() : nullptr, true);

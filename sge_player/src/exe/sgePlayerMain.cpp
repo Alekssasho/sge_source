@@ -75,6 +75,9 @@ struct SGEGameWindow : public WindowBase {
 		}
 
 		if (event == WE_Destroying) {
+
+			gameMode.m_sceneInstance.getWorld().clear();
+
 			SGEImGui::destroy();
 			SGE_DEBUG_LOG("Destroy Called!");
 		}
@@ -113,6 +116,9 @@ struct SGEGameWindow : public WindowBase {
 			}
 		}
 
+		typeLib().performRegistration();
+		createAndInitializeEngineGlobal();
+
 		if (pluginName.empty()) {
 			return;
 		} else {
@@ -121,8 +127,7 @@ struct SGEGameWindow : public WindowBase {
 
 		m_pGameDrawer = m_pluginInst->allocateGameDrawer();
 
-		typeLib().performRegistration();
-		getEngineGlobal()->initialize();
+		
 
 		gameMode.create(m_pGameDrawer, g_playerSettings.initalLevel.c_str());
 	}
@@ -141,7 +146,10 @@ struct SGEGameWindow : public WindowBase {
 			m_pluginInst = interopGetter();
 		}
 
+		m_pluginInst->onLoaded(ImGui::GetCurrentContext(), getCore());
+		typeLib().performRegistration();
 		getEngineGlobal()->changeActivePlugin(m_pluginInst);
+		typeLib().performRegistration();
 	}
 
 	void run() {

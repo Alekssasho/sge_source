@@ -87,6 +87,7 @@ struct IEngineGlobal {
 SGE_ENGINE_API int addPluginRegisterFunction(void (*fnPtr)());
 SGE_ENGINE_API const std::vector<void (*)()>& getPluginRegisterFunctions();
 
+SGE_ENGINE_API IEngineGlobal* createAndInitializeEngineGlobal();
 SGE_ENGINE_API IEngineGlobal* getEngineGlobal();
 SGE_ENGINE_API void setEngineGlobal(IEngineGlobal* global);
 

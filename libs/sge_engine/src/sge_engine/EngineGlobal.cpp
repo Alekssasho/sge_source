@@ -53,6 +53,9 @@ std::shared_ptr<Asset> EngineGlobalAssets::getIconForObjectType(const TypeId typ
 // EngineGlobal
 //--------------------------------------------------------------------------
 struct EngineGlobal final : public IEngineGlobal {
+	EngineGlobal() = default;
+	~EngineGlobal() { [[maybe_unused]] int x = 10; }
+
 	void initialize() override;
 	void update(float dt) override;
 
@@ -125,12 +128,12 @@ void EngineGlobal::update(float dt) {
 }
 
 void EngineGlobal::changeActivePlugin(IPlugin* pPlugin) {
-	m_activePlugin = pPlugin; 
+	m_activePlugin = pPlugin;
 	m_propertyEditorUIGenFuncs.clear();
 
 	for (auto& fn : getPluginRegisterFunctions()) {
 		if (fn) {
-			fn(); 
+			fn();
 		}
 	}
 
@@ -227,10 +230,16 @@ EngineGlobalAssets& EngineGlobal::getEngineAssets() {
 //------------------------------------------------------------------
 //
 //------------------------------------------------------------------
-EngineGlobal g_moduleLocalEngineGlobal;
-IEngineGlobal* g_worklingEngineGlobal = &g_moduleLocalEngineGlobal;
-
+IEngineGlobal* g_worklingEngineGlobal = nullptr;
 std::vector<void (*)()> g_pluginRegisterFunctionsToCall;
+
+IEngineGlobal* createAndInitializeEngineGlobal() {
+	if (g_worklingEngineGlobal == nullptr) {
+		g_worklingEngineGlobal = new EngineGlobal();
+		g_worklingEngineGlobal->initialize();
+	}
+	return g_worklingEngineGlobal;
+}
 
 IEngineGlobal* getEngineGlobal() {
 	return g_worklingEngineGlobal;

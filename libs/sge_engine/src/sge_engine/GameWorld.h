@@ -346,6 +346,7 @@ struct SGE_ENGINE_API GameWorld {
 	vec2i gridNumSegments = vec2i(10);
 	float gridSegmentsSpacing = 1.f;
 
+	bool isLockedCursorAllowed = true;
 	bool needsLockedCursor = false;
 
 	/// Debugging variables.

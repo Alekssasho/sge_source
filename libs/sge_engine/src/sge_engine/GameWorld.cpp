@@ -217,22 +217,20 @@ void GameWorld::clear() {
 	m_workingFilePath.clear();
 
 	m_nextObjectId = 1;
-	std::string p;
-	int c = 0;
-	for (auto& itrObjByType : playingObjects)
+	for (auto& itrObjByType : playingObjects) {
 		for (int t = 0; t < itrObjByType.second.size(); ++t) {
 			GameObject* const object = itrObjByType.second[t];
 			sgeAssert(object->getType() == itrObjByType.first);
 			object->onPlayStateChanged(false);
-			p = typeLib().find(object->getType())->name;
-			c = physicsWorld.dynamicsWorld->getCollisionObjectArray().size();
 		}
+	}
 
-	for (auto& itrObjByType : playingObjects)
+	for (auto& itrObjByType : playingObjects) {
 		for (int t = 0; t < itrObjByType.second.size(); ++t) {
 			GameObject* const object = itrObjByType.second[t];
 			delete object;
 		}
+	}
 
 	playingObjects.clear();
 
@@ -265,6 +263,7 @@ void GameWorld::clear() {
 	gridNumSegments = vec2i(10);
 	gridSegmentsSpacing = 1.f;
 
+	isLockedCursorAllowed = true;
 	needsLockedCursor = false;
 	m_cameraPovider = ObjectId();
 	m_useEditorCamera = true;
@@ -278,7 +277,7 @@ void GameWorld::clear() {
 }
 
 void GameWorld::update(const GameUpdateSets& updateSets) {
-	if (needsLockedCursor && m_useEditorCamera == false) {
+	if (isLockedCursorAllowed && needsLockedCursor && m_useEditorCamera == false) {
 		SDL_SetRelativeMouseMode(SDL_TRUE);
 	} else {
 		SDL_SetRelativeMouseMode(SDL_FALSE);
@@ -808,14 +807,6 @@ ICamera* GameWorld::getRenderCamera() {
 	}
 
 	return camera;
-}
-
-void setMouseCaptureAndCenter(bool isRelative) {
-	SDL_SetRelativeMouseMode(isRelative ? SDL_TRUE : SDL_FALSE);
-}
-
-bool getMouseCaptureAndCenter() {
-	return SDL_GetRelativeMouseMode() == SDL_TRUE ? true : false;
 }
 
 } // namespace sge
