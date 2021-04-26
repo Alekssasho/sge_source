@@ -195,6 +195,7 @@ if(SGE_REND_API STREQUAL "OpenGL")
 endif()
 
 add_subdirectory(./libs/sge_renderer)
+add_subdirectory(./libs/sge_audio)
 add_subdirectory(./libs/sge_core)
 add_subdirectory(./libs/sge_engine)
 add_subdirectory(./sge_player)
