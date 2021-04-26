@@ -119,7 +119,7 @@ struct ModelAssetFactory : public IAssetFactory {
 		if (!succeeded) {
 			SGE_DEBUG_ERR("Unable to load model asset: '%s'!\n", pPath);
 			// sgeAssert(false);
-			return nullptr;
+			return false;
 		}
 
 		modelAsset.staticEval.initialize(pMngr, &modelAsset.model);

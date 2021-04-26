@@ -21,6 +21,7 @@ namespace {
 // GLContextStateCache
 ////////////////////////////////////////////////////////////////////
 void* GLContextStateCache::MapBuffer(const GLenum target, const GLenum access) {
+#if !defined(__EMSCRIPTEN__)
 	// add some debug error checking because
 	// not all buffer targets are supported
 	IsBufferTargetSupported(target);
@@ -37,9 +38,11 @@ void* GLContextStateCache::MapBuffer(const GLenum target, const GLenum access) {
 	void* result = glMapBuffer(target, access);
 	DumpAllGLErrors();
 	return result;
+#endif
 }
 
 void GLContextStateCache::UnmapBuffer(const GLenum target) {
+#if !defined(__EMSCRIPTEN__)
 	// add some debug error checking because
 	// not all buffer targets are supported
 	IsBufferTargetSupported(target);
@@ -55,6 +58,7 @@ void GLContextStateCache::UnmapBuffer(const GLenum target) {
 
 	m_boundBuffers[freq].isMapped = false;
 	glUnmapBuffer(target);
+#endif
 }
 
 // void* GLContextStateCache::MapNamedBuffer(const GLuint buffer, const GLenum access)
@@ -155,7 +159,7 @@ void GLContextStateCache::BindUniformBuffer(const GLuint index, const GLuint buf
 
 //---------------------------------------------------------------------
 void GLContextStateCache::SetActiveTexture(const GLenum activeSlot) {
-	sgeAssert(activeSlot >= GL_TEXTURE0);
+	sgeAssert(activeSlot >= GL_TEXTURE0 && activeSlot <= GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
 
 	if (m_activeTexture != activeSlot) {
 		m_activeTexture = activeSlot;
@@ -264,7 +268,7 @@ void GLContextStateCache::ApplyRasterDesc(const RasterDesc& desc) {
 	DumpAllGLErrors();
 
 	// Fillmode.
-#if !defined(__EMSCRIPTEN__)
+#if !defined(__EMSCRIPTEN__) // WebGL 2 does't support fill mode.
 	if (UPDATE_ON_DIFF(m_rasterDesc.fillMode, desc.fillMode)) {
 		switch (desc.fillMode) {
 			case FillMode::Solid:
@@ -311,7 +315,7 @@ void GLContextStateCache::ApplyScissorsRect(GLint x, GLint y, GLsizei width, GLs
 }
 
 void GLContextStateCache::DepthMask(const GLboolean enabled) {
-	if (UPDATE_ON_DIFF(m_depthStencilDesc.depthWriteEnabled, !!enabled)) {
+	if (UPDATE_ON_DIFF(m_depthStencilDesc.depthWriteEnabled, enabled == GL_TRUE)) {
 		if (enabled)
 			glDepthMask(GL_TRUE);
 		else

@@ -19,35 +19,32 @@ bool TextureGL::create(const TextureDesc& desc, const TextureData initalData[], 
 	// generate the texture and bind it
 	glcon->GenTextures(1, &m_glTexture);
 	m_desc = desc;
-	const GLenum glTexTarget = TextureDesc_GetGLNativeTextureTartget(desc);
+	const GLenum glTexTarget = TextureDesc_GetGLNativeTextureTartget(m_desc);
 	DumpAllGLErrors();
 
-	// bind the newly created texture
-	//[TODO]tune a bit GL_TEXTURE0 value....
 	glcon->BindTextureEx(glTexTarget, GL_TEXTURE0, m_glTexture);
-	applySamplerDesc(samplerDesc, false);
 
-	const bool isCompressed = TextureFormat::IsBC(desc.format);
+
+	const bool isCompressed = TextureFormat::IsBC(m_desc.format);
 
 	GLint glInternalFormat;
 	GLenum glFormat, glType;
-	TextureFormat_GetGLNative(desc.format, glInternalFormat, glFormat, glType);
+	TextureFormat_GetGLNative(m_desc.format, glInternalFormat, glFormat, glType);
 
 	if (glTexTarget == GL_TEXTURE_2D) {
 		//[TODO] See the hack above...
 		glPixelStorei(GL_PACK_ALIGNMENT, 1);
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-		int width = desc.texture2D.width;
-		int height = desc.texture2D.height;
+		int width = m_desc.texture2D.width;
+		int height = m_desc.texture2D.height;
 
-		for (int iMipLevel = 0; iMipLevel < desc.texture2D.numMips; ++iMipLevel) {
+		for (int iMipLevel = 0; iMipLevel < m_desc.texture2D.numMips; ++iMipLevel) {
 			if (isCompressed == false) {
 				// The next line is used in Emscripen debugging, as there is no way of breaking here.
 				// SGE_DEBUG_LOG("glInternalFormat = %x glFormat = %x glType = %x\n", glInternalFormat, glFormat, glType);
-				glTexImage2D(GL_TEXTURE_2D, iMipLevel, glInternalFormat, width, height,
-				             0, // border
-				             glFormat, glType, (initalData) ? initalData[iMipLevel].data : NULL);
+				const void* initialDataForMipLevel = (initalData) ? initalData[iMipLevel].data : NULL;
+				glTexImage2D(GL_TEXTURE_2D, iMipLevel, glInternalFormat, width, height, 0, glFormat, glType, initialDataForMipLevel);
 			} else {
 				sgeAssert(initalData);
 				sgeAssert(initalData[iMipLevel].data != NULL);
@@ -63,16 +60,17 @@ bool TextureGL::create(const TextureDesc& desc, const TextureData initalData[], 
 		}
 
 		DumpAllGLErrors();
-	} else if (glTexTarget == GL_TEXTURE_2D_MULTISAMPLE) {
+	}
 #if !defined(__EMSCRIPTEN__)
-		glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, desc.texture2D.numSamples, glInternalFormat, desc.texture2D.width,
-		                        desc.texture2D.height, GL_TRUE);
+	else if (glTexTarget == GL_TEXTURE_2D_MULTISAMPLE) {
+
+		glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_desc.texture2D.numSamples, glInternalFormat, m_desc.texture2D.width,
+		                        m_desc.texture2D.height, GL_TRUE);
 
 		DumpAllGLErrors();
-#else
-		sgeAssert(false);
+	}
 #endif
-	} else if (glTexTarget == GL_TEXTURE_CUBE_MAP) {
+	else if (glTexTarget == GL_TEXTURE_CUBE_MAP) {
 		const GLuint OpenGL_CubeFaceInices[6] = {
 		    GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_X, GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
 		    GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
@@ -82,8 +80,8 @@ bool TextureGL::create(const TextureDesc& desc, const TextureData initalData[], 
 #if !defined(__EMSCRIPTEN__)
 			for (int iFace = 0; iFace < SGE_ARRSZ(OpenGL_CubeFaceInices); ++iFace) {
 				// The width and the hight for this mip.
-				int width = desc.texture2D.width;
-				int height = desc.texture2D.height;
+				int width = m_desc.texture2D.width;
+				int height = m_desc.texture2D.height;
 				for (int iMipLevel = 0; iMipLevel < m_desc.textureCube.numMips; ++iMipLevel) {
 					const int faceInitalDataIndex =
 					    iArray * 6 * m_desc.textureCube.numMips + iFace * m_desc.textureCube.numMips + iMipLevel;
@@ -140,6 +138,8 @@ bool TextureGL::create(const TextureDesc& desc, const TextureData initalData[], 
 
 	DumpAllGLErrors();
 
+	applySamplerDesc(samplerDesc, false);
+
 	return true;
 }
 
@@ -162,14 +162,25 @@ void TextureGL::applySamplerDesc(const SamplerDesc& samplerDesc, bool shouldBind
 		glcon->BindTextureEx(glTexTarget, GL_TEXTURE0, m_glTexture);
 	}
 
-	// [TODO][HACK][HOTFIX]
-	// Currently OpenGL samplers aren't supported!
-	// I'm adding a dummy texture sampler parameters.
-	// That code MUST be removed in the future!!!
-	// if(glTexTarget == GL_TEXTURE_2D)
-	{
-		GLenum samplerFilterMin = GL_NEAREST;
-		GLenum samplerFilterMag = GL_NEAREST;
+	// Determine the filtering mode.
+	GLenum samplerFilterMin = GL_NEAREST;
+	GLenum samplerFilterMag = GL_NEAREST;
+
+#if defined(__EMSCRIPTEN__)
+	// Caution:
+	// If you take a look here https://www.khronos.org/registry/OpenGL-Refpages/es3.0/html/glTexImage2D.xhtml
+	// You will see that on OpenGL ES3 (and therefore WebGL):
+	//
+	// FILTERING DEPTH TEXTURE IS NOT SUPPORTED.
+	//
+	// The OpenGL driver will be silent it will NOT report anything and the texture is going return black.
+	// On ANGLE (WebGL implementation) a UAV with 1x1 size is bound when reading the texture.
+	bool forceUsePointSampling = TextureFormat::IsDepth(m_desc.format);
+#else
+	bool forceUsePointSampling = false;
+#endif
+
+	if (forceUsePointSampling == false) {
 		if (samplerDesc.filter == TextureFilter::Min_Mag_Mip_Linear) {
 			samplerFilterMin = m_desc.hasMipMaps() ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR;
 			samplerFilterMag = GL_NEAREST;
@@ -178,37 +189,45 @@ void TextureGL::applySamplerDesc(const SamplerDesc& samplerDesc, bool shouldBind
 			samplerFilterMin = m_desc.hasMipMaps() ? GL_NEAREST_MIPMAP_NEAREST : GL_NEAREST;
 			samplerFilterMag = GL_NEAREST;
 		}
-
-		const auto getGLNativeAddressMode = [](TextureAddressMode::Enum mode) -> GLenum {
-			if (mode == TextureAddressMode::Repeat)
-				return GL_REPEAT;
-			if (mode == TextureAddressMode::ClampEdge)
-				return GL_CLAMP_TO_EDGE;
-			return GL_CLAMP_TO_BORDER;
-		};
-
-		GLenum const xAddresMode = getGLNativeAddressMode(samplerDesc.addressModes[0]);
-		DumpAllGLErrors();
-		GLenum const yAddresMode = getGLNativeAddressMode(samplerDesc.addressModes[1]);
-		DumpAllGLErrors();
-		GLenum const zAddresMode = getGLNativeAddressMode(samplerDesc.addressModes[2]);
-		DumpAllGLErrors();
-
-		glTexParameteri(glTexTarget, GL_TEXTURE_MIN_FILTER, samplerFilterMin);
-		DumpAllGLErrors();
-
-		glTexParameteri(glTexTarget, GL_TEXTURE_MAG_FILTER, samplerFilterMag);
-		DumpAllGLErrors();
-
-		// Apply the texture sampler.
-		glTexParameteri(glTexTarget, GL_TEXTURE_WRAP_S, xAddresMode);
-		glTexParameteri(glTexTarget, GL_TEXTURE_WRAP_T, yAddresMode);
-#ifndef __EMSCRIPTEN__
-		glTexParameteri(glTexTarget, GL_TEXTURE_WRAP_R, zAddresMode);
-		glTexParameterfv(glTexTarget, GL_TEXTURE_BORDER_COLOR, samplerDesc.colorBorder);
-#endif
-		DumpAllGLErrors();
+	} else {
+		samplerFilterMin = GL_NEAREST;
+		samplerFilterMag = GL_NEAREST;
 	}
+
+	const auto getGLNativeAddressMode = [](TextureAddressMode::Enum mode) -> GLenum {
+		if (mode == TextureAddressMode::Repeat)
+			return GL_REPEAT;
+		if (mode == TextureAddressMode::ClampEdge)
+			return GL_CLAMP_TO_EDGE;
+#if !defined(__EMSCRIPTEN__)
+		return GL_CLAMP_TO_BORDER;
+#else
+		return GL_CLAMP_TO_EDGE;
+#endif
+	};
+
+	// Determine the address mode.
+	GLenum const xAddresMode = getGLNativeAddressMode(samplerDesc.addressModes[0]);
+	GLenum const yAddresMode = getGLNativeAddressMode(samplerDesc.addressModes[1]);
+	GLenum const zAddresMode = getGLNativeAddressMode(samplerDesc.addressModes[2]);
+
+	// Apply the sampler settings to the texture.
+	glTexParameteri(glTexTarget, GL_TEXTURE_MIN_FILTER, samplerFilterMin);
+	DumpAllGLErrors();
+
+	glTexParameteri(glTexTarget, GL_TEXTURE_MAG_FILTER, samplerFilterMag);
+	DumpAllGLErrors();
+
+	glTexParameteri(glTexTarget, GL_TEXTURE_WRAP_S, xAddresMode);
+	DumpAllGLErrors();
+	glTexParameteri(glTexTarget, GL_TEXTURE_WRAP_T, yAddresMode);
+	DumpAllGLErrors();
+#ifndef __EMSCRIPTEN__
+	glTexParameteri(glTexTarget, GL_TEXTURE_WRAP_R, zAddresMode);
+	DumpAllGLErrors();
+	glTexParameterfv(glTexTarget, GL_TEXTURE_BORDER_COLOR, samplerDesc.colorBorder);
+	DumpAllGLErrors();
+#endif
 
 	if (shouldBindAndUnBindtexture) {
 		glcon->BindTextureEx(glTexTarget, GL_TEXTURE0, 0);

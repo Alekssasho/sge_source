@@ -25,12 +25,13 @@ struct BindLocation
 	bool isNull() const { return raw == 0; }
 
 #ifdef SGE_RENDERER_GL
-	BindLocation(short const bindLocation, short const uniformType, short const arraySize)
+	BindLocation(short const bindLocation, short const uniformType, short const arraySize, short bindUnitTexture)
 	{
 		raw = 0;
 		this->bindLocation = bindLocation;
 		this->uniformType = uniformType;
 		this->glArraySize = arraySize;
+		this->glTextureUnit = bindUnitTexture;
 	}
 #endif
 
@@ -60,6 +61,7 @@ struct BindLocation
 			short shaderFreq; // Is tha a vertex, geometry, pixel or so on shader.
 			short texArraySize_or_numericUniformSizeBytes;
 #else
+			short glTextureUnit;
 			short glArraySize;
 #endif
 		};
@@ -158,6 +160,7 @@ public:
 	int d3d11_bindingSlot = -1;
 #elif defined(SGE_RENDERER_GL)
 	int gl_bindLocation = -1;
+	int gl_bindUnit = 0; // should be used this way: "GL_TEXTURE0 + gl_bindUnit"
 	unsigned int gl_textureTarget = 0; // Reqired target of the texture, see GLUniformTypeToTextureType for more details.
 #endif
 	int arraySize = 0; // This value must be > 0 in order for the reflection to be valid.

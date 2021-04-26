@@ -8,40 +8,38 @@
 
 namespace sge {
 
-BindLocation NumericUniformRefl::computeBindLocation() const
-{
-	return BindLocation((short)bindLocation, (short)uniformType, (short)arraySize);
+BindLocation NumericUniformRefl::computeBindLocation() const {
+	return BindLocation((short)bindLocation, (short)uniformType, (short)arraySize, 0);
 }
 
-BindLocation CBufferRefl::computeBindLocation() const
-{
-	return BindLocation((short)gl_bindLocation, (short)UniformType::ConstantBuffer, 1);
+BindLocation CBufferRefl::computeBindLocation() const {
+	return BindLocation((short)gl_bindLocation, (short)UniformType::ConstantBuffer, 1, 0);
 }
 
-BindLocation TextureRefl::computeBindLocation() const
-{
-	if(gl_textureTarget == GL_TEXTURE_1D) {
-		return BindLocation((short)gl_bindLocation, (short)UniformType::Texture1D, short(arraySize));
+BindLocation TextureRefl::computeBindLocation() const {
+#if !defined(__EMSCRIPTEN__)
+	if (gl_textureTarget == GL_TEXTURE_1D) {
+		return BindLocation((short)gl_bindLocation, (short)UniformType::Texture1D, short(arraySize), short(gl_bindUnit));
+	}
+#endif
+
+	if (gl_textureTarget == GL_TEXTURE_2D) {
+		return BindLocation((short)gl_bindLocation, (short)UniformType::Texture2D, short(arraySize), short(gl_bindUnit));
 	}
 
-	if(gl_textureTarget == GL_TEXTURE_2D) {
-		return BindLocation((short)gl_bindLocation, (short)UniformType::Texture2D, short(arraySize));
+	if (gl_textureTarget == GL_TEXTURE_CUBE_MAP) {
+		return BindLocation((short)gl_bindLocation, (short)UniformType::TextureCube, short(arraySize), short(gl_bindUnit));
 	}
 
-	if(gl_textureTarget == GL_TEXTURE_CUBE_MAP) {
-		return BindLocation((short)gl_bindLocation, (short)UniformType::TextureCube, short(arraySize));
-	}
-
-	if(gl_textureTarget == GL_TEXTURE_3D) {
-		return BindLocation((short)gl_bindLocation, (short)UniformType::Texture3D, short(arraySize));
+	if (gl_textureTarget == GL_TEXTURE_3D) {
+		return BindLocation((short)gl_bindLocation, (short)UniformType::Texture3D, short(arraySize), short(gl_bindUnit));
 	}
 
 	sgeAssert(false);
 	return BindLocation();
 }
 
-BindLocation SamplerRefl::computeBindLocation() const
-{
+BindLocation SamplerRefl::computeBindLocation() const {
 	// There are no sampler in OpenGL.
 	sgeAssert(false);
 	return BindLocation();
@@ -50,9 +48,8 @@ BindLocation SamplerRefl::computeBindLocation() const
 //---------------------------------------------------------------
 // ShaderRefl
 //---------------------------------------------------------------
-bool ShadingProgramRefl::create(ShadingProgram* const shadingProgram)
-{
-	if(!shadingProgram || !shadingProgram->isValid()) {
+bool ShadingProgramRefl::create(ShadingProgram* const shadingProgram) {
+	if (!shadingProgram || !shadingProgram->isValid()) {
 		return false;
 	}
 
@@ -62,50 +59,59 @@ bool ShadingProgramRefl::create(ShadingProgram* const shadingProgram)
 
 	const int MAX_NAME_LEN = 256;
 
-	GLint numUniforms = 0; glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &numUniforms);
+	GLint numUniforms = 0;
+	glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &numUniforms);
 #if !defined(__EMSCRIPTEN__)
-	GLint numUniformBlocks = 0; glGetProgramiv(program, GL_ACTIVE_UNIFORM_BLOCKS, &numUniformBlocks);
+	GLint numUniformBlocks = 0;
+	glGetProgramiv(program, GL_ACTIVE_UNIFORM_BLOCKS, &numUniformBlocks);
 #endif
 
+	int texBindUnit = 1;
+
 	// Obtain the uniforms needed by the program.
-	for(GLint t = 0; t < numUniforms; ++t)
-	{
-		char name[MAX_NAME_LEN];
+	for (GLint t = 0; t < numUniforms; ++t) {
+		char name[MAX_NAME_LEN + 3];
 		GLint nameLen = 0;
 		GLint size = 0;
 		GLenum gl_type = SGE_GL_UNKNOWN;
 
 		// Get the uniform name, bindLocation and type.
 		glGetActiveUniform(program, t, MAX_NAME_LEN, &nameLen, &size, &gl_type, name);
+		DumpAllGLErrors();
 		sgeAssert(size >= 1);
 		const GLint bindLocation = glGetUniformLocation(program, name);
+		DumpAllGLErrors();
 
 		// If the bind location is equal to -1 than the uniform isn't used.
 		// https://www.opengl.org/wiki/Program_Introspection#Uniforms_and_blocks
-		if(bindLocation < 0) {
+		if (bindLocation < 0) {
 			continue;
 		}
 
 		// Caution:
 		// Different OpenGL implementations report OpenGL array uniforms differently.
 		// For example on my current Intel HD, a single array is reported by:
-		//     myUniformArray[0] myUniformArray[1] ... // myUniformArray[N] : One for every element, however the [0] has the correct num elements returned.
+		//     myUniformArray[0] myUniformArray[1] ... // myUniformArray[N] : One for every element, however the [0] has the correct num
+		//     elements returned.
 		// On other platforms it is just:
 		//    myUniformArray
-		const bool isNameLookingLikeArray = name[nameLen-1] == ']';
-		if(isNameLookingLikeArray && name[nameLen-2] != '0') {
-			continue;
+		bool isNameLookingLikeArray = false;
+		if (nameLen > 3) {
+			isNameLookingLikeArray = name[nameLen - 1] == ']';
+			if (isNameLookingLikeArray && name[nameLen - 2] != '0') {
+				continue;
+			}
 		}
 
 		// Because of the array naming inconsistency we need to use that:
-		std::string_view nameToUse = (isNameLookingLikeArray) 
-			? nameToUse = std::string_view(name, std::max(nameLen - 3, 0)) // drop the [0] to be consistent with Direct 3D reflections.
-			: nameToUse = std::string_view(name);
+		std::string_view nameToUse =
+		    (isNameLookingLikeArray)
+		        ? nameToUse = std::string_view(name, std::max(nameLen - 3, 0)) // drop the [0] to be consistent with Direct 3D reflections.
+		        : nameToUse = std::string_view(name);
 
-		if(UniformType_FromGLNumericUniformType(gl_type) != UniformType::Unknown)
-		{
+		if (UniformType_FromGLNumericUniformType(gl_type) != UniformType::Unknown) {
 			NumericUniformRefl uniform;
-			
+
 			uniform.name = nameToUse;
 			uniform.nameStrIdx = device->getStringIndex(uniform.name);
 			uniform.uniformType = UniformType_FromGLNumericUniformType(gl_type);
@@ -114,21 +120,21 @@ bool ShadingProgramRefl::create(ShadingProgram* const shadingProgram)
 
 			numericUnforms.add(uniform);
 		}
-		//then should be a texture
-		else if(GL_NONE != GLUniformTypeToTextureType(gl_type))
-		{
+		// then should be a texture
+		else if (GL_NONE != GLUniformTypeToTextureType(gl_type)) {
 			TextureRefl texture;
 
 			texture.name = nameToUse;
 			texture.nameStrIdx = device->getStringIndex(name);
 			texture.gl_bindLocation = bindLocation;
+			texture.gl_bindUnit = texBindUnit;
+			texBindUnit += 1;
 			texture.gl_textureTarget = GLUniformTypeToTextureType(gl_type);
+
 			texture.arraySize = size;
 
 			textures.add(texture);
-		}
-		else
-		{
+		} else {
 			// unknown uniform type
 			sgeAssert(false);
 		}
@@ -136,8 +142,7 @@ bool ShadingProgramRefl::create(ShadingProgram* const shadingProgram)
 
 	// Load the uniform buffers(cbuffers).
 #if !defined(__EMSCRIPTEN__)
-	for(GLint t = 0; t < numUniformBlocks; ++t)
-	{	
+	for (GLint t = 0; t < numUniformBlocks; ++t) {
 		// Uniform buffer name.
 		char name[MAX_NAME_LEN];
 		GLint nameLen = 0;
@@ -174,8 +179,7 @@ bool ShadingProgramRefl::create(ShadingProgram* const shadingProgram)
 		cbuffer.gl_bindLocation = bindLocation;
 
 		// Read the variables in the uniform block.
-		for(GLint v = 0; v < numVariableInBlock; ++v)
-		{
+		for (GLint v = 0; v < numVariableInBlock; ++v) {
 			char varName[MAX_NAME_LEN];
 			glGetActiveUniformName(program, varIndices[v], MAX_NAME_LEN, NULL, varName);
 
@@ -196,8 +200,7 @@ bool ShadingProgramRefl::create(ShadingProgram* const shadingProgram)
 	GLint numVSAttribs = 0;
 	glGetProgramiv(program, GL_ACTIVE_ATTRIBUTES, &numVSAttribs);
 
-	for(GLint t = 0; t < numVSAttribs; ++t)
-	{
+	for (GLint t = 0; t < numVSAttribs; ++t) {
 		char attribName[MAX_NAME_LEN];
 		GLint nameLen = 0, size;
 		GLenum gl_type = SGE_GL_UNKNOWN;
@@ -222,4 +225,4 @@ bool ShadingProgramRefl::create(ShadingProgram* const shadingProgram)
 	return true;
 }
 
-}
+} // namespace sge

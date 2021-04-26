@@ -182,8 +182,15 @@ ReflBlock() {
 	ReflAddType(short);
 	ReflAddType(unsigned short);
 
+#if 1
 	ReflAddType(TypeId)
 		ReflMember(TypeId, id);
+#else
+	ReflAddType(TypeId)
+		ReflMember(TypeId, hash)
+		ReflMember(TypeId, name)
+#endif
+	;
 
 	ReflAddType(std::vector<TypeId>);
 }

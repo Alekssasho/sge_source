@@ -27,12 +27,14 @@ ReflBlock() {
 
 	ReflAddType(TraitModel::ImageSettings)
 		ReflMember(TraitModel::ImageSettings, m_anchor)
+		ReflMember(TraitModel::ImageSettings, colorTint).addMemberFlag(MFF_Vec4fAsColor)
 		ReflMember(TraitModel::ImageSettings, defaultFacingAxisZ)
 		ReflMember(TraitModel::ImageSettings, m_localXOffset).uiRange(-FLT_MAX, FLT_MAX, 0.01f)
 		ReflMember(TraitModel::ImageSettings, m_pixelsPerUnit).uiRange(0.00001f, 100000.f, 0.1f)
 		ReflMember(TraitModel::ImageSettings, m_billboarding)
 		ReflMember(TraitModel::ImageSettings, forceNoLighting)
 		ReflMember(TraitModel::ImageSettings, forceNoCulling)
+		ReflMember(TraitModel::ImageSettings, flipHorizontally)
 		ReflMember(TraitModel::ImageSettings, spriteFrameTime).uiRange(0.f, 100000.f, 0.01f);
 	;
 

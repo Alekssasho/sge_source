@@ -46,7 +46,9 @@ uniform sampler2D uTexRoughness;
 
 uniform float uMetalness;
 uniform float uRoughness;
+#ifdef SGE_PIXEL_SHADER
 uniform int uPBRMtlFlags;
+#endif
 
 uniform float4 uRimLightColorWWidth;
 
@@ -162,6 +164,7 @@ VS_OUTPUT vsMain(VS_INPUT vsin) {
 //--------------------------------------------------------------------
 // Pixel Shader
 //--------------------------------------------------------------------
+#ifdef SGE_PIXEL_SHADER
 float4 psMain(VS_OUTPUT IN)
     : SV_Target0 {
 	float4 diffuseColor = pow(uDiffuseColorTint, 2.2f);
@@ -426,3 +429,4 @@ float4 psMain(VS_OUTPUT IN)
 
 	return finalColor;
 }
+#endif

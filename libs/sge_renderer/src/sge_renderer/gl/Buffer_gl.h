@@ -30,7 +30,7 @@ public:
 
 private:
 	
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__)
 	std::vector<char> m_emsc_mapBufferHelper;
 #endif
 

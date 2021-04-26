@@ -65,10 +65,9 @@ struct CharacterActor : public Actor {
 		}
 
 		bool const isJumpBtnPressed =
-		    (u.is.wasActiveWhilePolling() && u.is.IsKeyPressed(Key::Key_Space)) || ((gamepad && (gamepad->btnA & 0x3) == 1));
+		    (u.is.wasActiveWhilePolling() && u.is.IsKeyPressed(Key::Key_Space));
 
-		bool const isJumpBtnReleased = (u.is.wasActiveWhilePolling() && u.is.IsKeyReleased(Key::Key_Space)) ||
-		                               ((u.is.getXInputDevice(0).btnA & 0x3) == 2) || ((gamepad && (gamepad->btnA & 0x3) == 2));
+		bool const isJumpBtnReleased = (u.is.wasActiveWhilePolling() && u.is.IsKeyReleased(Key::Key_Space));
 
 		// Update the character controller.
 		CharacterCtrlInput charInput;

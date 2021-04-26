@@ -17,7 +17,8 @@ void GameMode::create(IGameDrawer* gameDrawer, const char* openingLevelPath) {
 
 void GameMode::update(const InputState& is) {
 	m_timer.tick();
-	// m_sceneInstance.getInspector().m_disableAutoStepping = false;
+	m_sceneInstance.getInspector().m_disableAutoStepping = false;
+	m_sceneInstance.getWorld().m_useEditorCamera = false;
 	m_sceneInstance.update(m_timer.diff_seconds(), is);
 }
 

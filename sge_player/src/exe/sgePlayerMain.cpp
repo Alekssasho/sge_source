@@ -37,6 +37,10 @@ __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 
 #include "MiniDump.h"
 
+#if defined(__EMSCRIPTEN__)
+sge::IPlugin* getInterop();
+#endif
+
 using namespace sge;
 
 int g_argc = 0;
@@ -56,7 +60,7 @@ struct SGEGameWindow : public WindowBase {
 
 	vec2i cachedWindowSize = vec2i(0);
 
-	void HandleEvent(const WindowEvent event, const void* const eventData) final {
+	void HandleEvent(const WindowEvent event, const void* const eventData) override {
 		if (event == WE_Create) {
 			OnCreate();
 		}
@@ -104,12 +108,18 @@ struct SGEGameWindow : public WindowBase {
 
 		SGEImGui::initialize(device->getContext(), device->getWindowFrameTarget(), &GetInputState(),
 		                     device->getWindowFrameTarget()->getViewport());
+
+#if !defined(__EMSCRIPTEN__)
 		ImGui::SetCurrentContext(getImGuiContextCore());
 		setImGuiContextEngine(getImGuiContextCore());
+#endif
+		ImGui::GetIO().IniFilename = NULL;
+		ImGui::GetIO().LogFilename = NULL;
 
 		getCore()->setup(device);
 		getCore()->getAssetLib()->scanForAvailableAssets("assets");
 
+#if !defined(__EMSCRIPTEN__)
 		for (auto const& entry : std::filesystem::directory_iterator("./")) {
 			if (std::filesystem::is_regular_file(entry) && entry.path().extension() == ".gll") {
 				pluginName = entry.path().string();
@@ -124,6 +134,9 @@ struct SGEGameWindow : public WindowBase {
 		} else {
 			loadPlugin();
 		}
+#else
+		loadPlugin();
+#endif
 
 		m_pGameDrawer = m_pluginInst->allocateGameDrawer();
 
@@ -136,6 +149,7 @@ struct SGEGameWindow : public WindowBase {
 		// Notify that we are about to unload the plugin.
 		getEngineGlobal()->notifyOnPluginPreUnload();
 
+#if !defined(__EMSCRIPTEN__)
 		// Unload the old plugin DLL and load the new one.
 		m_dllHandler.load(pluginName.c_str());
 
@@ -145,6 +159,9 @@ struct SGEGameWindow : public WindowBase {
 		if (interopGetter) {
 			m_pluginInst = interopGetter();
 		}
+#else
+		m_pluginInst = getInterop();
+#endif
 
 		m_pluginInst->onLoaded(ImGui::GetCurrentContext(), getCore());
 		typeLib().performRegistration();
@@ -184,6 +201,35 @@ struct SGEGameWindow : public WindowBase {
 	}
 };
 
+#ifdef __EMSCRIPTEN__
+#include <SDL2/SDL.h>
+#include <emscripten.h>
+#include <emscripten/html5.h>
+#else
+#include <SDL.h>
+#include <SDL_syswm.h>
+#endif
+
+
+
+#ifdef __EMSCRIPTEN__
+EM_BOOL emsc_canvasResizeCb(int eventType, const void* reserved, void* userData) {
+	double width, height;
+	emscripten_get_element_css_size("canvas", &width, &height);
+
+	int w = (int)width, h = (int)height;
+
+	printf("resized to %fx%f\n", width, height);
+
+	if (userData) {
+		SGEGameWindow* wnd = reinterpret_cast<SGEGameWindow*>(userData);
+		wnd->resizeWindow(w, h);
+	}
+
+	return 0;
+}
+#endif
+
 void main_loop() {
 	sge::ApplicationHandler::get()->PollEvents();
 	for (WindowBase* wnd : sge::ApplicationHandler::get()->getAllWindows()) {
@@ -194,25 +240,69 @@ void main_loop() {
 	}
 }
 
-int sge_main(int argc, char** argv) {
-	SGE_DEBUG_LOG("sge_main()\n");
+// Caution:
+// SDL2 might have a macro (depending on the target platform) for the main function!
+int main(int argc, char* argv[]) {
 
+	SGE_DEBUG_LOG("main()\n");
+	
+	sgeRegisterMiniDumpHandler();
 	setlocale(LC_NUMERIC, "C");
 
 	g_argc = argc;
 	g_argv = argv;
 
+	//float ddpi = 0.f;
+	//SDL_GetDisplayDPI(0, &ddpi, nullptr, nullptr);
+
+#ifdef __EMSCRIPTEN__
+	// Emscripten file system reassembles default Unix installation with the /home, /dev and all the other dirs.
+	// Placing the game in the root "/" doesn't seems to work for some reason this is why when we embed files in
+	// emscrpiten we add them to the path below. Make that path current as the game is expecting to be in that path.
+	std::filesystem::current_path("/home/game");
+
+	SDL_Init(SDL_INIT_VIDEO);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+
+#else
+	SDL_Init(SDL_INIT_EVERYTHING);
+	#ifdef SGE_RENDERER_GL
+		SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
+
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+		// SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	#endif
+#endif
+
 	if (!g_playerSettings.loadFromJsonFile("appdata/game_project_settings.json")) {
-		DialongOk("Error", "appData/game_project_settings.json seems to be missing or invalid! The will not start!");
+		DialongOk("Error", "appData/game_project_settings.json seems to be missing or invalid! The game will not start!");
 		return 0;
 	}
 
 	vec2i windowSize(g_playerSettings.windowWidth, g_playerSettings.windowHeight);
 
 	JsonParser jp;
-	sge::ApplicationHandler::get()->NewWindow<SGEGameWindow>("SGEEngine Game Player", windowSize.x, windowSize.y, false,
-	                                                         !g_playerSettings.windowIsResizable);
+	[[maybe_unused]] SGEGameWindow* wnd = sge::ApplicationHandler::get()->NewWindow<SGEGameWindow>(
+	    "SGEEngine Game Player", windowSize.x, windowSize.y, false, !g_playerSettings.windowIsResizable);
 
+#ifdef __EMSCRIPTEN__
+	EmscriptenFullscreenStrategy fullscreenStrategy = {};
+	fullscreenStrategy.scaleMode = EMSCRIPTEN_FULLSCREEN_SCALE_DEFAULT;
+	fullscreenStrategy.canvasResolutionScaleMode = EMSCRIPTEN_FULLSCREEN_CANVAS_SCALE_NONE;
+	fullscreenStrategy.filteringMode = EMSCRIPTEN_FULLSCREEN_FILTERING_DEFAULT;
+	fullscreenStrategy.canvasResizedCallback = emsc_canvasResizeCb;
+	fullscreenStrategy.canvasResizedCallbackUserData = wnd;
+
+	emscripten_request_fullscreen_strategy("#canvas", false, &fullscreenStrategy);
+#endif
+
+	// Main loop in web builds cannot run in an infinite loop as the browser JavaScript thread would freeze.
+	// instead we specify a function to emscripten that will get called instead as a main loop.
 #ifdef __EMSCRIPTEN__
 	emscripten_set_main_loop(main_loop, 0, true);
 #else
@@ -222,61 +312,4 @@ int sge_main(int argc, char** argv) {
 #endif
 
 	return 0;
-}
-
-
-#ifdef __EMSCRIPTEN__
-#include <SDL2/SDL.h>
-#include <emscripten.h>
-//#include <GLES3/gl3.h> // WebGL2 + GLES 3 emulation.
-#else
-#include <SDL.h>
-#include <SDL_syswm.h>
-#endif
-
-// Caution:
-// SDL2 might have a macro (depending on the target platform) for the main function!
-int main(int argc, char* argv[]) {
-	SGE_DEBUG_LOG("main()\n");
-	sgeRegisterMiniDumpHandler();
-
-
-	SDL_SetHint(SDL_HINT_VIDEO_HIGHDPI_DISABLED, "1");
-#ifdef __EMSCRIPTEN__
-
-	SDL_Init(SDL_INIT_VIDEO);
-	SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-
-#else
-	SDL_Init(SDL_INIT_EVERYTHING);
-#ifdef SGE_RENDERER_D3D11
-	// SDL_SetHint(SDL_HINT_RENDER_DRIVER, "software");
-#else if SGE_RENDERER_GL
-	SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
-
-	float ddpi = 0.f;
-	SDL_GetDisplayDPI(0, &ddpi, nullptr, nullptr);
-
-	// SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
-	// SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
-	// SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
-	// SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-	// SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	//
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-	// SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-#endif
-#endif
-
-
-	// const int numJoystics = SDL_NumJoysticks();
-	// for (int iJoy = 0; iJoy < numJoystics; ++iJoy) {
-	//	if (SDL_IsGameController(iJoy)) {
-	//		[[maybe_unused]] SDL_GameController* const gameController = SDL_GameControllerOpen(iJoy);
-	//	}
-	//}
-	return sge_main(argc, argv);
 }

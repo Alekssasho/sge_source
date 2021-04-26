@@ -14,6 +14,7 @@
 # So for the best debugging experience set your start-up project in Visual Studio to be
 # ${target_name}_AssembleAndDebug and just hit F5 (or Ctrl+F5) and debug happily!
 macro(sge_generate_assemble_and_debug_target_for_game target_name target_output_dir)
+if(NOT EMSCRIPTEN)
 	add_custom_target(${target_name}_AssembleAndDebug ALL DEPENDS ${target_name})
 
 	add_dependencies(${target_name}_AssembleAndDebug ${target_name})
@@ -32,9 +33,11 @@ macro(sge_generate_assemble_and_debug_target_for_game target_name target_output_
 	)
 
 	# sge_editor
+if(NOT EMSCRIPTEN)
 	add_custom_command(TARGET ${target_name}_AssembleAndDebug POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:sge_editor> ${target_output_dir}/
 	)
+endif()
 	
 	# sge_player
 	add_custom_command(TARGET ${target_name}_AssembleAndDebug POST_BUILD
@@ -62,11 +65,13 @@ macro(sge_generate_assemble_and_debug_target_for_game target_name target_output_
 	)
 	
 	# mdlconvlib for import 3D models.
+if(NOT EMSCRIPTEN)
 	if(TARGET mdlconvlib)
 		add_custom_command(TARGET ${target_name}_AssembleAndDebug POST_BUILD
 			COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:mdlconvlib> ${target_output_dir}/
 		)
 	endif()
+endif()
 	
 	# Transfer the engine assets.
 	add_custom_command(TARGET ${target_name}_AssembleAndDebug POST_BUILD
@@ -79,4 +84,5 @@ macro(sge_generate_assemble_and_debug_target_for_game target_name target_output_
 		
 	set_target_properties(${target_name}_AssembleAndDebug PROPERTIES 
 		VS_DEBUGGER_COMMAND "${target_output_dir}/$<TARGET_FILE_NAME:sge_editor>")
+endif()
 endmacro()

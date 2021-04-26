@@ -3,8 +3,12 @@
 #include <memory>
 #include "sge_utils/utils/TypeTraits.h"
 
+#if !defined(__EMSCRIPTEN__)
 #include <GL/glew.h>
 #include <GL/gl.h>
+#else
+#include <GLES3/gl3.h>
+#endif
 
 #define SGE_GL_UNKNOWN GL_ZERO
 
@@ -18,15 +22,18 @@ inline GLenum GLUniformTypeToTextureType(const GLenum uniformType)
 	switch(uniformType)
 	{
 		// 1D
+#if !defined(__EMSCRIPTEN__)
 		case GL_SAMPLER_1D:                    return GL_TEXTURE_1D;
 		case GL_SAMPLER_1D_SHADOW:             return GL_TEXTURE_1D;
 		case GL_INT_SAMPLER_1D:                return GL_TEXTURE_1D;
 		case GL_UNSIGNED_INT_SAMPLER_1D:       return GL_TEXTURE_1D;
 
+
 		case GL_SAMPLER_1D_ARRAY:              return GL_TEXTURE_1D_ARRAY;
 		case GL_SAMPLER_1D_ARRAY_SHADOW:       return GL_TEXTURE_1D_ARRAY;
 		case GL_INT_SAMPLER_1D_ARRAY:          return GL_TEXTURE_1D_ARRAY;
 		case GL_UNSIGNED_INT_SAMPLER_1D_ARRAY: return GL_TEXTURE_1D_ARRAY;
+#endif
 
 		// 2D
 		case GL_SAMPLER_2D:                    return GL_TEXTURE_2D;
@@ -40,6 +47,7 @@ inline GLenum GLUniformTypeToTextureType(const GLenum uniformType)
 		case GL_UNSIGNED_INT_SAMPLER_2D_ARRAY: return GL_TEXTURE_2D_ARRAY;
 
 		// 2D MultiSampled
+#if !defined(__EMSCRIPTEN__)
 		case GL_SAMPLER_2D_MULTISAMPLE:                    return GL_TEXTURE_2D_MULTISAMPLE;
 		case GL_INT_SAMPLER_2D_MULTISAMPLE:                return GL_TEXTURE_2D_MULTISAMPLE;
 		case GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE:       return GL_TEXTURE_2D_MULTISAMPLE;
@@ -47,6 +55,7 @@ inline GLenum GLUniformTypeToTextureType(const GLenum uniformType)
 		case GL_SAMPLER_2D_MULTISAMPLE_ARRAY:              return GL_TEXTURE_2D_MULTISAMPLE_ARRAY;
 		case GL_INT_SAMPLER_2D_MULTISAMPLE_ARRAY:          return GL_TEXTURE_2D_MULTISAMPLE_ARRAY;
 		case GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY: return GL_TEXTURE_2D_MULTISAMPLE_ARRAY;
+#endif
 
 		// Cube
 		case GL_SAMPLER_CUBE:                        return GL_TEXTURE_CUBE_MAP;
@@ -54,10 +63,12 @@ inline GLenum GLUniformTypeToTextureType(const GLenum uniformType)
 		case GL_INT_SAMPLER_CUBE:                    return GL_TEXTURE_CUBE_MAP;
 		case GL_UNSIGNED_INT_SAMPLER_CUBE:           return GL_TEXTURE_CUBE_MAP;
 
+#if !defined(__EMSCRIPTEN__)
 		case GL_SAMPLER_CUBE_MAP_ARRAY:              return GL_TEXTURE_CUBE_MAP;
 		case GL_SAMPLER_CUBE_MAP_ARRAY_SHADOW:       return GL_TEXTURE_CUBE_MAP;
 		case GL_INT_SAMPLER_CUBE_MAP_ARRAY:          return GL_TEXTURE_CUBE_MAP;
 		case GL_UNSIGNED_INT_SAMPLER_CUBE_MAP_ARRAY: return GL_TEXTURE_CUBE_MAP;
+#endif
 
 		// 3D
 		case GL_SAMPLER_3D:              return GL_TEXTURE_3D;

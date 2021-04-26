@@ -2,6 +2,7 @@
 
 #include "sge_engine/sge_engine_api.h"
 #include "sge_utils/utils/TypeTraits.h"
+#include "sge_utils/utils/hash_combine.h"
 #include "sge_utils/utils/vector_map.h"
 #include <cstring>
 #include <functional>
@@ -15,6 +16,7 @@
 namespace sge {
 
 struct TypeId {
+#if 1
 	int id;
 
 	explicit TypeId(int const id = 0)
@@ -28,16 +30,43 @@ struct TypeId {
 	bool operator>(const TypeId& r) const { return id > r.id; }
 	bool operator==(const TypeId& r) const { return id == r.id; }
 	bool operator!=(const TypeId& r) const { return id != r.id; }
+#else
+	int hash = 0;
+	std::string name;
+
+	TypeId() = default;
+	explicit TypeId(const char* const cstr) {
+		if (cstr) {
+			hash = hashCString_djb2(cstr);
+			name = cstr;
+		}
+	}
+
+	bool isNull() const { return hash == 0 && name.empty(); }
+	bool isValid() const { return isNull() == false; }
+
+	bool operator<(const TypeId& r) const { return hash < r.hash; }
+	bool operator>(const TypeId& r) const { return hash > r.hash; }
+	bool operator==(const TypeId& r) const { return hash == r.hash && name == r.name; }
+	bool operator!=(const TypeId& r) const { return hash != r.hash || name != r.name; }
+#endif
 };
 
 } // namespace sge
 
 /// Definition of std::hash<TypeId>
 namespace std {
+#if 1
 template <>
 struct hash<sge::TypeId> {
 	int operator()(const sge::TypeId& k) const { return k.id; }
 };
+#else
+template <>
+struct hash<sge::TypeId> {
+	int operator()(const sge::TypeId& k) const { return k.hash; }
+};
+#endif
 } // namespace std
 
 
@@ -51,12 +80,24 @@ namespace sge {
 ///
 /// A good nomenclature for assigning ids is:
 /// yy'mm'dd'nnnn where nnnn is the number of type registered on this day.
+#if 1
 template <typename T>
 TypeId sgeTypeIdFn();
+#else
+template <typename T>
+TypeId sgeTypeIdFn() {
+#ifdef WIN32
+	return TypeId(__FUNCSIG__); // TODO: make this cross-compiler safe.
+#else
+	return TypeId(__PRETTY_FUNCTION__);
+#endif
+}
+#endif
 
 /// Don't use in header definition it will bloat the cpps unless you need
 /// to use id same id in different libraries (dlls/so and so on) where
 /// the function specialization isn't acessible.
+#if 1
 #define DefineTypeIdInline(T, _id)        \
 	template <>                           \
 	inline TypeId sge::sgeTypeIdFn<T>() { \
@@ -76,9 +117,13 @@ TypeId sgeTypeIdFn();
 		return TypeId(_id);   \
 	}
 #endif
+#else
+#define DefineTypeIdInline(T, _id)
+#define DefineTypeId(T, _id)
+#endif
 
 // Mark that the type id already exists, this is used for situations were we
-
+#if 1
 #ifdef SGE_ENGINE_BUILDING_DLL
 #define DefineTypeIdExists(T) \
 	struct T;                 \
@@ -89,6 +134,9 @@ TypeId sgeTypeIdFn();
 	struct T;                 \
 	template <>               \
 	TypeId sgeTypeIdFn<T>();
+#endif
+#else
+#define DefineTypeIdExists(T)
 #endif
 
 /// A macros used to quckly obtain id for a particular type.
@@ -134,7 +182,8 @@ enum MemberFieldFlags : unsigned {
 	MFF_NonSaveable = 1 << 1,
 	MFF_FloatAsDegrees = 1 << 2,
 	MFF_Vec3fAsColor = 1 << 3,
-	MFF_PrefabDontCopy = 1 << 4,
+	MFF_Vec4fAsColor = 1 << 4,
+	MFF_PrefabDontCopy = 1 << 5,
 };
 
 struct SGE_ENGINE_API MemberDesc {
@@ -179,16 +228,7 @@ struct SGE_ENGINE_API MemberDesc {
 	// The function will work only if the very 1st type is used for @T (basically the root of the hierarchy)
 	// Or if the same type of the owner of this member is used. No types in between.
 	template <typename T, typename M>
-	bool is(M T::*memberPtr) const {
-		const MemberDesc* const mfdRef = typeLib().findMember(memberPtr);
-
-		const bool doesByteOffsetMatch = byteOffset == mfdRef->byteOffset;
-		const bool doesTypesMatch = typeId == mfdRef->typeId;
-		const bool doesOwnerTypeMatch = owner->typeId == sgeTypeId(T);
-		const bool doesInheridTypeMatch = inheritedForm == sgeTypeId(T);
-
-		return doesByteOffsetMatch && doesTypesMatch && (doesOwnerTypeMatch || doesInheridTypeMatch);
-	}
+	bool is(M T::*memberPtr) const;
 };
 
 } // namespace sge
@@ -733,5 +773,18 @@ struct SGE_ENGINE_API MemberChain {
 ///-------------------------------------------------------------------------------------------
 #define sgeFindMember(Type, Member) typeLib().find<Type>()->findMember(&Type::Member)
 
+// The function will work only if the very 1st type is used for @T (basically the root of the hierarchy)
+// Or if the same type of the owner of this member is used. No types in between.
+template <typename T, typename M>
+bool MemberDesc::is(M T::*memberPtr) const {
+	const MemberDesc* const mfdRef = typeLib().findMember(memberPtr);
+
+	const bool doesByteOffsetMatch = byteOffset == mfdRef->byteOffset;
+	const bool doesTypesMatch = typeId == mfdRef->typeId;
+	const bool doesOwnerTypeMatch = owner->typeId == sgeTypeId(T);
+	const bool doesInheridTypeMatch = inheritedForm == sgeTypeId(T);
+
+	return doesByteOffsetMatch && doesTypesMatch && (doesOwnerTypeMatch || doesInheridTypeMatch);
+}
 
 } // namespace sge

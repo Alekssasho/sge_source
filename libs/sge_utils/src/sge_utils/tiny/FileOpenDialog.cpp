@@ -36,13 +36,12 @@ bool DialogYesNo(const char* caption, const char* message) {
 	std::string cmd = string_format("zenity --question --text=\"%s\"", message);
 	int res = system(cmd.c_str());
 #else
-	return;
+	return false;
 #endif
 }
 
 std::string FileOpenDialog(const std::string& prompt, bool fileMustExists, const char* fileFilter, const char* initialDir) {
 #ifdef WIN32
-
 	static std::mutex mtx;
 	std::lock_guard<std::mutex> mtx_guard(mtx);
 
@@ -145,7 +144,7 @@ std::string FileSaveDialog(const std::string& prompt, const char* fileFilter, co
 	
 	return pickedPath;
 #else
-return std::string();
+	return std::string();
 #endif
 }
 
@@ -173,7 +172,7 @@ std::string FolderOpenDialog(const char* const prompt, const std::string& initia
 	}
 
 	return std::string();
-#else
+#elif !defined(__EMSCRIPTEN__)
 	std::string zenityCmd = string_format("zenity  --file-selection --title=\"%s\" --directory", prompt);
 
 	// [TODO] Fix this madness...
@@ -190,6 +189,8 @@ std::string FolderOpenDialog(const char* const prompt, const std::string& initia
 	s.pop_back();                 // Delete the '\n' printed by zenity.
 	pclose(f);
 	return s;
+#else
+	return std::string();
 #endif
 }
 

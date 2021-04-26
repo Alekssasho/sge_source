@@ -221,7 +221,7 @@ private :
 
 		void* getCompileTimeClassId() const final
 		{
-			return sgePerBuildTypeId(T);
+			return (void*)(sgePerBuildTypeId(T));
 		}
 	};
 
