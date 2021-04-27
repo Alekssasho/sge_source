@@ -12,6 +12,7 @@
 namespace sge {
 
 struct AssetLibrary;
+struct AudioAsset;
 
 struct AssetModel {
 	Model::Model model;
@@ -26,6 +27,7 @@ enum class AssetType : int {
 	TextureView, // sge::GpuHandle<sge::Texture>
 	Text,        // A file containing some text (including code).
 	Sprite,
+	Audio,       // Vorbis encoded audio file. Usually used for background music or longer audio tracks.
 
 	Count,
 };
@@ -95,6 +97,10 @@ struct SGE_CORE_API Asset {
 	const SpriteAnimationAsset* asSprite() const {
 		sgeAssert(getType() == AssetType::Sprite);
 		return (const SpriteAnimationAsset*)m_pAsset;
+	}
+	const sge::AudioAsset* asAudio() const {
+		sgeAssert(getType() == AssetType::Audio);
+		return (const AudioAsset*)m_pAsset;
 	}
 
 	AssetType getType() const { return m_type; }

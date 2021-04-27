@@ -352,6 +352,8 @@ void AssetsWindow::update(SGEContext* const sgecon, const InputState& is) {
 							string_format(label, "%s %s", ICON_FK_PICTURE_O, entry.path().filename().string().c_str());
 						} else if (assetType == AssetType::Text) {
 							string_format(label, "%s %s", ICON_FK_FILE, entry.path().filename().string().c_str());
+						} else if (assetType == AssetType::Audio) {
+							string_format(label, "%s %s", ICON_FK_FILE_AUDIO_O, entry.path().filename().string().c_str());
 						} else {
 							string_format(label, "%s %s", ICON_FK_FILE_TEXT_O, entry.path().filename().string().c_str());
 						}
