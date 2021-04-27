@@ -289,6 +289,14 @@ void GameWorld::update(const GameUpdateSets& updateSets) {
 
 	debug.numCallsToGetObjectByIdThisFrame = 0;
 
+	// Audio stop play
+	if (m_cachedUpdateSets.isGamePaused() && updateSets.isPlaying()) {
+		getCore()->getAudioDevice()->play();
+	}
+	if (m_cachedUpdateSets.isPlaying() && updateSets.isGamePaused()) {
+		getCore()->getAudioDevice()->pause();
+	}
+
 	m_cachedUpdateSets = updateSets;
 
 	// Add the objects that were created.
