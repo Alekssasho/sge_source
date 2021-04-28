@@ -1,9 +1,10 @@
 #include "audio_device.h"
 #include "audio_device_sdl.h"
+#include "sge_utils/sge_utils.h"
 
 namespace sge {
 
-SGEAudioDevice* SGEAudioDevice::create(const AudioDeviceDesc& /*deviceDesc*/) {
-	return new SGEAudioDeviceSDL;
+AudioDevice* AudioDevice::create(const AudioDeviceDesc& UNUSED(deviceDesc)) {
+	return new AudioDeviceSDL;
 }
 }

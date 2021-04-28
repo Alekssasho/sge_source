@@ -116,7 +116,7 @@ struct SGEGameWindow : public WindowBase {
 		setImGuiContextEngine(getImGuiContextCore());
 
 		// Setup Audio device
-		SGEAudioDevice* const audioDevice = SGEAudioDevice::create(AudioDeviceDesc{});
+		AudioDevice* const audioDevice = AudioDevice::create(AudioDeviceDesc{});
 
 		getCore()->setup(device, audioDevice);
 		getCore()->getAssetLib()->scanForAvailableAssets("assets");

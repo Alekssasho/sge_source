@@ -65,6 +65,22 @@ const SpriteAnimationAsset* AssetProperty::getAssetSprite() const {
 	return m_asset->asSprite();
 }
 
+AudioAsset* AssetProperty::getAssetAudio() {
+	if (isAssetLoaded(m_asset) == false || m_asset->getType() != AssetType::Audio) {
+		return nullptr;
+	}
+
+	return m_asset->asAudio();
+}
+
+const AudioAsset* AssetProperty::getAssetAudio() const {
+	if (isAssetLoaded(m_asset) == false || m_asset->getType() != AssetType::Audio) {
+		return nullptr;
+	}
+
+	return m_asset->asAudio();
+}
+
 void AssetProperty::setAsset(std::shared_ptr<Asset>& asset) {
 	m_asset = asset;
 	m_targetAsset = asset->getPath();

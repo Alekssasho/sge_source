@@ -10,10 +10,10 @@
 #include "sge_core/Sprite.h"
 
 namespace sge {
+struct AudioTrack;
+using AudioAsset = std::shared_ptr<AudioTrack>;
 
 struct AssetLibrary;
-struct AudioAsset;
-
 struct AssetModel {
 	Model::Model model;
 	EvaluatedModel staticEval;
@@ -79,6 +79,11 @@ struct SGE_CORE_API Asset {
 	SpriteAnimationAsset* asSprite() {
 		sgeAssert(getType() == AssetType::Sprite);
 		return (SpriteAnimationAsset*)m_pAsset;
+	}
+
+        sge::AudioAsset* asAudio() {
+		sgeAssert(getType() == AssetType::Audio);
+		return (AudioAsset*)m_pAsset;
 	}
 
 	const void* asVoid() const { return m_pAsset; }

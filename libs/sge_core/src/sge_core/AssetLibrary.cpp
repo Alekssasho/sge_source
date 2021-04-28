@@ -5,7 +5,7 @@
 #include "sge_core/model/Model.h"
 #include "sge_core/model/ModelReader.h"
 #include "sge_renderer/renderer/renderer.h"
-#include "sge_audio/audio_assets.h"
+#include "sge_audio/audio_track.h"
 #include "sge_utils/utils/FileStream.h"
 #include "sge_utils/utils/Path.h"
 #include "sge_utils/utils/json.h"
@@ -366,15 +366,13 @@ struct AudioAssetFactory : public IAssetFactory {
 		if (!FileReadStream::readFile(pPath, fileContents)) {
 			return false;
 		}
-
-		audio.encodedData = std::move(fileContents);
+		audio.reset(new AudioTrack(std::move(fileContents)));
 		return true;
 	}
 
 	void unload(void* const pAsset, AssetLibrary* const UNUSED(pMngr)) final {
 		AudioAsset& audio = *reinterpret_cast<AudioAsset*>(pAsset);
-		audio.encodedData.clear();
-		audio.encodedData.shrink_to_fit();
+		audio.reset();
 	}
 };
 
