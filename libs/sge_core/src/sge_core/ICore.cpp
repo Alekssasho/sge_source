@@ -24,7 +24,7 @@ struct Core : public ICore {
 
 	Core() = default;
 
-	void setup(SGEDevice* const sgedev) final;
+	void setup(SGEDevice* const sgedev, AudioDevice* const sgeAudioDevice) final;
 
 	void drawGizmo(const RenderDestination& rdest, const Gizmo3D& gizmo, const mat4f& projView) final;
 	void drawTranslationGizmo(const RenderDestination& rdest, const Gizmo3DTranslation& gizmo, const mat4f& projView) final;
@@ -38,6 +38,7 @@ struct Core : public ICore {
 	BasicModelDraw& getModelDraw() final { return m_modelDraw; }
 
 	SGEDevice* getDevice() final { return m_sgedev; }
+	AudioDevice* getAudioDevice() final { return m_audioDevice; }
 
 	GraphicsResources& getGraphicsResources() final { return m_graphicsResources; }
 
@@ -65,15 +66,20 @@ struct Core : public ICore {
 
 	FrameStatistics lastFrameStatistics;
 	std::map<std::string, std::map<std::string, CallBack>> m_menuItems;
+
+	AudioDevice* m_audioDevice = nullptr;
 };
 
 // A set of colors used to specify how the gizmo is drawn.
 enum : unsigned { Gizmo_ActiveColor = 0xC000FFFF, Gizmo_ActiveTransp = 0xC0000000, Gizmo_BaseTransp = 0xB0000000 };
 
-void Core::setup(SGEDevice* const sgedev) {
+void Core::setup(SGEDevice* const sgedev, AudioDevice* const sgeAudioDevice) {
 	sgeAssert(sgedev);
+	sgeAssert(sgeAudioDevice);
 	m_sgedev = sgedev;
 	m_sgecon = sgedev->getContext();
+
+	m_audioDevice = sgeAudioDevice;
 
 	m_assetLibrary = std::make_unique<AssetLibrary>(sgedev);
 

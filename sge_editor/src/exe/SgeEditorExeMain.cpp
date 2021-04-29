@@ -115,7 +115,10 @@ struct SGEGameWindow : public WindowBase {
 		ImGui::SetCurrentContext(getImGuiContextCore());
 		setImGuiContextEngine(getImGuiContextCore());
 
-		getCore()->setup(device);
+		// Setup Audio device
+		AudioDevice* const audioDevice = AudioDevice::create(AudioDeviceDesc{});
+
+		getCore()->setup(device, audioDevice);
 		getCore()->getAssetLib()->scanForAvailableAssets("assets");
 
 		for (auto const& entry : std::filesystem::directory_iterator("./")) {

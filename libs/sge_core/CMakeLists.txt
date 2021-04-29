@@ -15,6 +15,7 @@ target_include_directories(sge_core PUBLIC "./src")
 target_include_directories(sge_core PUBLIC ../../libs_ext/stb)
 
 target_link_libraries(sge_core PUBLIC sge_renderer)
+target_link_libraries(sge_core PUBLIC sge_audio)
 target_link_libraries(sge_core PUBLIC imgui)
 
 if(NOT EMSCRIPTEN)

@@ -2,6 +2,7 @@
 
 #include "CoreLog.h"
 #include "sge_renderer/renderer/renderer.h"
+#include "sge_audio/audio_device.h"
 #include "sge_utils/math/mat4.h"
 #include "sge_utils/sge_utils.h"
 #include "sgecore_api.h"
@@ -49,7 +50,7 @@ struct SGE_CORE_API ICore {
 	ICore() = default;
 	virtual ~ICore() = default;
 
-	virtual void setup(SGEDevice* const sgedev) = 0;
+	virtual void setup(SGEDevice* const sgedev, AudioDevice* const sgeAudioDevice) = 0;
 
 	/// @brief 3D Gizmo drawing function. TODO: Move these form here as this is no longer a good place for them.
 	virtual void drawGizmo(const RenderDestination& rdest, const Gizmo3D& gizmo, const mat4f& projView) = 0;
@@ -77,6 +78,8 @@ struct SGE_CORE_API ICore {
 	virtual void setLastFrameStatistics(const FrameStatistics& stats) = 0;
 
 	virtual CoreLog& getLog() = 0;
+
+	virtual AudioDevice* getAudioDevice() = 0;
 };
 
 #if defined(SGE_USE_DEBUG)

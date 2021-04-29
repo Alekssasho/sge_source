@@ -116,7 +116,10 @@ struct SGEGameWindow : public WindowBase {
 		ImGui::GetIO().IniFilename = NULL;
 		ImGui::GetIO().LogFilename = NULL;
 
-		getCore()->setup(device);
+		// Setup Audio device
+		AudioDevice* const audioDevice = AudioDevice::create(AudioDeviceDesc{});
+
+		getCore()->setup(device, audioDevice);
 		getCore()->getAssetLib()->scanForAvailableAssets("assets");
 
 #if !defined(__EMSCRIPTEN__)

@@ -10,9 +10,10 @@
 #include "sge_core/Sprite.h"
 
 namespace sge {
+struct AudioTrack;
+using AudioAsset = std::shared_ptr<AudioTrack>;
 
 struct AssetLibrary;
-
 struct AssetModel {
 	Model::Model model;
 	EvaluatedModel staticEval;
@@ -26,6 +27,7 @@ enum class AssetType : int {
 	TextureView, // sge::GpuHandle<sge::Texture>
 	Text,        // A file containing some text (including code).
 	Sprite,
+	Audio,       // Vorbis encoded audio file. Usually used for background music or longer audio tracks.
 
 	Count,
 };
@@ -79,6 +81,11 @@ struct SGE_CORE_API Asset {
 		return (SpriteAnimationAsset*)m_pAsset;
 	}
 
+        sge::AudioAsset* asAudio() {
+		sgeAssert(getType() == AssetType::Audio);
+		return (AudioAsset*)m_pAsset;
+	}
+
 	const void* asVoid() const { return m_pAsset; }
 	AssetModel* asModel() {
 		sgeAssert(getType() == AssetType::Model);
@@ -95,6 +102,10 @@ struct SGE_CORE_API Asset {
 	const SpriteAnimationAsset* asSprite() const {
 		sgeAssert(getType() == AssetType::Sprite);
 		return (const SpriteAnimationAsset*)m_pAsset;
+	}
+	const sge::AudioAsset* asAudio() const {
+		sgeAssert(getType() == AssetType::Audio);
+		return (const AudioAsset*)m_pAsset;
 	}
 
 	AssetType getType() const { return m_type; }

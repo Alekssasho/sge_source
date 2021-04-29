@@ -289,6 +289,9 @@ void GameWorld::update(const GameUpdateSets& updateSets) {
 
 	debug.numCallsToGetObjectByIdThisFrame = 0;
 
+	// Update Audio device
+	getCore()->getAudioDevice()->setMasterVolume(m_masterVolume);
+
 	m_cachedUpdateSets = updateSets;
 
 	// Add the objects that were created.

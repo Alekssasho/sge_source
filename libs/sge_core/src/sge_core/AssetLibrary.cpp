@@ -5,6 +5,7 @@
 #include "sge_core/model/Model.h"
 #include "sge_core/model/ModelReader.h"
 #include "sge_renderer/renderer/renderer.h"
+#include "sge_audio/audio_track.h"
 #include "sge_utils/utils/FileStream.h"
 #include "sge_utils/utils/Path.h"
 #include "sge_utils/utils/json.h"
@@ -27,6 +28,8 @@ SGE_CORE_API const char* assetType_getName(const AssetType type) {
 			return "Text";
 		case AssetType::Sprite:
 			return "Sprite";
+		case AssetType::Audio:
+			return "Vorbis Audio";
 		default:
 			sgeAssertFalse("Not implemented");
 			return "NotImplemented";
@@ -64,6 +67,10 @@ AssetType assetType_fromExtension(const char* const ext, bool includeExternalExt
 
 	if (sge_stricmp(ext, "sprite") == 0) {
 		return AssetType::Sprite;
+	}
+
+	if (sge_stricmp(ext, "ogg") == 0) {
+		return AssetType::Audio;
 	}
 
 	return AssetType::None;
@@ -349,6 +356,27 @@ struct SpriteAssetFactory : public IAssetFactory {
 };
 
 //-------------------------------------------------------
+// AudioAssetFactory
+//-------------------------------------------------------
+struct AudioAssetFactory : public IAssetFactory {
+	bool load(void* const pAsset, const char* const pPath, AssetLibrary* const UNUSED(assetLib)) final {
+		AudioAsset& audio = *reinterpret_cast<AudioAsset*>(pAsset);
+
+		std::vector<char> fileContents;
+		if (!FileReadStream::readFile(pPath, fileContents)) {
+			return false;
+		}
+		audio.reset(new AudioTrack(std::move(fileContents)));
+		return true;
+	}
+
+	void unload(void* const pAsset, AssetLibrary* const UNUSED(pMngr)) final {
+		AudioAsset& audio = *reinterpret_cast<AudioAsset*>(pAsset);
+		audio.reset();
+	}
+};
+
+//-------------------------------------------------------
 // AssetLibrary
 //-------------------------------------------------------
 AssetLibrary::AssetLibrary(SGEDevice* const sgedev) {
@@ -359,6 +387,7 @@ AssetLibrary::AssetLibrary(SGEDevice* const sgedev) {
 	this->registerAssetType(AssetType::TextureView, new TAssetAllocatorDefault<GpuHandle<Texture>>(), new TextureViewAssetFactory());
 	this->registerAssetType(AssetType::Text, new TAssetAllocatorDefault<std::string>(), new TextAssetFactory());
 	this->registerAssetType(AssetType::Sprite, new TAssetAllocatorDefault<SpriteAnimationAsset>(), new SpriteAssetFactory());
+	this->registerAssetType(AssetType::Audio, new TAssetAllocatorDefault<sge::AudioAsset>(), new AudioAssetFactory());
 }
 
 void AssetLibrary::registerAssetType(const AssetType type, IAssetAllocator* const pAllocator, IAssetFactory* const pFactory) {
