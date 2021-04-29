@@ -12,20 +12,20 @@ struct AudioDeviceSDL : public AudioDevice {
 
 	void update(float dt) final;
 	void setBackgroundMusic(AudioTrack* backgroundMusic) final;
-
-	void play() final;
-	void pause() final;
+	void setMasterVolume(float volume) final;
 private:
-        // TODO: This probably is not enough if we need more than stereo
+	// TODO: This probably is not enough if we need more than stereo
 	struct AudioFrame {
 		float left;
 		float right;
 	};
 	void fillAudioFrames(AudioFrame* frames, uint32_t numFrames);
 	static void onAudioCallback(void* userdata, Uint8* stream, int len);
-	uint64_t m_SampleCount = 0;
+
+	bool hasAnythingToPlay();
 
 	// Background music
 	AudioTrack* m_backgroundMusic = nullptr;
+	float m_masterVolume = 1.0f;
 };
 } // namespace sge

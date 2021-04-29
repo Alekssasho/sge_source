@@ -109,6 +109,11 @@ void WorldSettingsWindow::update(SGEContext* const UNUSED(sgecon), const InputSt
 			ImGui::Text("Num find object calls %d", m_inspector.getWorld()->debug.numCallsToGetObjectByIdThisFrame);
 			ImGui::InputInt("MS Delay", &m_inspector.getWorld()->debug.forceSleepMs, 1, 10);
 		}
+
+		if (ImGui::CollapsingHeader(ICON_FK_AUDIO_DESCRIPTION " Audio")) {
+			ImGuiEx::Label("Master Volume:");
+			ImGui::DragFloat("##MasterVolume", &world->m_masterVolume, 0.01f, 0.0f, 1.0f, "%.2f");
+		}
 	}
 	ImGui::End();
 }

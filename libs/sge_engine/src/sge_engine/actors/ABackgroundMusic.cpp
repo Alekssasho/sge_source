@@ -11,6 +11,7 @@ DefineTypeId(ABackgroundMusic, 21'04'28'0001);
 ReflBlock() {
 	ReflAddActor(ABackgroundMusic)
 		ReflMember(ABackgroundMusic, m_backgroundMusic)
+		ReflMember(ABackgroundMusic, m_volume).uiRange(0.0f, 1.0f, 0.01f)
 	;
 }
 
@@ -25,9 +26,9 @@ void ABackgroundMusic::setBackgroundMusicInAudioDevice(bool playing) {
 		return;
 	}
 	if (playing) {
+		(*audioAsset)->trackVolume = m_volume;
 		getCore()->getAudioDevice()->setBackgroundMusic(audioAsset->get());
 	} else {
-		(*audioAsset)->decoder.seekToBegining();
 		getCore()->getAudioDevice()->setBackgroundMusic(nullptr);
 	}
 }
@@ -42,15 +43,34 @@ void ABackgroundMusic::create() {
 
 void ABackgroundMusic::update(const GameUpdateSets &updateSets) {
 	Actor::update(updateSets);
-	m_backgroundMusic.update();
+	const bool assetChanged = m_backgroundMusic.update();
+	auto audioAsset = m_backgroundMusic.getAssetAudio();
+	if (assetChanged && audioAsset) {
+		(*audioAsset)->decoder.seekToBegining();
+	}
 
-     if (m_wasPlaying && updateSets.isGamePaused()) {
+	if (m_wasPlaying && updateSets.isGamePaused()) {
 		setBackgroundMusicInAudioDevice(false);
-     }
-     if (!m_wasPlaying && updateSets.isPlaying()) {
-	     setBackgroundMusicInAudioDevice(true);
-     }
-	 m_wasPlaying = updateSets.isPlaying();
+	} else if (!m_wasPlaying && updateSets.isPlaying()) {
+		setBackgroundMusicInAudioDevice(true);
+	} else if (updateSets.isPlaying() && assetChanged) {
+		setBackgroundMusicInAudioDevice(true);
+	} else if (audioAsset && (*audioAsset)->trackVolume != m_volume) {
+		setBackgroundMusicInAudioDevice(true);
+	}
+	m_wasPlaying = updateSets.isPlaying();
+}
+
+void ABackgroundMusic::onPlayStateChanged(bool const isStartingToPlay) {
+	Actor::onPlayStateChanged(isStartingToPlay);
+	if (!isStartingToPlay) {
+		setBackgroundMusicInAudioDevice(false);
+	}
+
+	auto audioAsset = m_backgroundMusic.getAssetAudio();
+	if (audioAsset) {
+		(*audioAsset)->decoder.seekToBegining();
+	}
 }
 
 } // namespace sge

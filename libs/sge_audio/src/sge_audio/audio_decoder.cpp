@@ -1,6 +1,6 @@
 #include "audio_decoder.h"
 
-#include <sge_utils/sge_utils.h>
+#include "sge_utils/sge_utils.h"
 
 SGE_NO_WARN_BEGIN
 #pragma warning(disable : 4701)
@@ -9,9 +9,9 @@ SGE_NO_WARN_BEGIN
 SGE_NO_WARN_END
 
 namespace sge {
-VorbisDecoder::VorbisDecoder(const unsigned char *data, int len) {
+VorbisDecoder::VorbisDecoder(const unsigned char *data, int dataSizeInBytes) {
 	int vorbisError = 0;
-	m_decoder = stb_vorbis_open_memory(data, len, &vorbisError, nullptr);
+	m_decoder = stb_vorbis_open_memory(data, dataSizeInBytes, &vorbisError, nullptr);
 	if (m_decoder == nullptr) {
 		sgeAssert(m_decoder != nullptr);
 		// TODO: add logging here
@@ -20,7 +20,8 @@ VorbisDecoder::VorbisDecoder(const unsigned char *data, int len) {
 
 VorbisDecoder::~VorbisDecoder() {
 	if (m_decoder != nullptr) {
-	  stb_vorbis_close(m_decoder);
+		stb_vorbis_close(m_decoder);
+		m_decoder = nullptr;
 	}
 }
 
@@ -36,8 +37,8 @@ TrackInfo VorbisDecoder::getTrackInfo() {
 }
 
 uint32_t VorbisDecoder::decodeSamples(float *data, int numSamplesToDecode) {
-        // TODO: remove hardcoded 2
-	uint32_t samplesDecoded = stb_vorbis_get_samples_float_interleaved(m_decoder, 2, data, 2 * numSamplesToDecode);
+	const int numChannels = 2;
+	uint32_t samplesDecoded = stb_vorbis_get_samples_float_interleaved(m_decoder, numChannels, data, numChannels * numSamplesToDecode);
 	return samplesDecoded;
 }
 

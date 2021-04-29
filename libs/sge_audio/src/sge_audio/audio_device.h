@@ -12,7 +12,6 @@ struct AudioDevice {
 
 	virtual void update(float dt) = 0;
 	virtual void setBackgroundMusic(AudioTrack* backgroundMusic) = 0;
-	virtual void play() = 0;
-	virtual void pause() = 0;
+	virtual void setMasterVolume(float volume) = 0;
 };
 } // namespace sge

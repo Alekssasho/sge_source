@@ -356,6 +356,9 @@ struct SGE_ENGINE_API GameWorld {
 		/// Useful for checking if game logic works for any timestep.
 		int forceSleepMs = 0;
 	} debug;
+
+	// Audio stuff
+	float m_masterVolume = 1.0f;
 };
 
 } // namespace sge
