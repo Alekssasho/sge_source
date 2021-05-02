@@ -8,12 +8,11 @@ namespace sge {
 //-------------------------------------------------------------------
 // BufferD3D11
 //-------------------------------------------------------------------
-struct BufferD3D11 : public Buffer
-{
-	BufferD3D11() { }
+struct BufferD3D11 : public Buffer {
+	BufferD3D11() {}
 	~BufferD3D11() { destroy(); }
 
-	bool create(const BufferDesc& desc, const void * const pInitalData) final;
+	bool create(const BufferDesc& desc, const void* const pInitalData) final;
 
 	void destroy() final;
 	bool isValid() const final;
@@ -26,10 +25,9 @@ struct BufferD3D11 : public Buffer
 
 	ID3D11Buffer* D3D11_GetResource() const { return m_d3d11_buffer; }
 
-private:
-	
+  private:
 	BufferDesc m_bufferDesc; // Buffer description.
 	TComPtr<ID3D11Buffer> m_d3d11_buffer;
 };
 
-}
+} // namespace sge

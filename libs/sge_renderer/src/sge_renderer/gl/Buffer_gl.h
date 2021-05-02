@@ -8,14 +8,12 @@ namespace sge {
 //-------------------------------------------------------------------
 // BufferGL
 //-------------------------------------------------------------------
-class BufferGL : public Buffer
-{
-public:
-
-	BufferGL() { }
+class BufferGL : public Buffer {
+  public:
+	BufferGL() {}
 	~BufferGL() { destroy(); }
 
-	bool create(const BufferDesc& desc, const void * const pInitalData) final;
+	bool create(const BufferDesc& desc, const void* const pInitalData) final;
 
 	void destroy() final;
 	bool isValid() const final;
@@ -28,8 +26,7 @@ public:
 	GLuint GL_GetResource() const { return m_glBuffer; }
 	GLenum GL_GetTargetBufferType() const;
 
-private:
-	
+  private:
 #if defined(__EMSCRIPTEN__)
 	std::vector<char> m_emsc_mapBufferHelper;
 #endif
@@ -38,4 +35,4 @@ private:
 	GLuint m_glBuffer = 0;
 };
 
-}
+} // namespace sge

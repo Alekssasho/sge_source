@@ -1,9 +1,9 @@
 #include "IKNode.h"
-#include "sge_engine/GameWorld.h"
-#include "sge_engine/windows/PropertyEditorWindow.h"
 #include "sge_core/DebugDraw.h"
 #include "sge_core/ICore.h"
 #include "sge_core/SGEImGui.h"
+#include "sge_engine/GameWorld.h"
+#include "sge_engine/windows/PropertyEditorWindow.h"
 #include "sge_utils/math/FABRIKSolver.h"
 #include "sge_utils/utils/common.h"
 
@@ -203,7 +203,7 @@ void AIKNode::update(const GameUpdateSets& u) {
 	const vec3f startPosWs = solverPositionWs[0];
 	vec3f targetPosWs = aTarget->getPosition(); // usually called end affector.
 
-	if(useNonInstantFollow) {
+	if (useNonInstantFollow) {
 		vec3f current = tempChainActors.back()->getPosition();
 		targetPosWs = speedLerp(current, targetPosWs, nonInstantFollowSpeed * u.dt);
 	}

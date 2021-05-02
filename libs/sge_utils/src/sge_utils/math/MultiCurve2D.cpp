@@ -1,7 +1,7 @@
 #include "MultiCurve2D.h"
-#include "sge_utils/sge_utils.h"
 #include "sge_utils/math/Hermite.h"
 #include "sge_utils/math/common.h"
+#include "sge_utils/sge_utils.h"
 #include <algorithm>
 #include <cfloat>
 

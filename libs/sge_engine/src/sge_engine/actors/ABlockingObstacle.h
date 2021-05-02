@@ -4,11 +4,11 @@
 
 #include "sge_engine/Actor.h"
 #include "sge_engine/Physics.h"
+#include "sge_engine/RigidBodyEditorConfig.h"
 #include "sge_engine/TerrainGenerator.h"
 #include "sge_engine/traits/TraitCustomAE.h"
 #include "sge_engine/traits/TraitModel.h"
 #include "sge_engine/traits/TraitRigidBody.h"
-#include "sge_engine/RigidBodyEditorConfig.h"
 
 namespace sge {
 

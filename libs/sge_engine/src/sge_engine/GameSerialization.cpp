@@ -289,7 +289,7 @@ bool deserializeVariable(char* const valueData, const JsonValue* jValue, const T
 		if (jMember == nullptr) {
 			SGE_DEBUG_ERR("[SERIALIZATION] A member is missing %s::%s. This that is going to be skipped and left as it is.\n",
 			              typeDesc->name, mfd.name);
-			//sgeAssert(false);
+			// sgeAssert(false);
 			continue;
 		} else {
 			bool succeeded = false;
@@ -627,7 +627,7 @@ bool loadGameWorldFromStream(GameWorld* world, IReadStream* stream, const char* 
 
 	deserializeWorldMember(&world->m_physicsSimNumSubSteps, "physicsSimNumSubSteps", sgeTypeId(decltype(world->m_physicsSimNumSubSteps)));
 	deserializeWorldMember(&world->needsLockedCursor, "needsLockedCursor", sgeTypeId(decltype(world->needsLockedCursor)));
-	
+
 	deserializeWorldMember(&world->m_scriptObjects, "worldScripts", sgeTypeId(decltype(world->m_scriptObjects)));
 
 	// Load the playing objects.

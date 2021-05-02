@@ -5,8 +5,7 @@
 
 namespace sge {
 
-struct QueryGL : public Query
-{
+struct QueryGL : public Query {
 	QueryGL() {}
 	~QueryGL() { destroy(); }
 
@@ -19,10 +18,9 @@ struct QueryGL : public Query
 
 	GLuint GL_GetResource() { return m_glQuery; }
 
-private : 
-
+  private:
 	GLuint m_glQuery = 0;
 	QueryType::Enum m_queryType;
 };
 
-}
+} // namespace sge

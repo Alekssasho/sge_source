@@ -440,7 +440,8 @@ void QuickDraw::drawRect(
 	rdest.sgecon->executeDrawCall(dc, rdest.frameTarget, &rdest.viewport);
 }
 
-void QuickDraw::drawTriLeft(const RenderDestination& rdest, const AABox2f& boxPixels, float rotation, const vec4f& rgba, BlendState* blendState) {
+void QuickDraw::drawTriLeft(
+    const RenderDestination& rdest, const AABox2f& boxPixels, float rotation, const vec4f& rgba, BlendState* blendState) {
 	const vec2f size = boxPixels.size();
 
 	const mat4f sizeScaling = mat4f::getScaling(size.x / 2.f, size.y / 2.f, 1.f);
@@ -557,8 +558,13 @@ void QuickDraw::drawTexture(const RenderDestination& rdest,
 	drawRectTexture(rdest, xPixels, yPixels, width, height, texture, blendState, topUV, bottomUV, alphaMult);
 }
 
-void QuickDraw::drawTextLazy(
-    const RenderDestination& rdest, DebugFont& font, vec2f posPixels, const vec4f& rgba, const char* text, float height, const Rect2s* scissors) {
+void QuickDraw::drawTextLazy(const RenderDestination& rdest,
+                             DebugFont& font,
+                             vec2f posPixels,
+                             const vec4f& rgba,
+                             const char* text,
+                             float height,
+                             const Rect2s* scissors) {
 	float alphaMult = 1.f;
 
 	RasterizerState* rs = scissors == nullptr ? rsDefault : rsNoCullUseScissors;
@@ -843,7 +849,10 @@ void QuickDraw::drawSolidAdd_QuadCentered(const vec3f& center, const vec3f& exHa
 	drawSolidAdd_Quad(center - exHalf - eyHalf, 2.f * exHalf, 2.f * eyHalf, rgba);
 }
 
-void QuickDraw::drawSolid_Execute(const RenderDestination& rdest, const mat4f& projViewWorld, bool shouldUseCulling, BlendState* blendState) {
+void QuickDraw::drawSolid_Execute(const RenderDestination& rdest,
+                                  const mat4f& projViewWorld,
+                                  bool shouldUseCulling,
+                                  BlendState* blendState) {
 	if (m_solidColorVerts.size() == 0) {
 		return;
 	}

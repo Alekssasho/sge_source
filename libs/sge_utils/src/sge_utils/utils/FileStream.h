@@ -9,7 +9,7 @@
 
 namespace sge {
 //
-//struct FileTime
+// struct FileTime
 //{
 //	int year = 0;
 //	int day;
@@ -18,27 +18,21 @@ namespace sge {
 //-------------------------------------------------------------------------
 // FileReadStream
 //-------------------------------------------------------------------------
-class FileReadStream : public IReadStream
-{
-public :
+class FileReadStream : public IReadStream {
+  public:
+	FileReadStream()
+	    : maxBufferSize(0)
+	    , file(nullptr)
+	    , buffer(nullptr)
+	    , bufferSize(0)
+	    , bufferFileOffset(0)
+	    , pointer(0) {}
 
-	FileReadStream() :
-		maxBufferSize(0),
-		file(nullptr),
-		buffer(nullptr),
-		bufferSize(0),
-		bufferFileOffset(0),
-		pointer(0)
-	{}
-	
-	~FileReadStream() {
-		close();
-	}
+	~FileReadStream() { close(); }
 
 	// Just an errorless shortcut to Open method
-	FileReadStream(const char* const filename, const size_t bufsz = 0) : 
-		FileReadStream()
-	{
+	FileReadStream(const char* const filename, const size_t bufsz = 0)
+	    : FileReadStream() {
 		open(filename, bufsz);
 	}
 
@@ -68,27 +62,23 @@ public :
 	void seek(SeekOrigin origin, size_t bytes) override;
 	size_t remainingBytes();
 
-private :
-
+  private:
 	size_t maxBufferSize;
 	FILE* file;
 
 	unsigned char* buffer;
-	size_t bufferSize; //size of the buffer <= maxBufferSize
-	size_t pointer; //the pointer in the buffer
-	size_t bufferFileOffset; //buffers location in the file
+	size_t bufferSize;       // size of the buffer <= maxBufferSize
+	size_t pointer;          // the pointer in the buffer
+	size_t bufferFileOffset; // buffers location in the file
 };
 
 //-------------------------------------------------------------------------
 // FileWriteStream
 //-------------------------------------------------------------------------
-class FileWriteStream : public IWriteStream
-{
-public :
-
-	FileWriteStream() :
-		m_file(nullptr)
-	{}
+class FileWriteStream : public IWriteStream {
+  public:
+	FileWriteStream()
+	    : m_file(nullptr) {}
 
 	~FileWriteStream() { close(); }
 
@@ -96,9 +86,8 @@ public :
 	void close();
 	size_t write(const char* data, size_t numBytes) override;
 
-private :
-
+  private:
 	FILE* m_file;
 };
 
-}
+} // namespace sge

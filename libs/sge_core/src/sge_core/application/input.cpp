@@ -77,22 +77,26 @@ void GamepadState::Advance(bool sdlStyleDontZeroTheThumbsticks) {
 }
 
 bool GamepadState::isBtnDown(Button btn) const {
-	if (!hooked) return false;
+	if (!hooked)
+		return false;
 	return (btnState[btn] & 1) != 0;
 }
 
 bool GamepadState::isBtnUp(Button btn) const {
-	if (!hooked) return false;
+	if (!hooked)
+		return false;
 	return (btnState[btn] & 1) == 0;
 }
 
 bool GamepadState::isBtnPressed(Button btn) const {
-	if (!hooked) return false;
+	if (!hooked)
+		return false;
 	return (btnState[btn] & 0x3) == 1;
 }
 
 bool GamepadState::isBtnReleased(Button btn) const {
-	if (!hooked) return false;
+	if (!hooked)
+		return false;
 	return (btnState[btn] & 0x3) == 2;
 }
 
@@ -122,21 +126,21 @@ vec2f GamepadState::getInputDir(bool const includeDPad) const {
 }
 
 vec2f InputState::GetArrowKeysDir(const bool normalize, bool includeWASD, int useGamePadAtIndex) const {
-		vec2f result(0.f);
+	vec2f result(0.f);
 
-		bool const left = IsKeyDown(Key_Left) || (includeWASD && IsKeyDown(Key_A));
-		bool const right = IsKeyDown(Key_Right) || (includeWASD && IsKeyDown(Key_D));
-		bool const up = IsKeyDown(Key_Up) || (includeWASD && IsKeyDown(Key_W));
-		bool const down = IsKeyDown(Key_Down) || (includeWASD && IsKeyDown(Key_S));
+	bool const left = IsKeyDown(Key_Left) || (includeWASD && IsKeyDown(Key_A));
+	bool const right = IsKeyDown(Key_Right) || (includeWASD && IsKeyDown(Key_D));
+	bool const up = IsKeyDown(Key_Up) || (includeWASD && IsKeyDown(Key_W));
+	bool const down = IsKeyDown(Key_Down) || (includeWASD && IsKeyDown(Key_S));
 
-		result.x = (left ? -1.f : 0.f) + (right ? 1.f : 0.f);
-		result.y = (down ? -1.f : 0.f) + (up ? 1.f : 0.f);
+	result.x = (left ? -1.f : 0.f) + (right ? 1.f : 0.f);
+	result.y = (down ? -1.f : 0.f) + (up ? 1.f : 0.f);
 
-		if (result == vec2f(0.f) && useGamePadAtIndex >= 0 && useGamePadAtIndex < SGE_ARRSZ(xinputDevicesState)) {
-			result = getXInputDevice(useGamePadAtIndex).getInputDir(true);
-		}
-
-		return normalize ? normalized0(result) : result;
+	if (result == vec2f(0.f) && useGamePadAtIndex >= 0 && useGamePadAtIndex < SGE_ARRSZ(xinputDevicesState)) {
+		result = getXInputDevice(useGamePadAtIndex).getInputDir(true);
 	}
+
+	return normalize ? normalized0(result) : result;
+}
 
 } // namespace sge

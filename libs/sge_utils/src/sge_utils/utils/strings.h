@@ -1,7 +1,7 @@
 #pragma once
 
-#include <string>
 #include <stdarg.h>
+#include <string>
 
 inline bool sge_isspace(const char ch) {
 	return ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n';
@@ -25,8 +25,8 @@ inline int sge_snprintf(char (&s)[SZ], const char* format, va_list args) {
 	return result;
 }
 
-//template <size_t SZ>
-//int sge_snprintf(char (&s)[SZ], const char* format, ...) {
+// template <size_t SZ>
+// int sge_snprintf(char (&s)[SZ], const char* format, ...) {
 //	va_list args;
 //	va_start(args, format);
 //	const int result = sge_snprintf(s, SZ, format, args);
@@ -46,8 +46,8 @@ inline void sge_strcpy(char (&dest)[SZ], const char* source) {
 
 void sge_strcpy(char* dest, size_t SZ, const char* source);
 
-//template <size_t SZ>
-//inline void sge_strcpy(std::array<char, SZ>& dest, const char* source) {
+// template <size_t SZ>
+// inline void sge_strcpy(std::array<char, SZ>& dest, const char* source) {
 //	sge_strcpy(dest.data(), SZ, source);
 //}
 

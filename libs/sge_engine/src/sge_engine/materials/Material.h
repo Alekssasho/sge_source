@@ -19,7 +19,7 @@ struct SGE_ENGINE_API OMaterial : public GameObject {
 struct SGE_ENGINE_API MDiffuseMaterial : public OMaterial {
 	MDiffuseMaterial()
 	    : diffuseTexture(AssetType::TextureView)
-		, normalTexture(AssetType::TextureView)
+	    , normalTexture(AssetType::TextureView)
 	    , metalnessTexture(AssetType::TextureView)
 	    , roughnessTexture(AssetType::TextureView) {}
 

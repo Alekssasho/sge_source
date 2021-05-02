@@ -6,11 +6,10 @@
 namespace sge {
 
 //-----------------------------------------------------------------
-// RasterizerStateGL 
+// RasterizerStateGL
 //-----------------------------------------------------------------
-struct RasterizerStateGL : public RasterizerState
-{
-	RasterizerStateGL() { }
+struct RasterizerStateGL : public RasterizerState {
+	RasterizerStateGL() {}
 	~RasterizerStateGL() { destroy(); }
 
 	bool create(const RasterDesc& desc) final;
@@ -20,18 +19,16 @@ struct RasterizerStateGL : public RasterizerState
 
 	const RasterDesc& getDesc() const final { return m_bufferedDesc; }
 
-private:
-
+  private:
 	RasterDesc m_bufferedDesc;
 	bool m_isValid = false;
 };
 
 //-----------------------------------------------------------------
-// DepthStencilStateGL 
+// DepthStencilStateGL
 //-----------------------------------------------------------------
-struct DepthStencilStateGL : public DepthStencilState
-{
-	DepthStencilStateGL() { }
+struct DepthStencilStateGL : public DepthStencilState {
+	DepthStencilStateGL() {}
 	~DepthStencilStateGL() { destroy(); }
 
 	bool create(const DepthStencilDesc& desc) final;
@@ -41,8 +38,7 @@ struct DepthStencilStateGL : public DepthStencilState
 
 	const DepthStencilDesc& getDesc() const final { return m_bufferedDesc; }
 
-private:
-
+  private:
 	DepthStencilDesc m_bufferedDesc;
 	bool m_isValid = false;
 };
@@ -50,8 +46,7 @@ private:
 //-----------------------------------------------------------------
 // BlendStateGL
 //-----------------------------------------------------------------
-struct BlendStateGL : public BlendState
-{
+struct BlendStateGL : public BlendState {
 	BlendStateGL() {}
 	~BlendStateGL() {}
 
@@ -62,10 +57,9 @@ struct BlendStateGL : public BlendState
 
 	const BlendStateDesc& getDesc() const final { return m_bufferedDesc; }
 
-private:
-
+  private:
 	BlendStateDesc m_bufferedDesc;
 	bool m_isValid = false;
 };
 
-}
+} // namespace sge

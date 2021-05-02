@@ -12,16 +12,11 @@ struct GameInspector;
 struct SGE_ENGINE_API PrefabWindow : public IImGuiWindow {
 	PrefabWindow(std::string windowName, GameInspector& inspector)
 	    : m_windowName(std::move(windowName))
-	    , m_inspector(inspector) {
-	}
+	    , m_inspector(inspector) {}
 
-	bool isClosed() override {
-		return !m_isOpened;
-	}
+	bool isClosed() override { return !m_isOpened; }
 	void update(SGEContext* const sgecon, const InputState& is) override;
-	const char* getWindowName() const override {
-		return m_windowName.c_str();
-	}
+	const char* getWindowName() const override { return m_windowName.c_str(); }
 
   private:
 	bool m_isOpened = true;

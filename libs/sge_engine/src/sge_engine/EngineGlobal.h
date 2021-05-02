@@ -4,10 +4,10 @@
 #include <unordered_map>
 #include <vector>
 
+#include "sge_engine/IPlugin.h"
 #include "sge_engine/sge_engine_api.h"
 #include "sge_engine/typelibHelper.h"
 #include "sge_engine/windows/IImGuiWindow.h"
-#include "sge_engine/IPlugin.h"
 #include "sge_utils/utils/Event.h"
 
 namespace sge {
@@ -39,7 +39,7 @@ struct IEngineGlobal {
 	virtual void initialize() = 0;
 	virtual void update(float dt) = 0;
 
-	virtual void changeActivePlugin(IPlugin* pPlugin) = 0; 
+	virtual void changeActivePlugin(IPlugin* pPlugin) = 0;
 	virtual IPlugin* getActivePlugin() = 0;
 	virtual void notifyOnPluginPreUnload() = 0;
 	virtual EventSubscription subscribeOnPluginChange(std::function<void()> fn) = 0;

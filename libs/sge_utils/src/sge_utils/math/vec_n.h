@@ -93,12 +93,8 @@ struct vec_n {
 	}
 
 	// Indexing operators.
-	DATA_TYPE& operator[](const unsigned int t) {
-		return data[t];
-	}
-	const DATA_TYPE& operator[](const unsigned int t) const {
-		return data[t];
-	}
+	DATA_TYPE& operator[](const unsigned int t) { return data[t]; }
+	const DATA_TYPE& operator[](const unsigned int t) const { return data[t]; }
 
 	// Operator == and != implemented by direct comparison.
 	bool operator==(const vec_n& v) const {
@@ -112,9 +108,7 @@ struct vec_n {
 		return result;
 	}
 
-	bool operator!=(const vec_n& v) const {
-		return !((*this) == v);
-	}
+	bool operator!=(const vec_n& v) const { return !((*this) == v); }
 
 	// Unary operators - +
 	vec_n operator-() const {
@@ -125,9 +119,7 @@ struct vec_n {
 		return result;
 	}
 
-	vec_n operator+() const {
-		return *this;
-	}
+	vec_n operator+() const { return *this; }
 
 	// vec + vec
 	vec_n& operator+=(const vec_n& v) {
@@ -172,9 +164,7 @@ struct vec_n {
 		return r;
 	}
 
-	friend vec_n operator*(const DATA_TYPE& s, const vec_n& v) {
-		return v * s;
-	}
+	friend vec_n operator*(const DATA_TYPE& s, const vec_n& v) { return v * s; }
 
 
 	// Vector / Scalar
@@ -238,9 +228,7 @@ struct vec_n {
 		return r;
 	}
 
-	friend DATA_TYPE hsum(const vec_n& v) {
-		return v.hsum();
-	}
+	friend DATA_TYPE hsum(const vec_n& v) { return v.hsum(); }
 
 	/// Computes the dot product between two vectors.
 	DATA_TYPE dot(const vec_n& v) const {
@@ -251,23 +239,17 @@ struct vec_n {
 		return r;
 	}
 
-	friend DATA_TYPE dot(const vec_n& a, const vec_n& b) {
-		return a.dot(b);
-	}
+	friend DATA_TYPE dot(const vec_n& a, const vec_n& b) { return a.dot(b); }
 
 	/// Computes the length of the vector.
-	DATA_TYPE lengthSqr() const {
-		return dot(*this);
-	}
+	DATA_TYPE lengthSqr() const { return dot(*this); }
 
 	DATA_TYPE length() const {
 		// [TODO]
 		return sqrtf(lengthSqr());
 	}
 
-	friend DATA_TYPE length(const vec_n& v) {
-		return v.length();
-	}
+	friend DATA_TYPE length(const vec_n& v) { return v.length(); }
 
 	/// Computes the unsigned-volume of a cube.
 	DATA_TYPE volume() const {
@@ -293,9 +275,7 @@ struct vec_n {
 		return result;
 	}
 
-	friend vec_n normalized(const vec_n& v) {
-		return v.normalized();
-	}
+	friend vec_n normalized(const vec_n& v) { return v.normalized(); }
 
 	/// Returns the normalized vector (with length 1.f).
 	/// If the size of the vector is 0, the zero vector is returned.
@@ -313,9 +293,7 @@ struct vec_n {
 		return result;
 	}
 
-	friend vec_n normalized0(const vec_n& v) {
-		return v.normalized0();
-	}
+	friend vec_n normalized0(const vec_n& v) { return v.normalized0(); }
 
 	/// Interpolates two vectors with the a speed (defined in units).
 	friend vec_n speedLerp(const vec_n& a, const vec_n& b, const DATA_TYPE speed, const DATA_TYPE epsilon = 1e-6f) {
@@ -339,13 +317,9 @@ struct vec_n {
 
 
 	/// Computes the reflected vector based on the normal specified. Assuming IOR=1
-	vec_n reflect(const vec_n& normal) const {
-		return (*this) + DATA_TYPE(2.0) * dot(normal) * normal;
-	}
+	vec_n reflect(const vec_n& normal) const { return (*this) + DATA_TYPE(2.0) * dot(normal) * normal; }
 
-	friend DATA_TYPE reflect(const vec_n& incident, const vec_n& normal) {
-		return incident.reflect(normal);
-	}
+	friend DATA_TYPE reflect(const vec_n& incident, const vec_n& normal) { return incident.reflect(normal); }
 
 	/// Computes the refracted vector based on the normal specified. Assuming IOR=1
 	vec_n refract(const vec_n& normal, const DATA_TYPE& eta) const {
@@ -361,18 +335,12 @@ struct vec_n {
 			return (*this) * eta - (eta * p + sqrt(k)) * normal;
 	}
 
-	friend vec_n refract(const vec_n& inc, const vec_n& n, DATA_TYPE& eta) {
-		return inc.refract(n, eta);
-	}
+	friend vec_n refract(const vec_n& inc, const vec_n& n, DATA_TYPE& eta) { return inc.refract(n, eta); }
 
 	/// Computes the distance between two vectors.
-	DATA_TYPE distance(const vec_n& other) const {
-		return (*this - other).length();
-	}
+	DATA_TYPE distance(const vec_n& other) const { return (*this - other).length(); }
 
-	friend DATA_TYPE distance(const vec_n& a, const vec_n& b) {
-		return a.distance(b);
-	}
+	friend DATA_TYPE distance(const vec_n& a, const vec_n& b) { return a.distance(b); }
 
 	/// Rentusn a vector containing min/max components from each vector.
 	vec_n ComponentMin(const vec_n& other) const {
@@ -385,9 +353,7 @@ struct vec_n {
 		return result;
 	}
 
-	friend vec_n component_min(const vec_n& a, const vec_n& b) {
-		return a.ComponentMin(b);
-	}
+	friend vec_n component_min(const vec_n& a, const vec_n& b) { return a.ComponentMin(b); }
 
 	vec_n ComponentMax(const vec_n& other) const {
 		vec_n result;
@@ -399,9 +365,7 @@ struct vec_n {
 		return result;
 	}
 
-	friend vec_n component_max(const vec_n& a, const vec_n& b) {
-		return a.ComponentMax(b);
-	}
+	friend vec_n component_max(const vec_n& a, const vec_n& b) { return a.ComponentMax(b); }
 
 
 	/// Returns the min/max component in the vector.
@@ -417,9 +381,7 @@ struct vec_n {
 		return retval;
 	}
 
-	friend vec_n component_min(const vec_n& v) {
-		return v.componentMin();
-	}
+	friend vec_n component_min(const vec_n& v) { return v.componentMin(); }
 
 	DATA_TYPE componentMinAbs() const {
 		DATA_TYPE retval = std::abs(data[0]);
@@ -446,9 +408,7 @@ struct vec_n {
 		return retval;
 	}
 
-	friend SELF_TYPE component_max(const SELF_TYPE& v) {
-		return v.componentMax();
-	}
+	friend SELF_TYPE component_max(const SELF_TYPE& v) { return v.componentMax(); }
 
 	DATA_TYPE componentMaxAbs() const {
 		DATA_TYPE retval = std::abs(data[0]);

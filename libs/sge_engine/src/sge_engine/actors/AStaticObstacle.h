@@ -3,13 +3,12 @@
 #include "sge_core/AssetLibrary.h"
 
 #include "sge_engine/Actor.h"
-#include "sge_engine/traits/TraitRigidBody.h"
 #include "sge_engine/traits/TraitModel.h"
+#include "sge_engine/traits/TraitRigidBody.h"
 
 namespace sge {
 
-enum class CollisionShapeSource : int
-{
+enum class CollisionShapeSource : int {
 	FromBoundingBox,
 	FromConvexHulls,
 	FromConcaveHulls,
@@ -18,17 +17,15 @@ enum class CollisionShapeSource : int
 //--------------------------------------------------------------------
 // AStaticObstacle
 //--------------------------------------------------------------------
-struct SGE_ENGINE_API AStaticObstacle : public Actor
-{
+struct SGE_ENGINE_API AStaticObstacle : public Actor {
 	void create() final;
 	void postUpdate(const GameUpdateSets& updateSets) final;
 	AABox3f getBBoxOS() const final;
 
-public :
-
+  public:
 	TraitRigidBody m_traitRB;
 	TraitModel m_traitModel;
 };
 
 
-}
+} // namespace sge

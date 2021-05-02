@@ -3,8 +3,8 @@
 #include <fbxsdk.h>
 
 #include "ModelParseSettings.h"
-#include "sge_utils/math/transform.h"
 #include "sge_core/model/Model.h"
+#include "sge_utils/math/transform.h"
 
 namespace sge {
 
@@ -48,9 +48,7 @@ struct FBXSDKParser {
 	void parseMesh(fbxsdk::FbxMesh* const fbxMesh);
 	Model::MeshData* findBestSuitableMeshData(fbxsdk::FbxMesh* const fbxMesh);
 
-	int getNextId() {
-		return m_nextFreeId++;
-	}
+	int getNextId() { return m_nextFreeId++; }
 
 	int m_nextFreeId = 0;
 

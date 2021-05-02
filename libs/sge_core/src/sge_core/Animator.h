@@ -1,43 +1,37 @@
 #pragma once
 
+#include "model/EvaluatedModel.h"
 #include "sgecore_api.h"
 #include <unordered_map>
-#include "model/EvaluatedModel.h"
 
-namespace sge
-{
+namespace sge {
 
-enum AnimationTransition : int
-{
+enum AnimationTransition : int {
 	animationTransition_loop,
 	animationTransition_stop,
-	//animationTransition_pingPong
+	// animationTransition_pingPong
 	animationTransition_switchTo,
 };
 
-struct AnimatorAnimationTransition
-{
+struct AnimatorAnimationTransition {
 	int targetState = -1;
 	float blendDurationSecs = 0.f; // The time time that we are going to blend during the transition.
 };
 
-struct AnimationSrc
-{
+struct AnimationSrc {
 	AnimationSrc() = default;
 	AnimationSrc(std::string srcModel, std::string animationName)
-		: srcModel(std::move(srcModel))
-		, animationName(std::move(animationName))
-	{}
+	    : srcModel(std::move(srcModel))
+	    , animationName(std::move(animationName)) {}
 
 	std::string srcModel; // The mdl file that contains the animaton.
 	std::string animationName;
 };
 
-struct AnimatorAnimation
-{
+struct AnimatorAnimation {
 	AnimatorAnimation() = default;
 
-	std::string srcModel; // The mdl file that contains the animaton.
+	std::string srcModel;      // The mdl file that contains the animaton.
 	std::string animationName; // The name of the animation that we are going to play form that file,
 	AnimationTransition transition = animationTransition_loop;
 
@@ -48,8 +42,7 @@ struct AnimatorAnimation
 	std::vector<AnimationSrc> animationSources;
 };
 
-struct SGE_CORE_API Animator
-{
+struct SGE_CORE_API Animator {
 	Animator() = default;
 
 	const std::vector<EvalMomentSets>& getEvalMoments() const { return m_moments; }
@@ -59,17 +52,14 @@ struct SGE_CORE_API Animator
 
 	void addAnimation(int const animid, const char* const srcModel, const char* const animName);
 
-	AnimatorAnimation& getAnimation(int const animid) {
-		return m_animations[animid];
-	}
+	AnimatorAnimation& getAnimation(int const animid) { return m_animations[animid]; }
 
 	void playAnimation(int const animid, bool dontBlend = true);
 
 	// Advanced the animation.
 	void update(float const dt);
 
-private :
-
+  private:
 	void pickAnimation(EvalMomentSets& moment, int const animid, float pevanimProgress);
 
 	void clear() { *this = Animator(); }
@@ -86,9 +76,9 @@ private :
 	// NOTE: Now that I think about it, do we really need thid LUT, we could directly use the
 	// the asset library, I doubt that it is going to get parallel?
 	std::unordered_map<std::string, std::shared_ptr<Asset>> m_modelsLUT;
-	
+
 	//
-	//std::unordered_map<int, int> m_animTransitions;
+	// std::unordered_map<int, int> m_animTransitions;
 
 	// The animation that we are currently playing as the main thing.
 	int m_playingAnimId = -1;

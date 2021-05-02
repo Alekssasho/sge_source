@@ -56,10 +56,9 @@ void WorldSettingsWindow::update(SGEContext* const UNUSED(sgecon), const InputSt
 		}
 
 		if (ImGui::CollapsingHeader(ICON_FK_CAMERA " Gameplay")) {
+			ImGui::Checkbox(ICON_FK_MOUSE_POINTER " Lock Cursor", &m_inspector.getWorld()->needsLockedCursor);
 
-			ImGui::Checkbox(ICON_FK_MOUSE_POINTER" Lock Cursor", &m_inspector.getWorld()->needsLockedCursor);
-
-			ImGui::InputInt(ICON_FK_CAMERA" Gameplay Camera", &m_inspector.getWorld()->m_cameraPovider.id);
+			ImGui::InputInt(ICON_FK_CAMERA " Gameplay Camera", &m_inspector.getWorld()->m_cameraPovider.id);
 
 			ImGui::SameLine();
 			if (ImGui::Button(ICON_FK_SHOPPING_CART)) {

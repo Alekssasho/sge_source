@@ -1,9 +1,9 @@
 #pragma once
 
 #include "sge_engine/Actor.h"
+#include "sge_engine/traits/TraitCustomAE.h"
 #include "sge_engine/traits/TraitParticles.h"
 #include "sge_engine/traits/TraitViewportIcon.h"
-#include "sge_engine/traits/TraitCustomAE.h"
 
 namespace sge {
 

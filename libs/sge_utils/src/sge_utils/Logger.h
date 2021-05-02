@@ -4,7 +4,6 @@ namespace sge {
 
 class Logger {
   private:
-
   public:
 	Logger();
 	~Logger() { close(); }

@@ -1,5 +1,3 @@
 #include "InspectorTool.h"
 
-namespace sge {
-
-}
+namespace sge {}

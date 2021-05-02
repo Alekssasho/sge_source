@@ -5,10 +5,8 @@
 
 namespace sge {
 
-struct OptionPermuataor
-{
-public :
-
+struct OptionPermuataor {
+  public:
 	typedef int OptionIDType;
 	struct OptionDesc {
 		OptionIDType optionId;
@@ -21,24 +19,20 @@ public :
 		int optionChoice;
 	};
 
-public :
-
+  public:
 	OptionPermuataor() = default;
 
-	OptionPermuataor(const std::vector<OptionDesc>& options) {
-		build(options);
-	}
+	OptionPermuataor(const std::vector<OptionDesc>& options) { build(options); }
 
 	void build(const std::vector<OptionDesc>& options);
 	int computePermutationIndex(const OptionChoice* const optionChoices, const int numOptions) const;
 	const std::vector<std::vector<int>>& getAllPermunations() const { return allPermutations; }
 	const std::vector<OptionDesc>& getAllOptions() const { return allOptions; }
 
-private : 
-
+  private:
 	int numAllPermutations = 0;
 	std::vector<OptionDesc> allOptions;
 	std::vector<std::vector<int>> allPermutations;
 };
 
-}
+} // namespace sge

@@ -32,8 +32,8 @@ mat4f TraitViewportIcon::computeNodeToWorldMtx(const ICamera& camera) const {
 		const mat4f anchorAlignMtx = anchor_getPlaneAlignMatrix(anchor_mid, vec2f(sz, sy));
 		const mat4f scalingFogScreenSpaceConstantSize = mat4f::getScaling(distToCamWs);
 
-		const mat4f billboardFacingMtx =
-		    billboarding_getOrentationMtx(billboarding_faceCamera, objToWorldNoBillboarding, camera.getCameraPosition(), camera.getView(), false);
+		const mat4f billboardFacingMtx = billboarding_getOrentationMtx(billboarding_faceCamera, objToWorldNoBillboarding,
+		                                                               camera.getCameraPosition(), camera.getView(), false);
 		const mat4f objToWorld = billboardFacingMtx * scalingFogScreenSpaceConstantSize * anchorAlignMtx;
 
 		return objToWorld;

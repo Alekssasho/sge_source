@@ -7,4 +7,4 @@ namespace sge {
 AudioDevice* AudioDevice::create(const AudioDeviceDesc& UNUSED(deviceDesc)) {
 	return new AudioDeviceSDL;
 }
-}
+} // namespace sge

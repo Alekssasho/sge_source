@@ -12,9 +12,8 @@ struct ShadingProgramD3D11;
 //----------------------------------------------------------------------------
 // ShaderD3D11
 //----------------------------------------------------------------------------
-struct ShaderD3D11 : public Shader
-{
-	ShaderD3D11() { }
+struct ShaderD3D11 : public Shader {
+	ShaderD3D11() {}
 	~ShaderD3D11() { destroy(); }
 
 	// Creates the shader using the native language for the API.
@@ -32,8 +31,7 @@ struct ShaderD3D11 : public Shader
 	ID3D11DeviceChild* D3D11_GetShader() const { return m_dx11Shader; }
 	ID3D11InputLayout* D3D11_GetInputLayoutForVertexDeclIndex(const VertexDeclIndex vertexDeclIdx);
 
-private :
-
+  private:
 	ShaderType::Enum m_shaderType;
 	std::string m_cachedCode;
 
@@ -43,4 +41,4 @@ private :
 	TComPtr<ID3D10Blob> m_compiledBlob;
 };
 
-}
+} // namespace sge

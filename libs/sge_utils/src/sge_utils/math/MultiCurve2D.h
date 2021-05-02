@@ -1,8 +1,8 @@
 #pragma once
 
 #include "sge_utils/math/vec2.h"
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 namespace sge {
 
@@ -17,29 +17,20 @@ struct MultiCurve2D {
 		pointType_bezierHandle1,
 	};
 
-	static bool pointType_isBezierHandle(const PointType pt) {
-		return pt == pointType_bezierHandle0 || pt == pointType_bezierHandle1;
-	}
+	static bool pointType_isBezierHandle(const PointType pt) { return pt == pointType_bezierHandle0 || pt == pointType_bezierHandle1; }
 
-	static bool pointType_isBezierKey(const PointType pt) {
-		return pt == pointType_bezierKey;
-	}
+	static bool pointType_isBezierKey(const PointType pt) { return pt == pointType_bezierKey; }
 
-	static bool pointType_isControlPoint(const PointType pt) {
-		return !pointType_isBezierHandle(pt);
-	}
+	static bool pointType_isControlPoint(const PointType pt) { return !pointType_isBezierHandle(pt); }
 
 	struct Point {
 		Point() = default;
 		Point(PointType type, float x, float y)
 		    : type(type)
 		    , x(x)
-		    , y(y) {
-		}
+		    , y(y) {}
 
-		vec2f getPos() const {
-			return vec2f(x, y);
-		}
+		vec2f getPos() const { return vec2f(x, y); }
 
 		PointType type = pointType_linear;
 		float x = 0.f;
@@ -47,9 +38,7 @@ struct MultiCurve2D {
 	};
 
   public:
-	bool isIndexValid(int idx) const {
-		return idx >= 0 && idx < m_pointsWs.size();
-	}
+	bool isIndexValid(int idx) const { return idx >= 0 && idx < m_pointsWs.size(); }
 
 	int findBezierH0(const int iBezierKey) const;
 	int findBezierH1(const int iBezierKey) const;
@@ -74,17 +63,11 @@ struct MultiCurve2D {
 	float sample(const float x) const;
 	float sampleDerivative(const float x) const;
 
-	const std::vector<Point>& getPoints() const {
-		return m_pointsWs;
-	}
+	const std::vector<Point>& getPoints() const { return m_pointsWs; }
 
-	const int getNumPoints() const {
-		return int(m_pointsWs.size());
-	}
+	const int getNumPoints() const { return int(m_pointsWs.size()); }
 
-	std::vector<Point>& getPointsMutable() {
-		return m_pointsWs;
-	}
+	std::vector<Point>& getPointsMutable() { return m_pointsWs; }
 
   public:
 	std::vector<Point> m_pointsWs;

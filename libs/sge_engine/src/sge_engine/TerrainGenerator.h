@@ -1,9 +1,9 @@
 #include <vector>
 
+#include "sge_core/model/CollisionMesh.h"
 #include "sge_engine/sge_engine_api.h"
 #include "sge_utils/math/Box.h"
 #include "sge_utils/math/vec3.h"
-#include "sge_core/model/CollisionMesh.h"
 
 namespace sge {
 

@@ -2,9 +2,9 @@
 
 #include "sge_core/sgecore_api.h"
 
+#include "Sizing.h"
 #include <memory>
 #include <vector>
-#include "Sizing.h"
 
 namespace sge::gamegui {
 

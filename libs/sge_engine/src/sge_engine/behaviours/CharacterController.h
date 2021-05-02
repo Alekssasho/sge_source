@@ -55,7 +55,6 @@ struct SGE_ENGINE_API CharaterCtrlOutcome {
 };
 
 struct SGE_ENGINE_API CharacterCtrlInput {
-	
 	/// A shortcut for initializing the strcture for AI input (as the class is used for AI and player character controllers).
 	static CharacterCtrlInput aiInput(const vec3f& facingDir, const vec3f& walkDir) {
 		CharacterCtrlInput in;
@@ -74,13 +73,12 @@ struct SGE_ENGINE_API CharacterCtrlInput {
 /// add add forces to its rigid body for the rigid body should behave as a character
 /// it is expected that the the angular velocity of the rigid body is already set to 0 (to avoid tippling of the rigid body).
 struct SGE_ENGINE_API CharacterCtrl {
-
 	/// @brief Call this function to make the rigid body of the actor ot appear as a character.
 	/// Use the return value to change the facing direction of the character).
 	CharaterCtrlOutcome update(const GameUpdateSets& updateSets, const CharacterCtrlInput& input);
 
 	bool isJumping() const { return m_jumpCounter > 0; }
-	
+
 
   public:
 	Actor* m_actor = nullptr;

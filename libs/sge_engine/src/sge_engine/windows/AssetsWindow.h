@@ -66,7 +66,9 @@ struct SGE_ENGINE_API AssetsWindow : public IImGuiWindow {
 	std::vector<AssetImportData> m_assetsToImport;
 
 	DLLHandler mdlconvlibHandler;
-	sgeImportFBXFileFn sgeImportFBXFile = nullptr; ///< A pointer to the function from mdlconvlib (if available) for importing 3D models (fbx, obj, dae).
-	sgeImportFBXFileAsMultipleFn sgeImportFBXFileAsMultiple = nullptr; ///< A pointer to the function from mdlconvlib (if available) for importing 3D files as multiple models (fbx, dae).
+	sgeImportFBXFileFn sgeImportFBXFile =
+	    nullptr; ///< A pointer to the function from mdlconvlib (if available) for importing 3D models (fbx, obj, dae).
+	sgeImportFBXFileAsMultipleFn sgeImportFBXFileAsMultiple =
+	    nullptr; ///< A pointer to the function from mdlconvlib (if available) for importing 3D files as multiple models (fbx, dae).
 };
 } // namespace sge

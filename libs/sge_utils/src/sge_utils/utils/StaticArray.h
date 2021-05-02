@@ -6,11 +6,9 @@
 
 namespace sge {
 
-template<typename TType, int TSize>
-class StaticArray
-{
-public:
-
+template <typename TType, int TSize>
+class StaticArray {
+  public:
 	typedef TType value_type;
 	typedef value_type* iterator;
 	typedef const value_type* const_iterator;
@@ -18,21 +16,19 @@ public:
 	static const int SIZE = TSize;
 	typedef TType ElementType;
 
-	StaticArray() :
-		usedElems(0)
-	{}
+	StaticArray()
+	    : usedElems(0) {}
 
-	~StaticArray() {
-		resize(0);
-	}
+	~StaticArray() { resize(0); }
 
-	StaticArray(const StaticArray& other) : usedElems(0) {
+	StaticArray(const StaticArray& other)
+	    : usedElems(0) {
 		*this = other;
 	}
 
 	StaticArray& operator=(const StaticArray& other) {
 		resize(0);
-		for(const auto& v : other) {
+		for (const auto& v : other) {
 			push_back(v);
 		}
 
@@ -43,23 +39,23 @@ public:
 	int static_size() const { return SIZE; }
 
 	// Fills all alocated elements with a particlar value.
-	void fill(int newSize, const TType& val)
-	{
+	void fill(int newSize, const TType& val) {
 		resize(newSize);
-		for(int t = 0; t < size(); ++t)
-		{
+		for (int t = 0; t < size(); ++t) {
 			(*this)[t] = val;
 		}
 	}
 
 	bool push_back(const ElementType& value) {
-		if (usedElems >= SIZE) return false;
+		if (usedElems >= SIZE)
+			return false;
 		elements[usedElems++] = value;
 		return true;
 	}
 
 	bool pop_back() {
-		if (!usedElems) return false;
+		if (!usedElems)
+			return false;
 		elements[--usedElems].~ElementType();
 		return true;
 	}
@@ -70,19 +66,15 @@ public:
 	const ElementType* data() const { return elements; }
 	ElementType* data() { return elements; }
 
-	bool isFull() {
-		return SIZE == usedElems;
-	}
+	bool isFull() { return SIZE == usedElems; }
 
-	void clear() {
-		resize();
-	}
+	void clear() { resize(); }
 
 	void resize(const int newSize) {
-
 		sgeAssert(newSize >= 0);
 
-		if (newSize > SIZE) return;
+		if (newSize > SIZE)
+			return;
 
 		for (int t = usedElems; t < newSize; ++t) {
 			new (&elements[t]) ElementType();
@@ -104,10 +96,9 @@ public:
 	ElementType& back() { return *(elements + usedElems - 1); }
 	const ElementType& back() const { return *(elements + usedElems - 1); }
 
-protected:
-
+  protected:
 	int usedElems;
 	ElementType elements[SIZE];
 };
 
-}
+} // namespace sge

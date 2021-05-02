@@ -1,11 +1,10 @@
-#pragma once 
+#pragma once
 
 #include "sge_renderer/renderer/renderer.h"
 
 namespace sge {
 
-struct SamplerStateGL : public SamplerState
-{
+struct SamplerStateGL : public SamplerState {
 	SamplerStateGL() { destroy(); }
 	~SamplerStateGL() { destroy(); }
 
@@ -17,10 +16,9 @@ struct SamplerStateGL : public SamplerState
 	bool isValid() const final;
 
 
-protected : 
-
+  protected:
 	SamplerDesc m_cachedDesc;
 };
 
 
-}
+} // namespace sge

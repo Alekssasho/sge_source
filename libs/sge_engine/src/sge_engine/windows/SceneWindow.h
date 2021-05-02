@@ -15,9 +15,7 @@ struct SGE_ENGINE_API SceneWindow : public IImGuiWindow {
 	    : m_windowName(std::move(windowName))
 	    , m_gameDrawer(gameDrawer) {}
 
-	void setGameDrawer(IGameDrawer* gd) {
-		m_gameDrawer = gd;
-	}
+	void setGameDrawer(IGameDrawer* gd) { m_gameDrawer = gd; }
 
 	bool isClosed() override { return false; }
 	void update(SGEContext* const sgecon, const InputState& is) override;

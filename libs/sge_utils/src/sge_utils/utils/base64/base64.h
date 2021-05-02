@@ -7,7 +7,7 @@ namespace sge {
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Base64 encoding/decoding based on :
 // https://www.base64encode.org/ and http://en.wikipedia.org/wiki/Base64
-// 
+//
 // !!! All string operatarions DO NOT take into account the NULL TERMINATOR !!!
 //////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -26,9 +26,9 @@ bool base64_is_correctly_encoded(const char* const encodedString, size_t stringL
 // Encodes the data. encodedString MUST be preallocated!
 void base64_encode(const void* data, size_t datasize, char* encodedString);
 
-// Decodes base64 string data. decodedData MUST be preallocated. 
-// stringLength MUST be multiple of 4. 
+// Decodes base64 string data. decodedData MUST be preallocated.
+// stringLength MUST be multiple of 4.
 // Works with inplace decoding.
 void base64_decode(const char* encodedString, size_t stringLength, void* decodedData);
 
-}
+} // namespace sge

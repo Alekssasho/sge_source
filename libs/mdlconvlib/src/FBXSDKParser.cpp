@@ -233,8 +233,7 @@ void FBXSDKParser::parseMaterials() {
 		const FbxProperty propMaya = fSurfMtl->FindProperty("Maya", false);
 
 		auto prop = fSurfMtl->GetFirstProperty();
-		while(prop.IsValid())
-		{
+		while (prop.IsValid()) {
 			[[maybe_unused]] const char* name = prop.GetNameAsCStr();
 
 			prop = fSurfMtl->GetNextProperty(prop);
@@ -872,7 +871,8 @@ Model::Node* FBXSDKParser::parseNodesRecursive(fbxsdk::FbxNode* const fbxNode, c
 	// In order not to introduce a separate variable for the rotation offset we embed it in the node's
 	// translation. THIS MAY BE INCORRECT.
 
-	transf3d const localTransformBindMoment = transf3DFromFbx(pOverrideTransform ? *pOverrideTransform : fbxNode->EvaluateLocalTransform(), FbxEuler::eOrderXYZ);
+	transf3d const localTransformBindMoment =
+	    transf3DFromFbx(pOverrideTransform ? *pOverrideTransform : fbxNode->EvaluateLocalTransform(), FbxEuler::eOrderXYZ);
 
 	node->paramBlock.FindParameter("scaling", ParameterType::Float3, &localTransformBindMoment.s);
 	node->paramBlock.FindParameter("rotation", ParameterType::Quaternion, &localTransformBindMoment.r);
@@ -889,7 +889,7 @@ Model::Node* FBXSDKParser::parseNodesRecursive(fbxsdk::FbxNode* const fbxNode, c
 
 		const fbxsdk::FbxNodeAttribute::EType fbxAttriuteType = fbxNodeAttrib->GetAttributeType();
 
-		if (fbxAttriuteType == fbxsdk::FbxNodeAttribute::eSkeleton) { 
+		if (fbxAttriuteType == fbxsdk::FbxNodeAttribute::eSkeleton) {
 			fbxsdk::FbxSkeleton* const fbxSkeleton = fbxsdk::FbxCast<fbxsdk::FbxSkeleton>(fbxNodeAttrib);
 			float limbLength = float(fbxSkeleton->Size.Get()) / 100.f;
 

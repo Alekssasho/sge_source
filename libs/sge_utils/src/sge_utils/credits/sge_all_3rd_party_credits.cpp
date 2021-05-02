@@ -1,10 +1,8 @@
-namespace sge
-{
+namespace sge {
 
-	const char* get_sge_all_3rd_party_credits()
-	{
-		return
-R"sge_credits(
+const char* get_sge_all_3rd_party_credits() {
+	return
+	    R"sge_credits(
 SGEEngine and all of its libraries:
 
 The MIT License (MIT)
@@ -281,6 +279,6 @@ subject to the following restrictions:
 
 
 )sge_credits";
-	}
-
 }
+
+} // namespace sge

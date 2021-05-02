@@ -345,7 +345,8 @@ void AssetsWindow::update(SGEContext* const sgecon, const InputState& is) {
 				// Show every file in the current directory with an icon next to it.
 				for (const fs::directory_entry& entry : fs::directory_iterator(pathToAssets)) {
 					if (entry.is_regular_file() && exploreFilter.PassFilter(entry.path().filename().string().c_str())) {
-						AssetType assetType = assetType_guessFromExtension(extractFileExtension(entry.path().string().c_str()).c_str(), false);
+						AssetType assetType =
+						    assetType_guessFromExtension(extractFileExtension(entry.path().string().c_str()).c_str(), false);
 						if (assetType == AssetType::Model) {
 							string_format(label, "%s %s", ICON_FK_CUBE, entry.path().filename().string().c_str());
 						} else if (assetType == AssetType::TextureView) {

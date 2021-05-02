@@ -49,9 +49,7 @@ struct SGE_ENGINE_API TransformTool : IInspectorTool {
 	void drawOverlay(const GameDrawSets& drawSets) override final;
 
   private:
-	void clear() {
-		perItemData.clear();
-	}
+	void clear() { perItemData.clear(); }
 
 
 	// This is the function that must get called right before you start using the gizmo.

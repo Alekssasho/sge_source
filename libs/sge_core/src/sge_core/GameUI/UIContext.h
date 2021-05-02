@@ -1,9 +1,9 @@
 #pragma once
 
-#include <memory>
 #include "sge_core/sgecore_api.h"
-#include "sge_utils/math/vec2.h"
 #include "sge_renderer/renderer/renderer.h"
+#include "sge_utils/math/vec2.h"
+#include <memory>
 
 namespace sge {
 

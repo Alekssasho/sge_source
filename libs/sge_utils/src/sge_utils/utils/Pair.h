@@ -4,19 +4,16 @@
 
 namespace sge {
 
-template<class TFirst, class TSecond>
-struct Pair
-{
-	Pair()
-	{}
+template <class TFirst, class TSecond>
+struct Pair {
+	Pair() {}
 
-	Pair(const TFirst& a, const TSecond& b) :
-		first(a),
-		second(b)
-	{}
+	Pair(const TFirst& a, const TSecond& b)
+	    : first(a)
+	    , second(b) {}
 
 	TFirst first;
 	TSecond second;
 };
 
-}
+} // namespace sge

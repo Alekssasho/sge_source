@@ -298,8 +298,8 @@ void SelectionTool::performPicking(
 
 	// TODO: Near and far plane of the projection matrix are currently hardcoded.
 	RawCamera pickingCamera(drawSets.drawCamera->getCameraPosition(), drawSets.drawCamera->getView(),
-	                            isOrthographic ? mat4f::getOrthoRH(l, r, b, t, 0.1f, 10000.f, kIsTexcoordStyleD3D)
-	                                           : mat4f::getPerspectiveOffCenterRH(l, r, b, t, 0.1f, 10000.f, kIsTexcoordStyleD3D));
+	                        isOrthographic ? mat4f::getOrthoRH(l, r, b, t, 0.1f, 10000.f, kIsTexcoordStyleD3D)
+	                                       : mat4f::getPerspectiveOffCenterRH(l, r, b, t, 0.1f, 10000.f, kIsTexcoordStyleD3D));
 
 	GameDrawSets pickingDrawSets;
 	pickingDrawSets.setup(sgecon, m_renderTarget, drawSets.quickDraw, &pickingCamera, drawSets.gameCamera, drawSets.gameDrawer);

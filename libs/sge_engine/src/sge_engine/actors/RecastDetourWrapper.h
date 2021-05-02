@@ -16,12 +16,8 @@ namespace sge {
 /// So, to workaround this class should be used instead. It automatically calls alloc/free by default.
 template <typename T, T* (*TAlloc)(), void (*TFree)(T*)>
 struct RecastObject : public Noncopyable {
-	RecastObject() {
-		createNew();
-	}
-	~RecastObject() {
-		freeExisting();
-	}
+	RecastObject() { createNew(); }
+	~RecastObject() { freeExisting(); }
 
 	void createNew() {
 		freeExisting();

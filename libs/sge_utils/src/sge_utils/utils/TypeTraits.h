@@ -104,8 +104,7 @@ struct RemoveReference<T&&> {
 typedef void (*PerBuildTypeId)();
 template <typename T>
 struct GetPerBuildTypeId_t {
-	static void value() {
-	}
+	static void value() {}
 };
 
 #define sgePerBuildTypeId(T) (&GetPerBuildTypeId_t<T>::value)

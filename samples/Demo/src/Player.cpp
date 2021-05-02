@@ -52,7 +52,7 @@ struct Player : public Actor {
 			return;
 		}
 
-		// Lock the cursor to the center of the screen and hide it 
+		// Lock the cursor to the center of the screen and hide it
 		// as we want to control the camera with the mouse.
 		getWorld()->setNeedsLockedCursor(true);
 
@@ -80,7 +80,8 @@ struct Player : public Actor {
 
 			transf3d cameraTransform = cameraActor->getTransform();
 			cameraTransform.p = getTransform().p + cameraOffset;
-			//cameraTransform.r = quatf::getAxisAngle(vec3f::axis_x(), -deg2rad(30.f)) * quatf::getAxisAngle(vec3f::axis_y(), deg2rad(90.f));
+			// cameraTransform.r = quatf::getAxisAngle(vec3f::axis_x(), -deg2rad(30.f)) * quatf::getAxisAngle(vec3f::axis_y(),
+			// deg2rad(90.f));
 			cameraTransform.r = rotationQuat * cameraTransform.r;
 			cameraActor->setTransform(cameraTransform);
 
@@ -95,7 +96,7 @@ struct Player : public Actor {
 		wobbleAmplitude += wobbleForce * u.dt;
 
 		const vec2f inputDir = u.is.GetArrowKeysDir(true, true, 0);
-		const vec3f inputDirWs = wsRight * inputDir.x +  inputDir.y * wsForward;
+		const vec3f inputDirWs = wsRight * inputDir.x + inputDir.y * wsForward;
 		const vec3f inputDirWsRight = vec3f(-inputDirWs.z, 0.f, inputDirWs.x);
 
 		if (u.is.IsKeyDown(Key_Space) || u.is.getXInputDevice(0).isBtnDown(GamepadState::btn_a)) {
@@ -119,7 +120,7 @@ struct Player : public Actor {
 
 		ttRigidbody.getRigidBody()->applyForce((inputDirWs * 10.f + additionalForce), vec3f(0.f, 0.65f, 0.f));
 
-		float squash = wobbleAmplitude; 
+		float squash = wobbleAmplitude;
 
 		ttModel.setAdditionalTransform(mat4f::getRotationQuat(getTransform().r.inverse()) * mat4f::getTranslation(0.f, -0.5f, 0.f) *
 		                               mat4f::getSquashyScalingY(squash) * mat4f::getTranslation(0.f, 0.5f, 0.f) *
@@ -129,9 +130,7 @@ struct Player : public Actor {
 
 DefineTypeId(Player, 30'02'22'0001);
 ReflBlock() {
-	ReflAddActor(Player) 
-		ReflMember(Player, cameraObject)
-		ReflMember(Player, cameraOffset);
+	ReflAddActor(Player) ReflMember(Player, cameraObject) ReflMember(Player, cameraOffset);
 }
 
 } // namespace sge

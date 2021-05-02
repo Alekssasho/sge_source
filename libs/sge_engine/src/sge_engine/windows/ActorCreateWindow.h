@@ -2,8 +2,8 @@
 
 #include "IImGuiWindow.h"
 
-#include "sge_engine/GameObject.h"
 #include "imgui/imgui.h"
+#include "sge_engine/GameObject.h"
 #include <string>
 
 namespace sge {

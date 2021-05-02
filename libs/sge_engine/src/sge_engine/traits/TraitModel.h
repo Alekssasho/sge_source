@@ -106,7 +106,7 @@ struct SGE_ENGINE_API TraitModel : public Trait {
 	float animationTime = 0.f;
 	bool isRenderable = true;
 	std::vector<MaterialOverride> m_materialOverrides;
-	
+
 	// External skeleton, useful for IK. Not sure for regular skinned meshes.
 	bool useSkeleton = false;
 	ObjectId rootSkeletonId;
@@ -114,7 +114,6 @@ struct SGE_ENGINE_API TraitModel : public Trait {
 
 	/// @brief A struct holding the rendering options of a sprite or a texture in 3D.
 	struct ImageSettings {
-
 		/// @brief Computes the object-to-node transformation of the sprite so i has its origin in the deisiered location.
 		mat4f getAnchorAlignMtxOS(float imageWidth, float imageHeight) const {
 			const float sz = imageWidth / m_pixelsPerUnit;
@@ -123,7 +122,7 @@ struct SGE_ENGINE_API TraitModel : public Trait {
 			const mat4f anchorAlineMtx = anchor_getPlaneAlignMatrix(m_anchor, vec2f(sz, sy));
 			return anchorAlineMtx;
 		}
-		
+
 		/// Adds a color tint to the final color and the alpha of the object.
 		vec4f colorTint = vec4f(1.f);
 

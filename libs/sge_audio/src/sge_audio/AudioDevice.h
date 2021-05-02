@@ -1,6 +1,6 @@
 #pragma once
-#include <memory>
 #include "sge_audio/AudioTrack.h"
+#include <memory>
 
 namespace sge {
 struct AudioDeviceDesc {};

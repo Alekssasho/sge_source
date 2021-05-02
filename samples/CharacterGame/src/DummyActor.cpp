@@ -64,8 +64,7 @@ struct CharacterActor : public Actor {
 			inputDirWS = inputDir;
 		}
 
-		bool const isJumpBtnPressed =
-		    (u.is.wasActiveWhilePolling() && u.is.IsKeyPressed(Key::Key_Space));
+		bool const isJumpBtnPressed = (u.is.wasActiveWhilePolling() && u.is.IsKeyPressed(Key::Key_Space));
 
 		bool const isJumpBtnReleased = (u.is.wasActiveWhilePolling() && u.is.IsKeyReleased(Key::Key_Space));
 

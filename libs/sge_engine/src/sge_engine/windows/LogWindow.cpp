@@ -1,6 +1,6 @@
+#include "sge_core/ICore.h"
 #include "sge_engine/EngineGlobal.h"
 #include "sge_engine/GameInspector.h"
-#include "sge_core/ICore.h"
 
 #include "LogWindow.h"
 #define IMGUI_DEFINE_MATH_OPERATORS

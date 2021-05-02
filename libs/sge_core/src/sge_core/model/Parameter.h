@@ -1,27 +1,25 @@
 #pragma once
 
 #include <map>
-#include <string>
 #include <string.h>
+#include <string>
 
 #include "sge_core/sgecore_api.h"
 #include "sge_utils/sge_utils.h"
 #include "sge_utils/utils/StaticArray.h"
 #include <type_traits>
 
-#include "sge_utils/utils/vector_map.h"
-#include "sge_utils/math/vec4.h"
 #include "sge_utils/math/quat.h"
+#include "sge_utils/math/vec4.h"
+#include "sge_utils/utils/vector_map.h"
 
 namespace sge {
 
 //-------------------------------------------------------------------------
 //
 //-------------------------------------------------------------------------
-struct SGE_CORE_API ParameterType
-{
-	enum Enum
-	{
+struct SGE_CORE_API ParameterType {
+	enum Enum {
 		Float,
 		Float2,
 		Float3,
@@ -36,28 +34,23 @@ struct SGE_CORE_API ParameterType
 		FromStringError, // Used as an error code when converging String to ParameterType::Enum in FromString.
 	};
 
-	struct Info
-	{
+	struct Info {
 		const char* name;
 		int sizeBytes;
 	};
 
 	static const Info& info(const Enum e) {
-		static const Info info[] =  {
-			{"Float",  4},
-			{"Float2", 8},
-			{"Float3", 12},
-			{"Float4", 16},
-			{"Quaternion", 16},
-			{"String", 0},
+		static const Info info[] = {
+		    {"Float", 4}, {"Float2", 8}, {"Float3", 12}, {"Float4", 16}, {"Quaternion", 16}, {"String", 0},
 		};
 
 		return info[(int)e];
 	}
 
 	static Enum FromString(const char* const str) {
-		for(int t = 0; t < NumParams; ++t) {
-			if(strcmp(info(Enum(t)).name, str) == 0) return (Enum)t;
+		for (int t = 0; t < NumParams; ++t) {
+			if (strcmp(info(Enum(t)).name, str) == 0)
+				return (Enum)t;
 		}
 		return FromStringError;
 	}
@@ -67,34 +60,32 @@ struct SGE_CORE_API ParameterType
 	virtual void operator()() = 0;
 };
 
-struct SGE_CORE_API ParameterCurve
-{
+struct SGE_CORE_API ParameterCurve {
 	ParameterType::Enum type;
 	std::vector<float> keys;
 	std::vector<char> data;
 
-public :
-
+  public:
 	ParameterCurve() = default;
 	ParameterCurve(const ParameterCurve& other) = default;
 
 	bool Add(float key, const void* const value);
 
 	// [TODO] Add an assert if the sizeof(T) != data type size. take care for the string case...
-	template<typename T>
-	bool TAdd(float key, const T& v) {  return Add(key, (void*)&v); }
+	template <typename T>
+	bool TAdd(float key, const T& v) {
+		return Add(key, (void*)&v);
+	}
 	bool Evaluate(float key, void* dest) const;
 
 	bool debug_VerifyData() const;
-
 };
 
 //-------------------------------------------------------------------------
 //
 //-------------------------------------------------------------------------
-class SGE_CORE_API Parameter
-{
-public :
+class SGE_CORE_API Parameter {
+  public:
 	~Parameter() { Destroy(); }
 
 	Parameter() {}
@@ -105,7 +96,7 @@ public :
 	void Create(ParameterType::Enum const paramType, const void* staticValue = NULL);
 	void Destroy();
 
-	bool CreateCurve(const char* const name); // Returns true of success.
+	bool CreateCurve(const char* const name);    // Returns true of success.
 	void SetStaticValue(const void* const data); // Changes the default value of this parameter.
 
 	// A bunch of getters...
@@ -124,15 +115,10 @@ public :
 	// [CAUTION]:
 	// For the numeric values the data is what you expect.
 	// For ParameterType::String this must be std::string!!!
-	void Evalute(
-		void* const resultData, 
-		const char* const curveName, 
-		const float sampleTime) const;
+	void Evalute(void* const resultData, const char* const curveName, const float sampleTime) const;
 
-private :
-
-	union
-	{
+  private:
+	union {
 		float staticValue_float;
 		vec2f staticValue_vec2f;
 		vec3f staticValue_vec3f;
@@ -149,10 +135,8 @@ private :
 //-------------------------------------------------------------------------
 // Just a set of named parameters.
 //-------------------------------------------------------------------------
-class SGE_CORE_API ParameterBlock
-{
-public :
-
+class SGE_CORE_API ParameterBlock {
+  public:
 	typedef std::map<std::string, Parameter> map_string_parameter;
 
 	ParameterBlock() {}
@@ -169,16 +153,17 @@ public :
 	// Searches for a parameter with a given name and returns it.
 	// if the parameter was not found and 'typeIfMissing' is != DontCreate
 	// a new parameter will be created with that type!
-	Parameter* FindParameter(const char* const name, const ParameterType::Enum typeIfMissing = ParameterType::DontCreate, const void* staticValue = NULL);
+	Parameter* FindParameter(const char* const name,
+	                         const ParameterType::Enum typeIfMissing = ParameterType::DontCreate,
+	                         const void* staticValue = NULL);
 	const Parameter* FindParameter(const char* const name) const;
 
 	// All that std::move madness here cuold be pretty benefitial here?
 	void AddParameter(const char* const name, const Parameter& param);
 
-protected :
-
+  protected:
 	// TODO: This is pretty slow when searching for a param by name.
 	map_string_parameter m_parameters;
 };
 
-}
+} // namespace sge

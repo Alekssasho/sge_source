@@ -3,11 +3,8 @@
 namespace sge {
 
 struct DLLHandler {
-
 	DLLHandler() = default;
-	~DLLHandler() {
-		unload();
-	}
+	~DLLHandler() { unload(); }
 
 	bool load(const char* const path);
 	bool loadNoExt(const char* pPath);

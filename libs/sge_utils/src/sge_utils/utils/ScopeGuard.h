@@ -9,8 +9,7 @@ namespace sge {
 struct ScopeGuard : public Noncopyable {
 	ScopeGuard() = default;
 	ScopeGuard(std::function<void()> scopeExitProc)
-	    : scopeExitProc(std::move(scopeExitProc)) {
-	}
+	    : scopeExitProc(std::move(scopeExitProc)) {}
 
 	~ScopeGuard() {
 		if (scopeExitProc) {
@@ -18,9 +17,7 @@ struct ScopeGuard : public Noncopyable {
 		}
 	}
 
-	void dismiss() {
-		scopeExitProc = nullptr;
-	}
+	void dismiss() { scopeExitProc = nullptr; }
 
   private:
 	std::function<void()> scopeExitProc;

@@ -7,25 +7,25 @@
 #include "GLContextStateCache.h"
 
 #include "Buffer_gl.h"
+#include "FrameTarget_gl.h"
+#include "Query_gl.h"
+#include "RenderState_gl.h"
+#include "SamplerState_gl.h"
 #include "Shader_gl.h"
 #include "ShadingProgram_gl.h"
 #include "Texture_gl.h"
-#include "SamplerState_gl.h"
-#include "FrameTarget_gl.h"
-#include "RenderState_gl.h"
-#include "Query_gl.h"
 
 namespace sge {
 
 struct SGEContextImmediate;
 
 //---------------------------------------------------------------
-//SGEDeviceImpl
+// SGEDeviceImpl
 //
 // The lameness about that class it that it represents both
 // the "D3D11" device and the SwapChan for the target window.
 //
-// I could esily fix that for D3D11, but OpenGL wouldnt give 
+// I could esily fix that for D3D11, but OpenGL wouldnt give
 // this without a fight, as it relyies on an active contexts and
 // in addition to that each window must use it's own context and
 // in addition not all resources cuold be shared between all context.
@@ -33,14 +33,12 @@ struct SGEContextImmediate;
 // Lame OpenGL ... lame...
 //
 //---------------------------------------------------------------
-struct SGEDeviceImpl : public SGEDevice
-{
+struct SGEDeviceImpl : public SGEDevice {
 	friend SGEContextImmediate;
 
-	SGEDeviceImpl() :
-		m_immContext(nullptr),
-		m_VSyncEnabled(false)
-	{}
+	SGEDeviceImpl()
+	    : m_immContext(nullptr)
+	    , m_VSyncEnabled(false) {}
 
 	bool Create(const MainFrameTargetDesc& frameTargetDesc);
 
@@ -48,17 +46,15 @@ struct SGEDeviceImpl : public SGEDevice
 	void present() final;
 
 	RAIResource* requestResource(const ResourceType::Enum resourceType) final;
-	
-	void releaseResource(RAIResource* resource) final {
-		delete resource;
-	}
+
+	void releaseResource(RAIResource* resource) final { delete resource; }
 
 	int getStringIndex(const std::string& str) final { return (int)stringRegister.getIndex(str); }
 
 	SGEContext* getContext() final { return (SGEContext*)m_immContext; }
 	const MainFrameTargetDesc& getWindowFrameTargetDesc() const { return m_windowFrameTargetDesc; }
 	FrameTarget* getWindowFrameTarget() final { return m_screenTarget; }
-	
+
 	void resizeBackBuffer(int width, int height) final;
 	void setVsync(const bool enabled) final;
 	bool getVsync() const final { return m_VSyncEnabled; }
@@ -75,8 +71,7 @@ struct SGEDeviceImpl : public SGEDevice
 
 	const FrameStatistics& getFrameStatistics() const final { return m_frameStatistics; }
 
-private :
-
+  private:
 	FrameStatistics m_frameStatistics;
 	bool m_VSyncEnabled;
 
@@ -97,18 +92,17 @@ private :
 
 
 	GLContextStateCache m_gl_contextStateCache;
-	#if defined(WIN32)
+#if defined(WIN32)
 	void* m_gl_hdc; // actually void*
-	#endif
+#endif
 };
 
 //--------------------------------------------------------
 // SGEContextGL
 //--------------------------------------------------------
-struct SGEContextGL : public SGEContext
-{
-	SGEContextGL() : m_device(nullptr)
-	{}
+struct SGEContextGL : public SGEContext {
+	SGEContextGL()
+	    : m_device(nullptr) {}
 
 	SGEDevice* getDevice() final { return m_device; }
 	SGEDeviceImpl* getDeviceImpl() { return m_device; }
@@ -116,8 +110,7 @@ struct SGEContextGL : public SGEContext
 
 	GLContextStateCache* GL_GetContextStateCache() { return static_cast<SGEDeviceImpl*>(m_device)->GL_GetContextStateCache(); }
 
-protected :
-
+  protected:
 	SGEDeviceImpl* m_device;
 };
 
@@ -125,8 +118,7 @@ protected :
 // [TODO] Rename to SGEImmediateContext or something like that.
 // SGEContextImmediate
 //---------------------------------------------------------------------
-struct SGEContextImmediate : public SGEContextGL
-{
+struct SGEContextImmediate : public SGEContextGL {
 	friend SGEDeviceImpl;
 
 	SGEContextImmediate() = default;
@@ -137,11 +129,10 @@ struct SGEContextImmediate : public SGEContextGL
 	void* map(Buffer* buffer, const Map::Enum map) final;
 	void unMap(Buffer* buffer) final;
 
-	void executeDrawCall(
-		DrawCall& drawCall, 
-		FrameTarget* frameTarget, 
-		const Rect2s* const pViewport = nullptr, 
-		const Rect2s* const pScissorsRect = nullptr) final;
+	void executeDrawCall(DrawCall& drawCall,
+	                     FrameTarget* frameTarget,
+	                     const Rect2s* const pViewport = nullptr,
+	                     const Rect2s* const pScissorsRect = nullptr) final;
 
 	void beginQuery(Query* const query) final;
 	void endQuery(Query* const query) final;
@@ -178,11 +169,10 @@ protected :
 };
 #endif
 
-}
+} // namespace sge
 
 extern template class std::vector<sge::APICommand>;
 extern template class std::vector<sge::DrawCall>;
 extern template class std::vector<sge::BufferMapCmd>;
 extern template class std::vector<sge::ClearColorCmd>;
 extern template class std::vector<sge::ClearDepthStencilCmd>;
-

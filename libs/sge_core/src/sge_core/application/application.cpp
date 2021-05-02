@@ -224,7 +224,7 @@ void ApplicationHandler::NewWindowInternal(
 	[[maybe_unused]] const SDL_GLContext context = SDL_GL_CreateContext(window->m_implData->window);
 	sgeAssert(context != nullptr);
 	DumpAllGLErrors();
-	
+
 	// emscripten_webgl_get_current_context emscripten_webgl_enable_extension
 #if !defined(__EMSCRIPTEN__)
 	SDL_GL_SetSwapInterval(1);

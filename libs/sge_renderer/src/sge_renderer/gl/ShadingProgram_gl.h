@@ -8,9 +8,8 @@ namespace sge {
 
 struct VertexMapperGL;
 
-struct ShadingProgramGL : public ShadingProgram
-{
-	ShadingProgramGL() { }
+struct ShadingProgramGL : public ShadingProgram {
+	ShadingProgramGL() {}
 	~ShadingProgramGL() { destroy(); }
 
 	bool create(Shader* vertShdr, Shader* pixelShdr) final;
@@ -25,21 +24,18 @@ struct ShadingProgramGL : public ShadingProgram
 
 	// Creates or returns already existing VertexMapperGL
 	VertexMapperGL* GetVertexMapper(const VertexDeclIndex vertexDeclIndex);
-	
+
 	GLuint GL_GetProgram() const { return m_glProgram; }
-	
-	const ShadingProgramRefl& getReflection() const final {
-		return m_reflection;
-	}
 
-private :
+	const ShadingProgramRefl& getReflection() const final { return m_reflection; }
 
+  private:
 	GpuHandle<Shader> m_vertShdr;
 	GpuHandle<Shader> m_pixShadr;
 
-	std::vector< GpuHandle<VertexMapperGL> > m_vertMappers; // Vertex shader input layouts.
+	std::vector<GpuHandle<VertexMapperGL>> m_vertMappers; // Vertex shader input layouts.
 	GLuint m_glProgram = 0;
 	ShadingProgramRefl m_reflection;
 };
 
-}
+} // namespace sge

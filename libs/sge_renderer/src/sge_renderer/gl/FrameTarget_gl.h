@@ -10,21 +10,19 @@ struct TextureGL;
 //----------------------------------------------------------
 // FrameTargetGL
 // In terms of GL this is a FrameBuffer object.
-// In terms of D3D11 this just a container that contains a bunch of 
+// In terms of D3D11 this just a container that contains a bunch of
 // render targets and a depth buffer.
 //----------------------------------------------------------
-struct FrameTargetGL : public FrameTarget
-{
-	FrameTargetGL()  { }
+struct FrameTargetGL : public FrameTarget {
+	FrameTargetGL() {}
 	~FrameTargetGL() { destroy(); }
 
 	// Sets render target and depth stencil elements can be NULL.
-	bool create(
-		int numRenderTargets,
-		Texture* renderTargets[], 
-		TargetDesc renderTargetDescs[],
-		Texture* depthStencil,
-		const TargetDesc& depthTargetDesc) final;
+	bool create(int numRenderTargets,
+	            Texture* renderTargets[],
+	            TargetDesc renderTargetDescs[],
+	            Texture* depthStencil,
+	            const TargetDesc& depthTargetDesc) final;
 
 	// In order Create to succeed all textures must share:
 	// - the same type
@@ -33,20 +31,19 @@ struct FrameTargetGL : public FrameTarget
 	bool create() final;
 
 	// Just a shortcut that makes a single 2D render target and optionally a 2D depth stencil texture.
-	bool create2D(
-		int width,
-		int height,
-		TextureFormat::Enum renderTargetFmt = TextureFormat::R8G8B8A8_UNORM,
-		TextureFormat::Enum depthTextureFmt = TextureFormat::D24_UNORM_S8_UINT) final;
-	
-	//Attaches(overrides) the color atachment to the FrameTargetGL
+	bool create2D(int width,
+	              int height,
+	              TextureFormat::Enum renderTargetFmt = TextureFormat::R8G8B8A8_UNORM,
+	              TextureFormat::Enum depthTextureFmt = TextureFormat::D24_UNORM_S8_UINT) final;
+
+	// Attaches(overrides) the color atachment to the FrameTargetGL
 	void setRenderTarget(const int slot, Texture* texture, const TargetDesc& targetDesc) final;
 	void setDepthStencil(Texture* texture, const TargetDesc& targetDesc) final;
 
 	void destroy() final;
 
 	// Valid if has at least has 1 render target or a depth stencil.
-	bool isValid() const final; 
+	bool isValid() const final;
 
 	Texture* getRenderTarget(const unsigned int index) const final;
 	Texture* getDepthStencil() const final;
@@ -61,8 +58,7 @@ struct FrameTargetGL : public FrameTarget
 	GLuint GL_GetResource() const { return m_frameBuffer_gl; }
 	bool GL_IsWindowFrameBufferWrapper() const { return m_isWindowFrameBufferWrapper_gl; }
 
-private : 
-
+  private:
 	void updateAttachmentsInfo(Texture* texture);
 
 	// Some statistics about the currently bound textures that are useful.
@@ -74,7 +70,6 @@ private :
 
 	GLuint m_frameBuffer_gl = 0;
 	bool m_isWindowFrameBufferWrapper_gl = false;
-
 };
 
-}
+} // namespace sge

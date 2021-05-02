@@ -93,13 +93,13 @@ bool ShaderD3D11::create(const ShaderType::Enum type, const char* pCode, const c
 	if (translateHLSL(pCode, ShadingLanguage::HLSL, type, convertedCode, conversionErrors) == false) {
 		sgeAssert(false);
 
-		//if (conversionErrors.empty() == false) {
+		// if (conversionErrors.empty() == false) {
 		//	SGE_DEBUG_ERR(conversionErrors.c_str());
 		//}
 
-		//SGE_DEBUG_LOG("Shader code:\n");
-		//SGE_DEBUG_LOG(pCode);
-		//SGE_DEBUG_LOG("\n");
+		// SGE_DEBUG_LOG("Shader code:\n");
+		// SGE_DEBUG_LOG(pCode);
+		// SGE_DEBUG_LOG("\n");
 		sgeAssert(false);
 
 		return false;

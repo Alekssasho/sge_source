@@ -19,18 +19,15 @@ class SGE_CORE_API ModelWriter {
 		DataChunk(int id, const void* data, size_t sizeBytes)
 		    : id(id)
 		    , data(data)
-		    , sizeBytes(sizeBytes) {
-		}
+		    , sizeBytes(sizeBytes) {}
 
 		int id;
 		const void* data;
 		size_t sizeBytes;
 	};
 
-	ModelWriter() {
-	}
-	~ModelWriter() {
-	}
+	ModelWriter() {}
+	~ModelWriter() {}
 
 	bool write(const Model::Model& modelToWrite, IWriteStream* iws);
 	bool write(const Model::Model& modelToWrite, const char* const filename);

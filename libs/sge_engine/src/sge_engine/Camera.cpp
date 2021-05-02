@@ -24,7 +24,8 @@ bool EditorCamera::update(const InputState& is, float aspectRatio) {
 	mat4f p = mat4f::getPerspectiveFovRH(m_projSets.fov, m_projSets.aspectRatio, m_projSets.near, m_projSets.far, kIsTexcoordStyleD3D);
 
 	orthoCoeff = clamp(orthoCoeff, 0.f, 1.f);
-	float k = 1.f - pow(1.f - orthoCoeff, 3.f);;
+	float k = 1.f - pow(1.f - orthoCoeff, 3.f);
+	;
 	for (int t = 0; t < 4; ++t) {
 		m_proj.data[t] = lerp(p.data[t], o.data[t], k);
 	}

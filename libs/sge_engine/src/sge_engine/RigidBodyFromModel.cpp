@@ -6,8 +6,7 @@
 
 namespace sge {
 
-bool initializeCollisionShapeBasedOnModel(std::vector<CollsionShapeDesc>& shapeDescs,
-                                          const EvaluatedModel& evaluatedMode) {
+bool initializeCollisionShapeBasedOnModel(std::vector<CollsionShapeDesc>& shapeDescs, const EvaluatedModel& evaluatedMode) {
 	const Model::Model* const model = evaluatedMode.m_model;
 	if (model == nullptr) {
 		return false;

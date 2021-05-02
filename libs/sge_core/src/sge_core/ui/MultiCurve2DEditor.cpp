@@ -69,9 +69,8 @@ void MultiCurve2DEditor(const char* const widgetName, MultiCurve2D& m_fn, vec2f 
 	widgetSize.x = std::max(16.f, widgetSize.x);
 	widgetSize.y = std::max(16.f, widgetSize.y);
 
-	
-	if (!ImGui::BeginChild(ImGui::GetID(widgetName), toImGui(widgetSize), true,
-	                            ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove)) {
+
+	if (!ImGui::BeginChild(ImGui::GetID(widgetName), toImGui(widgetSize), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove)) {
 		ImGui::EndChild();
 		return;
 	}

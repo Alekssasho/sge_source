@@ -1,7 +1,7 @@
 #pragma once
 
-#include <string>
 #include "sge_renderer/renderer/GraphicsCommon.h"
+#include <string>
 
 namespace sge {
 
@@ -9,11 +9,10 @@ namespace sge {
 // Does preprocessing (+ #include directives) using MCPP.
 // Assumes that the vertex shader main function is named vsMain
 // Assumes that the pixel shader main function is named psMain
-bool translateHLSL(
-	const char* const pCode, 
-	const ShadingLanguage::Enum shadingLanguage,
-	const ShaderType::Enum shaderType,
-	std::string& result,
-	std::string& compilationErrors);
+bool translateHLSL(const char* const pCode,
+                   const ShadingLanguage::Enum shadingLanguage,
+                   const ShaderType::Enum shaderType,
+                   std::string& result,
+                   std::string& compilationErrors);
 
-}
+} // namespace sge

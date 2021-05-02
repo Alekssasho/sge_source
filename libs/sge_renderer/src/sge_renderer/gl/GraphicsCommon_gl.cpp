@@ -343,7 +343,7 @@ GLenum TextureDesc_GetGLNativeTextureTartget(const TextureDesc& desc) {
 #if !defined(__EMSCRIPTEN__)
 		return (desc.textureCube.arraySize == 1) ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_CUBE_MAP_ARRAY;
 #else
-		if(desc.textureCube.arraySize == 1) {
+		if (desc.textureCube.arraySize == 1) {
 			return GL_TEXTURE_CUBE_MAP;
 		}
 #endif

@@ -8,7 +8,7 @@ namespace sge {
 /// TraitCharacterController is a trait around @CharacterCtrl struct.
 /// You can use the struct CharacterCtrl directly, or via this trait.
 /// The trait is mainly designed to be able to distiquish between character
-/// and non-character actors. Usually used when you want to add some forces 
+/// and non-character actors. Usually used when you want to add some forces
 /// to the rigid body of the character, ignore collitions or other logic.
 DefineTypeIdExists(TraitCharacterController);
 struct SGE_ENGINE_API TraitCharacterController final : public Trait {

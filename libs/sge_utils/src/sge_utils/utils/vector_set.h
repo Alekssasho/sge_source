@@ -1,7 +1,7 @@
 #pragma once
 
-#include <algorithm>
 #include "sge_utils/sge_utils.h"
+#include <algorithm>
 #include <vector>
 
 namespace sge {

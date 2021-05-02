@@ -1,6 +1,6 @@
 #include "sge_utils.h"
-#include <string>
 #include "sge_utils/utils/strings.h"
+#include <string>
 
 #ifdef WIN32
 #include <Windows.h>

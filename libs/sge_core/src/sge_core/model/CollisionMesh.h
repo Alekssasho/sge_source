@@ -13,8 +13,7 @@ namespace Model {
 		CollisionMesh() = default;
 		CollisionMesh(std::vector<vec3f> vertices, std::vector<int> indices)
 		    : vertices(std::move(vertices))
-		    , indices(std::move(indices)) {
-		}
+		    , indices(std::move(indices)) {}
 
 		void freeMemory() {
 			vertices = std::vector<vec3f>();

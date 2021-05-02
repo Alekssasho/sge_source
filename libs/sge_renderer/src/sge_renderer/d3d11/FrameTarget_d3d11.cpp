@@ -109,7 +109,7 @@ void FrameTargetD3D11::updateAttachmentsInfo(Texture* texture) {
 				m_frameTargetWidth = texture->getDesc().texture3D.width;
 			if (m_frameTargetHeight == -1)
 				m_frameTargetHeight = texture->getDesc().texture3D.height;
-		} else if (texture->getDesc().textureType == UniformType::TextureCube) { 
+		} else if (texture->getDesc().textureType == UniformType::TextureCube) {
 			if (m_frameTargetWidth == -1)
 				m_frameTargetWidth = texture->getDesc().textureCube.width;
 			if (m_frameTargetHeight == -1)

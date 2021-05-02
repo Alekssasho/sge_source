@@ -184,7 +184,6 @@ AABox3f ALight::getBBoxOS() const {
 }
 
 void ALight::update(const GameUpdateSets& UNUSED(updateSets)) {
-
 }
 
 

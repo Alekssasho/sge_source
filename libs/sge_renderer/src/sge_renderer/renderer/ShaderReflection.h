@@ -1,4 +1,4 @@
-#pragma once 
+#pragma once
 
 #include "sge_utils/sge_utils.h"
 #include "sge_utils/utils/vector_map.h"
@@ -14,19 +14,16 @@ struct ShadingProgram;
 //---------------------------------------------------
 //
 //---------------------------------------------------
-struct BindLocation
-{
-	BindLocation() :
-		raw(0)
-	{
+struct BindLocation {
+	BindLocation()
+	    : raw(0) {
 		static_assert(sizeof(BindLocation) == sizeof(uint64), "");
 	}
-	
+
 	bool isNull() const { return raw == 0; }
 
 #ifdef SGE_RENDERER_GL
-	BindLocation(short const bindLocation, short const uniformType, short const arraySize, short bindUnitTexture)
-	{
+	BindLocation(short const bindLocation, short const uniformType, short const arraySize, short bindUnitTexture) {
 		raw = 0;
 		this->bindLocation = bindLocation;
 		this->uniformType = uniformType;
@@ -35,13 +32,14 @@ struct BindLocation
 	}
 #endif
 
-	BindLocation(const BindLocation& ref) :
-		raw(ref.raw)
-	{}
+	BindLocation(const BindLocation& ref)
+	    : raw(ref.raw) {}
 
 #ifdef SGE_RENDERER_D3D11
-	BindLocation(ShaderType::Enum shaderFreq, short bindLocation, short const uniformType, short const texArraySize_or_numericUniformSizeBytes = 0)
-	{
+	BindLocation(ShaderType::Enum shaderFreq,
+	             short bindLocation,
+	             short const uniformType,
+	             short const texArraySize_or_numericUniformSizeBytes = 0) {
 		raw = 0;
 		this->shaderFreq = short(shaderFreq);
 		this->bindLocation = bindLocation;
@@ -50,13 +48,12 @@ struct BindLocation
 	}
 #endif
 
-	union
-	{
+	union {
 		uint64 raw;
-		struct
-		{
-			short bindLocation; // OpenGL BindLocation, D3D11 slot. If this is a Numeric Uniform under D3D11, then this is a byteOffset of the variable in the buffer!
-			short uniformType; // Element of UniformType::enum describing what tyoe of uniform is this.
+		struct {
+			short bindLocation; // OpenGL BindLocation, D3D11 slot. If this is a Numeric Uniform under D3D11, then this is a byteOffset of
+			                    // the variable in the buffer!
+			short uniformType;  // Element of UniformType::enum describing what tyoe of uniform is this.
 #ifdef SGE_RENDERER_D3D11
 			short shaderFreq; // Is tha a vertex, geometry, pixel or so on shader.
 			short texArraySize_or_numericUniformSizeBytes;
@@ -73,7 +70,7 @@ struct BindLocation
 	bool operator!=(const BindLocation r) const { return raw != r.raw; }
 };
 
-}
+} // namespace sge
 
 template <>
 struct std::hash<sge::BindLocation> {
@@ -88,19 +85,17 @@ namespace sge {
 //---------------------------------------------------
 //
 //---------------------------------------------------
-struct NumericUniformRefl
-{
+struct NumericUniformRefl {
 	BindLocation computeBindLocation() const;
 
-public:
-
+  public:
 	unsigned nameStrIdx = 0;
 	std::string name;
 	UniformType::Enum uniformType;
 	int arraySize = 0;
 
 #ifdef SGE_RENDERER_D3D11
-	// In D3D11 there aren't numeric uniforms. 
+	// In D3D11 there aren't numeric uniforms.
 	// However the $(Global) cbuffer are used are such.
 	// So numeric uniforms in that case are just variables from a cbuffer.
 	ShaderType::Enum d3d11_shaderType = ShaderType::VertexShader;
@@ -114,24 +109,21 @@ public:
 //---------------------------------------------------
 //
 //---------------------------------------------------
-struct CBufferVariableRefl
-{
+struct CBufferVariableRefl {
 	unsigned nameStrIdx = 0;
 	std::string name;
 	UniformType::Enum type; // Todo: what about compound types>
-	int offset = 0; // byte offset in the buffer.
-	int arraySize = 0; // Zero if not applicable.
+	int offset = 0;         // byte offset in the buffer.
+	int arraySize = 0;      // Zero if not applicable.
 };
 
-struct CBufferRefl
-{
+struct CBufferRefl {
 	BindLocation computeBindLocation() const;
 
-public :
-
+  public:
 	unsigned nameStrIdx = 0;
 	std::string name;
-		
+
 #ifdef SGE_RENDERER_D3D11
 	ShaderType::Enum d3d11_shaderType = ShaderType::VertexShader;
 	int d3d11_bindingSlot;
@@ -139,28 +131,26 @@ public :
 	int gl_bindLocation;
 #endif
 
-	int sizeBytes = 0; //this is != sum(variables.size) because of alignment requerments
+	int sizeBytes = 0; // this is != sum(variables.size) because of alignment requerments
 	std::vector<CBufferVariableRefl> variables;
 };
 
 //---------------------------------------------------
 //
 //---------------------------------------------------
-struct TextureRefl
-{
+struct TextureRefl {
 	BindLocation computeBindLocation() const;
 
-public:
-
+  public:
 	unsigned nameStrIdx = 0;
 	std::string name;
-	
+
 #ifdef SGE_RENDERER_D3D11
 	ShaderType::Enum d3d11_shaderType = ShaderType::VertexShader;
 	int d3d11_bindingSlot = -1;
 #elif defined(SGE_RENDERER_GL)
 	int gl_bindLocation = -1;
-	int gl_bindUnit = 0; // should be used this way: "GL_TEXTURE0 + gl_bindUnit"
+	int gl_bindUnit = 0;               // should be used this way: "GL_TEXTURE0 + gl_bindUnit"
 	unsigned int gl_textureTarget = 0; // Reqired target of the texture, see GLUniformTypeToTextureType for more details.
 #endif
 	int arraySize = 0; // This value must be > 0 in order for the reflection to be valid.
@@ -171,12 +161,10 @@ public:
 //---------------------------------------------------
 //
 //---------------------------------------------------
-struct SamplerRefl
-{
+struct SamplerRefl {
 	BindLocation computeBindLocation() const;
 
-public:
-
+  public:
 	unsigned nameStrIdx = 0; // A runtime mapping string->int for the "name" string.
 	std::string name;
 	int arraySize = 0; // 0 means not an array
@@ -192,19 +180,17 @@ public:
 //---------------------------------------------------
 //
 //---------------------------------------------------
-struct VertShaderAttrib
-{
+struct VertShaderAttrib {
 	unsigned nameStrIdx = 0;
-	std::string	name; // Semantic+index for D3D11, attribute name for OpenGL.
+	std::string name; // Semantic+index for D3D11, attribute name for OpenGL.
 	UniformType::Enum type = UniformType::Unknown;
 #ifdef SGE_RENDERER_GL
 	int attributeLocation = 0; // The binding location of the attribute.
 #endif
 };
 
-template<typename T>
-struct UniformContainer
-{
+template <typename T>
+struct UniformContainer {
 	typedef std::pair<BindLocation, T> UniformPair;
 	std::vector<UniformPair> m_uniforms;
 
@@ -218,8 +204,8 @@ struct UniformContainer
 	}
 
 	BindLocation findUniform(const char* const name) const {
-		for(const auto& itr : m_uniforms) {
-			if(itr.second.name == name) {
+		for (const auto& itr : m_uniforms) {
+			if (itr.second.name == name) {
 				return itr.first;
 			}
 		}
@@ -228,8 +214,8 @@ struct UniformContainer
 	}
 
 	BindLocation findUniform(unsigned const nameStrIdx) const {
-		for(const auto& pair : m_nameStrIdxLUT) {
-			if(pair.first == nameStrIdx) {
+		for (const auto& pair : m_nameStrIdxLUT) {
+			if (pair.first == nameStrIdx) {
 				return pair.second;
 			}
 		}
@@ -241,13 +227,11 @@ struct UniformContainer
 //---------------------------------------------------
 // ShadingProgramRefl
 //---------------------------------------------------
-struct ShadingProgramRefl
-{
+struct ShadingProgramRefl {
 	bool create(ShadingProgram* const shadingProgram);
 	BindLocation findUniform(const char* const uniformName) const;
 
-public :
-
+  public:
 	std::vector<VertShaderAttrib> inputVertices;
 
 	UniformContainer<NumericUniformRefl> numericUnforms;
@@ -256,7 +240,4 @@ public :
 	UniformContainer<SamplerRefl> samplers;
 };
 
-}
-
-
-
+} // namespace sge

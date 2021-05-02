@@ -2,8 +2,8 @@
 
 #include "IImGuiWindow.h"
 
-#include "sge_engine/GameObject.h"
 #include "imgui/imgui.h"
+#include "sge_engine/GameObject.h"
 #include <string>
 
 namespace sge {
@@ -14,16 +14,11 @@ struct GameInspector;
 struct SGE_ENGINE_API OutlinerWindow : public IImGuiWindow {
 	OutlinerWindow(std::string windowName, GameInspector& inspector)
 	    : m_windowName(std::move(windowName))
-	    , m_inspector(inspector) {
-	}
+	    , m_inspector(inspector) {}
 
-	bool isClosed() override {
-		return !m_isOpened;
-	}
+	bool isClosed() override { return !m_isOpened; }
 	void update(SGEContext* const sgecon, const InputState& is) override;
-	const char* getWindowName() const override {
-		return m_windowName.c_str();
-	}
+	const char* getWindowName() const override { return m_windowName.c_str(); }
 
   private:
 	char m_outlinerFilter[512] = {'*', '\0'};

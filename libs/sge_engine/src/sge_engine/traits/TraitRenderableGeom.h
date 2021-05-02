@@ -1,7 +1,7 @@
 #pragma once
 
-#include "sge_engine/Actor.h"
 #include "sge_core/Geometry.h"
+#include "sge_engine/Actor.h"
 #include "sge_utils/math/mat4.h"
 
 namespace sge {

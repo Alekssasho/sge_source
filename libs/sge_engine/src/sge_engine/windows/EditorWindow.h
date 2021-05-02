@@ -62,7 +62,10 @@ struct SGE_ENGINE_API EditorWindow : public IImGuiWindow {
 
 	void newScene(bool forceKeepSameInspector = false);
 	void loadWorldFromFile(const char* const filename, const char* overrideWorkingFilename = nullptr, bool forceKeepSameInspector = false);
-	void loadWorldFromJson(const char* const json, bool disableAutoSepping, const char* const workingFileName = nullptr, bool forceKeepSameInspector = false);
+	void loadWorldFromJson(const char* const json,
+	                       bool disableAutoSepping,
+	                       const char* const workingFileName = nullptr,
+	                       bool forceKeepSameInspector = false);
 	void saveWorldToFile(bool forceAskForFilename);
 	void saveWorldToSpecificFile(const char* filename);
 

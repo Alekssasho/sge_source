@@ -3,10 +3,10 @@
 #include "sge_utils/math/mat4.h"
 #include "sge_utils/math/vec2.h"
 
-#include <string>
 #include <array>
 #include <cfloat>
 #include <cstring>
+#include <string>
 #include <type_traits>
 #include <vector>
 
@@ -71,8 +71,7 @@ struct ShadingLanguage {
 struct SampleDesc {
 	SampleDesc(const int _count = 1, const int _quality = 0)
 	    : Count(_count)
-	    , Quality(_quality) {
-	}
+	    , Quality(_quality) {}
 
 	int Count;   // default is 1
 	int Quality; // default is 0
@@ -87,26 +86,18 @@ struct Rect2s {
 	    : width(width)
 	    , height(height)
 	    , x(0)
-	    , y(0) {
-	}
+	    , y(0) {}
 
 	Rect2s(const short width, const short height, const short x, const short y)
 	    : width(width)
 	    , height(height)
 	    , x(x)
-	    , y(y) {
-	}
+	    , y(y) {}
 
-	bool isEmpty() const {
-		return width != 0 && height != 0;
-	}
-	float ratioWbyH() const {
-		return (float)width / (float)height;
-	}
+	bool isEmpty() const { return width != 0 && height != 0; }
+	float ratioWbyH() const { return (float)width / (float)height; }
 
-	vec2f getSizeFloats() const {
-		return vec2f(width, height);
-	}
+	vec2f getSizeFloats() const { return vec2f(width, height); }
 
 	short width = 0;
 	short height = 0;
@@ -278,9 +269,7 @@ struct TextureFormat {
 	static size_t GetSizeBytes(const TextureFormat::Enum format);
 
 	// Check if the texture format is suitable for depth buffer
-	static bool IsDepth(const TextureFormat::Enum format) {
-		return (format > MARKER_DEPTH_BEGIN) && (format < MARKER_DEPTH_END);
-	}
+	static bool IsDepth(const TextureFormat::Enum format) { return (format > MARKER_DEPTH_BEGIN) && (format < MARKER_DEPTH_END); }
 
 	// Check if the texture format is a BC format.
 	static bool IsBC(const TextureFormat::Enum format) {
@@ -343,9 +332,7 @@ struct UniformType {
 		Int_RGBA_Unorm_IA,
 	};
 
-	static bool isNumeric(Enum const e) {
-		return e > MARKER_NumericUniformsBegin && e < MARKER_NumericUniformsEnd;
-	}
+	static bool isNumeric(Enum const e) { return e > MARKER_NumericUniformsBegin && e < MARKER_NumericUniformsEnd; }
 
 	// [NOTE][TODO] This is a GL only function don't use it elsewhere.
 	// Pick the correct type by given basic type, num rows and columns
@@ -366,8 +353,7 @@ struct TextureData {
 	TextureData(const void* data = nullptr, size_t rowByteSize = 0, size_t sliceByteSize = 0)
 	    : data(data)
 	    , rowByteSize(rowByteSize)
-	    , sliceByteSize(sliceByteSize) {
-	}
+	    , sliceByteSize(sliceByteSize) {}
 
 	const void* data;
 	size_t rowByteSize;
@@ -380,8 +366,7 @@ struct Texture1DDesc {
 	Texture1DDesc(int width, const int numMips, int arraySize)
 	    : width(width)
 	    , numMips(numMips)
-	    , arraySize(arraySize) {
-	}
+	    , arraySize(arraySize) {}
 
 	int width;
 	int numMips;
@@ -397,8 +382,7 @@ struct Texture2DDesc {
 	    , numMips(numMips)
 	    , arraySize(arraySize)
 	    , numSamples(numSamples)
-	    , sampleQuality(sampleQuality) {
-	}
+	    , sampleQuality(sampleQuality) {}
 
 	int width;
 	int height;
@@ -416,8 +400,7 @@ struct TextureCubeDesc {
 	    , numMips(numMips)
 	    , arraySize(arraySize)
 	    , numSamples(numSamples)
-	    , sampleQuality(sampleQuality) {
-	}
+	    , sampleQuality(sampleQuality) {}
 
 	int width;
 	int height;
@@ -433,8 +416,7 @@ struct Texture3DDesc {
 	    : width(width)
 	    , height(height)
 	    , depth(depth)
-	    , numMips(numMips) {
-	}
+	    , numMips(numMips) {}
 
 	int width;
 	int height;
@@ -456,13 +438,9 @@ struct TextureUsage {
 		return e == ImmutableResource || e == DynamicResource || e == RenderTargetResource || e == DepthStencilResource;
 	}
 
-	static bool CanBeRenderTarget(const TextureUsage::Enum e) {
-		return e == RenderTargetResource || e == RenderTargetOnly;
-	}
+	static bool CanBeRenderTarget(const TextureUsage::Enum e) { return e == RenderTargetResource || e == RenderTargetOnly; }
 
-	static bool CanBeDepthStencil(const TextureUsage::Enum e) {
-		return e == DepthStencilResource || e == DepthStencilOnly;
-	}
+	static bool CanBeDepthStencil(const TextureUsage::Enum e) { return e == DepthStencilResource || e == DepthStencilOnly; }
 
 	SGE_GPRAHICS_COMMON_ENUM_HIDE;
 };
@@ -552,9 +530,7 @@ struct TargetDesc {
 		return false;
 	}
 
-	bool operator!=(const TargetDesc& other) const {
-		return !(*this == other);
-	}
+	bool operator!=(const TargetDesc& other) const { return !(*this == other); }
 
 	static TargetDesc FromTex2D(int arrayIdx = 0, int mipLevel = 0) {
 		TargetDesc result;
@@ -632,9 +608,7 @@ struct SamplerDesc {
 		       minLOD == other.minLOD && maxLOD == other.maxLOD;
 	}
 
-	bool operator!=(const SamplerDesc& other) const {
-		return !(*this == other);
-	}
+	bool operator!=(const SamplerDesc& other) const { return !(*this == other); }
 };
 
 //-------------------------------------------------------------------
@@ -708,17 +682,14 @@ struct VertexDecl {
 	    : bufferSlot(bufferSlot)
 	    , semantic(semantic ? semantic : "")
 	    , format(format)
-	    , byteOffset(byteOffset) {
-	}
+	    , byteOffset(byteOffset) {}
 
 	bool operator==(const VertexDecl& other) const {
 		return (bufferSlot == other.bufferSlot) && (semantic == other.semantic) && (byteOffset == other.byteOffset) &&
 		       (format == other.format);
 	}
 
-	bool operator!=(const VertexDecl& other) const {
-		return !operator==(other);
-	}
+	bool operator!=(const VertexDecl& other) const { return !operator==(other); }
 
 	bool operator<(const VertexDecl& ref) const {
 		return ref.bufferSlot > bufferSlot || ref.format > format || ref.byteOffset > byteOffset ||
@@ -786,17 +757,14 @@ struct RasterDesc {
 	    : backFaceCCW(backFaceCW)
 	    , cullMode(cullMode)
 	    , fillMode(fillMode)
-	    , useScissor(useScissor) {
-	}
+	    , useScissor(useScissor) {}
 
 	bool operator==(const RasterDesc& other) const {
 		return backFaceCCW == other.backFaceCCW && cullMode == other.cullMode && fillMode == other.fillMode &&
 		       useScissor == other.useScissor;
 	}
 
-	bool operator!=(const RasterDesc& other) const {
-		return !(*this == other);
-	}
+	bool operator!=(const RasterDesc& other) const { return !(*this == other); }
 };
 
 //-------------------------------------------------------------------
@@ -818,9 +786,7 @@ struct DepthStencilDesc {
 		       comparisonFunc == other.comparisonFunc;
 	}
 
-	bool operator!=(const DepthStencilDesc& other) const {
-		return !(*this == other);
-	}
+	bool operator!=(const DepthStencilDesc& other) const { return !(*this == other); }
 };
 
 //-------------------------------------------------------------------
@@ -893,8 +859,7 @@ struct BlendStateDesc {
 		blendDesc[0] = blend;
 	}
 
-	BlendStateDesc() {
-	}
+	BlendStateDesc() {}
 
 	// If undependant blending is enabled. Each render target
 	// wiil use own blend desc. Otherwise all render targets will use blendDesc[0].
@@ -939,9 +904,7 @@ struct MainFrameTargetDesc {
 struct FrameStatistics {
 	FrameStatistics() = default;
 
-	void Reset() {
-		*this = FrameStatistics();
-	}
+	void Reset() { *this = FrameStatistics(); }
 
 	int numDrawCalls = 0;
 	size_t numPrimitiveDrawn = 0;

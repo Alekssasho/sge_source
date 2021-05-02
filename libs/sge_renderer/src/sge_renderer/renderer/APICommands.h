@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <string>
 #include <string.h>
+#include <string>
 
 #include "sge_renderer/renderer/GraphicsCommon.h"
 #include "sge_utils/utils/Pair.h"
@@ -14,30 +14,23 @@ namespace sge {
 //
 //----------------------------------------------------------------------------
 struct CBufferRefl;
-struct CBufferFiller
-{
-	struct ValueDesc
-	{
+struct CBufferFiller {
+	struct ValueDesc {
 		unsigned nameStrIdx = 0;
 		UniformType::Enum type = UniformType::Unknown;
 		size_t offsetBytes = 0;
 	};
 
-	void setFloat4(const unsigned nameStrIdx, const float v[4]) {
-		SetData(nameStrIdx, UniformType::Float4, v, sizeof(float) * 4);
-	}
+	void setFloat4(const unsigned nameStrIdx, const float v[4]) { SetData(nameStrIdx, UniformType::Float4, v, sizeof(float) * 4); }
 
-	void setFloat4x4(const unsigned nameStrIdx, const float v[16]) {
-		SetData(nameStrIdx, UniformType::Float4x4, v, sizeof(float) * 16);
-	}
+	void setFloat4x4(const unsigned nameStrIdx, const float v[16]) { SetData(nameStrIdx, UniformType::Float4x4, v, sizeof(float) * 16); }
 
 	ValueDesc& getValueDesc(const unsigned nameStrIdx, const UniformType::Enum type);
 	void DeleteValue(const int idx);
 
 	void updateCBuffer(SGEContext* context, Buffer* cbuffer, const CBufferFiller& cbRefl);
 
-	void clear()
-	{
+	void clear() {
 		values.clear();
 		data.clear();
 	}
@@ -51,37 +44,31 @@ struct CBufferFiller
 //----------------------------------------------------------------------------
 // DrawExecDesc
 //----------------------------------------------------------------------------
-struct DrawExecDesc
-{
+struct DrawExecDesc {
 	DrawExecDesc()
-		: m_type(Type_Invalid)
-	{}
+	    : m_type(Type_Invalid) {}
 
-	enum Type : char
-	{
+	enum Type : char {
 		Type_Invalid,
 		Type_Linear,
 		Type_Indexed,
 	};
 
 	// https://msdn.microsoft.com/en-us/library/windows/desktop/ff476898(v=vs.85).aspx
-	struct Linear
-	{
+	struct Linear {
 		uint32 numVerts;
 		uint32 startVert;
 		uint32 numInstances;
 	};
 
-	struct Indexed
-	{
+	struct Indexed {
 		uint32 numIndices;
 		uint32 startIndex;
 		uint32 startVertex; // A value added to each index before reading a vertex from the vertex buffer.
 		uint32 numInstances;
 	};
 
-	void Draw(const uint32 numVerts, const uint32 startVert, const uint32 instanceCount)
-	{
+	void Draw(const uint32 numVerts, const uint32 startVert, const uint32 instanceCount) {
 		m_type = Type_Linear;
 
 		m_linear.numVerts = numVerts;
@@ -89,8 +76,7 @@ struct DrawExecDesc
 		m_linear.numInstances = instanceCount;
 	}
 
-	void DrawIndexed(const uint32 numIndices, const uint32 startIndex, const uint32 startVertex, const uint32 instanceCount)
-	{
+	void DrawIndexed(const uint32 numIndices, const uint32 startIndex, const uint32 startVertex, const uint32 instanceCount) {
 		m_type = Type_Indexed;
 
 		m_indexed.numIndices = numIndices;
@@ -105,8 +91,7 @@ struct DrawExecDesc
 	const Linear& LinearCall() const { return m_linear; }
 	const Indexed& IndexedCall() const { return m_indexed; }
 
-	union
-	{
+	union {
 		Linear m_linear;
 		Indexed m_indexed;
 	};
@@ -114,8 +99,7 @@ struct DrawExecDesc
 	Type m_type;
 };
 
-struct StateGroup
-{
+struct StateGroup {
 	StateGroup() = default;
 
 	void setProgram(ShadingProgram* pShadingProgram);
@@ -130,41 +114,36 @@ struct StateGroup
 	void setRenderState(RasterizerState* rasterState, DepthStencilState* depthStencilState, BlendState* blendState = nullptr);
 
 	// Bound geometry.
-	Buffer*                            m_vertexBuffers[GraphicsCaps::kVertexBufferSlotsCount] = {};
-	uint32                             m_vbOffsets[GraphicsCaps::kVertexBufferSlotsCount] = {};
-	uint32                             m_vbStrides[GraphicsCaps::kVertexBufferSlotsCount] = {};
-	VertexDeclIndex                    m_vertDeclIndex = VertexDeclIndex_Null;
-	PrimitiveTopology::Enum            m_primTopology = PrimitiveTopology::Unknown;
-	Buffer*                            m_indexBuffer = nullptr;
-	UniformType::Enum                  m_indexBufferFormat = UniformType::Unknown;
-	uint32                             m_indexBufferByteOffset;
+	Buffer* m_vertexBuffers[GraphicsCaps::kVertexBufferSlotsCount] = {};
+	uint32 m_vbOffsets[GraphicsCaps::kVertexBufferSlotsCount] = {};
+	uint32 m_vbStrides[GraphicsCaps::kVertexBufferSlotsCount] = {};
+	VertexDeclIndex m_vertDeclIndex = VertexDeclIndex_Null;
+	PrimitiveTopology::Enum m_primTopology = PrimitiveTopology::Unknown;
+	Buffer* m_indexBuffer = nullptr;
+	UniformType::Enum m_indexBufferFormat = UniformType::Unknown;
+	uint32 m_indexBufferByteOffset;
 
 	// Pipeline state.
-	ShadingProgram*                    m_shadingProg = nullptr;
-	RasterizerState*                   m_rasterState = nullptr;
-	DepthStencilState*                 m_depthStencilState = nullptr;
-	BlendState*                        m_blendState = nullptr;
+	ShadingProgram* m_shadingProg = nullptr;
+	RasterizerState* m_rasterState = nullptr;
+	DepthStencilState* m_depthStencilState = nullptr;
+	BlendState* m_blendState = nullptr;
 };
 
-struct BoundUniform
-{
-	BoundUniform() 
-		: data(nullptr)
-	{}
+struct BoundUniform {
+	BoundUniform()
+	    : data(nullptr) {}
 
 	BoundUniform(BindLocation bindLocation, void* data)
-		: bindLocation(bindLocation)
-		, data(data)
-	{}
+	    : bindLocation(bindLocation)
+	    , data(data) {}
 
 	BoundUniform(BindLocation bindLocation, Texture** textures)
-		: bindLocation(bindLocation)
-		, textures(textures)
-	{}
+	    : bindLocation(bindLocation)
+	    , textures(textures) {}
 
 	BindLocation bindLocation;
-	union
-	{
+	union {
 		void* data;
 		Texture* texture;
 		Texture** textures;
@@ -178,8 +157,7 @@ struct BoundUniform
 //----------------------------------------------------------------------------
 // DrawCall
 //----------------------------------------------------------------------------
-struct DrawCall
-{
+struct DrawCall {
 	DrawExecDesc m_drawExec;
 	StateGroup* m_pStateGroup = nullptr;
 	BoundUniform* uniforms = nullptr;
@@ -205,17 +183,15 @@ struct DrawCall
 };
 
 //----------------------------------------------------------------------------
-// There are currently used only for SGERecordingContext. 
+// There are currently used only for SGERecordingContext.
 // [TODO] Consider making them the offical way of doing anything?
 //----------------------------------------------------------------------------
-struct BufferMapCmd
-{
+struct BufferMapCmd {
 	Buffer* buffer = nullptr;
 	char* data = nullptr; // There is no guarantee who owns the data.
 };
 
-struct ClearColorCmd
-{
+struct ClearColorCmd {
 	ClearColorCmd() = default;
 	ClearColorCmd(FrameTarget* frameTarget, int index, const float rgba[4]);
 
@@ -224,13 +200,12 @@ struct ClearColorCmd
 	float m_rgba[4];
 };
 
-struct ClearDepthStencilCmd
-{
+struct ClearDepthStencilCmd {
 	ClearDepthStencilCmd() = default;
 	ClearDepthStencilCmd(FrameTarget* frameTarget, float depth);
 
-	FrameTarget* m_frameTarget= nullptr;
+	FrameTarget* m_frameTarget = nullptr;
 	float m_depth = 1.f;
 };
 
-}
+} // namespace sge

@@ -170,7 +170,7 @@ SGE_CORE_API bool InputText(const char* label,
                             ImGuiInputTextFlags flags = 0,
                             ImGuiInputTextCallback callback = nullptr,
                             void* user_data = nullptr,
-							bool acceptOnlyIdentifierStyleText = false);
+                            bool acceptOnlyIdentifierStyleText = false);
 
 /// @brief Create a tooltip if the previous item was hovered.
 SGE_CORE_API void TextTooltip(const char* const text);

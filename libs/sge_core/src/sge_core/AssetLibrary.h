@@ -128,9 +128,8 @@ struct SGE_CORE_API Asset {
 	sint64 getLastModTime() const { return m_loadedModifiedTime; }
 
   private:
-	
 	void* m_pAsset = nullptr; ///< Holds the dynamically allocated storage of the asset.
-	AssetType m_type; ///< Holds the type of the asset.
+	AssetType m_type;         ///< Holds the type of the asset.
 	AssetStatus m_status = AssetStatus::NotLoaded;
 	std::string m_path;
 	sint64 m_loadedModifiedTime; ///< The last time the file was modified since last load.

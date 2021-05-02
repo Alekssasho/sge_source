@@ -3,9 +3,9 @@
 #include "sge_core/AssetLibrary.h"
 
 #include "sge_engine/Actor.h"
+#include "sge_engine/RigidBodyEditorConfig.h"
 #include "sge_engine/traits/TraitModel.h"
 #include "sge_engine/traits/TraitRigidBody.h"
-#include "sge_engine/RigidBodyEditorConfig.h"
 
 namespace sge {
 
@@ -23,7 +23,6 @@ struct SGE_ENGINE_API ADynamicObstacle : public Actor {
 	AABox3f getBBoxOS() const final;
 
   public:
-
 	TraitModel m_traitModel;
 	TraitRigidBody m_traitRB;
 	RigidBodyConfigurator m_rbConfig;

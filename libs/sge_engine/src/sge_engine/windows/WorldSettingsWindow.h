@@ -19,7 +19,6 @@ struct SGE_ENGINE_API WorldSettingsWindow : public IImGuiWindow {
 	const char* getWindowName() const override { return m_windowName.c_str(); }
 
   private:
-
 	bool m_isOpened = true;
 	GameInspector& m_inspector;
 	std::string m_windowName;

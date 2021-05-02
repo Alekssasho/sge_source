@@ -1,7 +1,7 @@
 #include "doctest/doctest.h"
+#include "sge_utils/math/EulerAngles.h"
 #include "sge_utils/math/common.h"
 #include "sge_utils/math/transform.h"
-#include "sge_utils/math/EulerAngles.h"
 #include "sge_utils/utils/strings.h"
 #include <string>
 using namespace sge;
@@ -47,9 +47,7 @@ TEST_CASE("SGE Utils Playground") {
 		CHECK(isAboutTheSame(mi, mat4f::getRotationQuat(mi.toQuat())));
 	}
 
-	SUBCASE("X90") {
-		const mat4f m = mat4f::getRotationX(deg2rad(90.f));
-	}
+	SUBCASE("X90") { const mat4f m = mat4f::getRotationX(deg2rad(90.f)); }
 
 	SUBCASE("Y90") {
 		const mat4f m = mat4f::getRotationY(deg2rad(90.f));

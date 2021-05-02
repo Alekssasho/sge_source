@@ -4,8 +4,7 @@
 
 namespace sge {
 
-struct Geometry
-{
+struct Geometry {
 	Geometry() = default;
 	Geometry(Buffer* vertexBuffer,
 	         Buffer* indexBuffer,
@@ -32,31 +31,27 @@ struct Geometry
 	    , ibByteOffset(ibByteOffset)
 	    , stride(stride)
 	    , ibFmt(ibFmt)
-	    , numElements(numElements) {
-	}
+	    , numElements(numElements) {}
 
-	bool hasData() const {
-		return vertexBuffer != nullptr;
-	}
+	bool hasData() const { return vertexBuffer != nullptr; }
 
 	Buffer* vertexBuffer = nullptr;
 	Buffer* indexBuffer = nullptr;
 	VertexDeclIndex vertexDeclIndex = VertexDeclIndex_Null;
 	bool vertexDeclHasVertexColor = false;
-    bool vertexDeclHasUv = false;
-    bool vertexDeclHasNormals = false;
-    bool vertexDeclHasTangentSpace = false;
+	bool vertexDeclHasUv = false;
+	bool vertexDeclHasNormals = false;
+	bool vertexDeclHasTangentSpace = false;
 	PrimitiveTopology::Enum topology = PrimitiveTopology::Unknown;
 
-	uint32 vbByteOffset = 0;                                  // 1st vertex byte offset into the vertex buffer
-	uint32 ibByteOffset = 0;                                  // 1st index byte offse int the index buffer
-	int stride = 0;                                           // The size of a whole vertex in bytes.
-	UniformType::Enum ibFmt = UniformType::Unknown;           // The format the index buffer, if unknown this mesh doesn't use index buffers.
-	uint32 numElements = 0;                                   // The number of vertices/indices used by this mesh.
+	uint32 vbByteOffset = 0;                        // 1st vertex byte offset into the vertex buffer
+	uint32 ibByteOffset = 0;                        // 1st index byte offse int the index buffer
+	int stride = 0;                                 // The size of a whole vertex in bytes.
+	UniformType::Enum ibFmt = UniformType::Unknown; // The format the index buffer, if unknown this mesh doesn't use index buffers.
+	uint32 numElements = 0;                         // The number of vertices/indices used by this mesh.
 };
 
-struct Material
-{
+struct Material {
 	enum Special {
 		special_none,
 		special_fluid,
@@ -84,4 +79,4 @@ struct Material
 	float roughness = 0.30f;
 };
 
-}
+} // namespace sge

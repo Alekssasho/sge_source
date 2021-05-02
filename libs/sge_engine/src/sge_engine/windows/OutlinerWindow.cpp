@@ -1,11 +1,11 @@
 
 #include "OutlinerWindow.h"
+#include "IconsForkAwesome/IconsForkAwesome.h"
+#include "sge_core/AssetLibrary.h"
 #include "sge_engine/EngineGlobal.h"
 #include "sge_engine/GameInspector.h"
-#include "sge_core/AssetLibrary.h"
 #include "sge_utils/utils/ScopeGuard.h"
 #include "sge_utils/utils/strings.h"
-#include "IconsForkAwesome/IconsForkAwesome.h"
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include "imgui/imgui_internal.h"

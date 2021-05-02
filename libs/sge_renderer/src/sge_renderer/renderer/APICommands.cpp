@@ -1,23 +1,21 @@
-#include "renderer.h"
 #include "ShaderReflection.h"
+#include "renderer.h"
 
 namespace sge {
 
 //----------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------
-void CBufferFiller::DeleteValue(const int idx)
-{
+void CBufferFiller::DeleteValue(const int idx) {
 	const auto data_begin = data.begin() + values[idx].offsetBytes;
 	const auto data_end = data.begin() + values[idx].offsetBytes + UniformType::GetSizeBytes(values[idx].type);
-	
+
 	data.erase(data_begin, data_end);
 	values.erase(values.begin() + idx);
 }
 
-void CBufferFiller::SetData(const unsigned nameStrIdx, const UniformType::Enum type, const void* data_arg, const int inDataSizeBytes)
-{
-	sgeAssert(nameStrIdx!=0);
+void CBufferFiller::SetData(const unsigned nameStrIdx, const UniformType::Enum type, const void* data_arg, const int inDataSizeBytes) {
+	sgeAssert(nameStrIdx != 0);
 
 	const ValueDesc& value = getValueDesc(nameStrIdx, type);
 	const size_t numBytes = UniformType::GetSizeBytes(type);
@@ -25,25 +23,22 @@ void CBufferFiller::SetData(const unsigned nameStrIdx, const UniformType::Enum t
 	memcpy(data.data() + value.offsetBytes, data_arg, inDataSizeBytes);
 }
 
-CBufferFiller::ValueDesc& CBufferFiller::getValueDesc(const unsigned nameStrIdx, const UniformType::Enum type)
-{
+CBufferFiller::ValueDesc& CBufferFiller::getValueDesc(const unsigned nameStrIdx, const UniformType::Enum type) {
 	int valueWithSameNameIdx = -1;
-	for(size_t t=0; t < values.size(); ++t) {
-		if(values[t].nameStrIdx == nameStrIdx) {
-
-			if(values[t].type == type) {
+	for (size_t t = 0; t < values.size(); ++t) {
+		if (values[t].nameStrIdx == nameStrIdx) {
+			if (values[t].type == type) {
 				return values[t];
 			}
 
 			valueWithSameNameIdx = (int)t;
-			//break;
+			// break;
 		}
 	}
 
-	if(valueWithSameNameIdx != -1)
-	{
+	if (valueWithSameNameIdx != -1) {
 		const int idx = valueWithSameNameIdx;
-		
+
 		// Change the type of the value.
 		values[idx].type = type;
 
@@ -69,19 +64,15 @@ CBufferFiller::ValueDesc& CBufferFiller::getValueDesc(const unsigned nameStrIdx,
 	return values.back();
 }
 
-void CBufferFiller::updateCBuffer(SGEContext* context, Buffer* cb, const CBufferFiller& cbRefl)
-{
+void CBufferFiller::updateCBuffer(SGEContext* context, Buffer* cb, const CBufferFiller& cbRefl) {
 	char* const mappedBuffer = (char*)context->map(cb, Map::WriteDiscard);
 	sgeAssert(mappedBuffer);
 
-	for(const auto& cbufferVar : cbRefl.values)
-	{
-		sgeAssert(cbufferVar.nameStrIdx!=0);
+	for (const auto& cbufferVar : cbRefl.values) {
+		sgeAssert(cbufferVar.nameStrIdx != 0);
 
-		for(int iBound = 0; iBound < values.size(); ++iBound)
-		{
-			if(values[iBound].nameStrIdx == cbufferVar.nameStrIdx)
-			{
+		for (int iBound = 0; iBound < values.size(); ++iBound) {
+			if (values[iBound].nameStrIdx == cbufferVar.nameStrIdx) {
 				const size_t numBytes = UniformType::GetSizeBytes(cbufferVar.type);
 				const char* const src = data.data() + values[iBound].offsetBytes;
 
@@ -100,13 +91,11 @@ void CBufferFiller::updateCBuffer(SGEContext* context, Buffer* cb, const CBuffer
 //----------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------
-void StateGroup::setProgram(ShadingProgram* pShadingProgram)
-{
+void StateGroup::setProgram(ShadingProgram* pShadingProgram) {
 	m_shadingProg = pShadingProgram;
 }
 
-void StateGroup::setVB(const int slot, Buffer* pBuffer, const uint32 byteOffset, const uint32 stride)
-{
+void StateGroup::setVB(const int slot, Buffer* pBuffer, const uint32 byteOffset, const uint32 stride) {
 	m_vertexBuffers[slot] = pBuffer;
 	m_vbOffsets[slot] = byteOffset;
 	m_vbStrides[slot] = stride;
@@ -117,34 +106,29 @@ void StateGroup::setVBDeclIndex(const VertexDeclIndex idx) {
 	m_vertDeclIndex = idx;
 }
 
-void StateGroup::setPrimitiveTopology(const PrimitiveTopology::Enum pt)
-{
+void StateGroup::setPrimitiveTopology(const PrimitiveTopology::Enum pt) {
 	m_primTopology = pt;
 }
 
-void StateGroup::setIB(Buffer* pBuffer, const UniformType::Enum format, const uint32 byteOffset)
-{
+void StateGroup::setIB(Buffer* pBuffer, const UniformType::Enum format, const uint32 byteOffset) {
 	m_indexBufferFormat = format;
 	m_indexBuffer = pBuffer;
 	m_indexBufferByteOffset = byteOffset;
 }
 
-void StateGroup::setRenderState(RasterizerState* rasterState, DepthStencilState* depthStencilState, BlendState* blendState)
-{
+void StateGroup::setRenderState(RasterizerState* rasterState, DepthStencilState* depthStencilState, BlendState* blendState) {
 	m_rasterState = rasterState;
 	m_depthStencilState = depthStencilState;
 	m_blendState = blendState;
 }
 
-//regular draw call with no index buffer
-void DrawCall::draw(const uint32 numVerts, const uint32 startVert, const uint32 numInstances)
-{
+// regular draw call with no index buffer
+void DrawCall::draw(const uint32 numVerts, const uint32 startVert, const uint32 numInstances) {
 	m_drawExec.Draw(numVerts, startVert, numInstances);
 }
 
-//draw call with index buffer
-void DrawCall::drawIndexed(const uint32 numIndices, const uint32 startIndex, const uint32 startVert, const uint32 numInstances)
-{
+// draw call with index buffer
+void DrawCall::drawIndexed(const uint32 numIndices, const uint32 startIndex, const uint32 startVert, const uint32 numInstances) {
 	m_drawExec.DrawIndexed(numIndices, startIndex, startVert, numInstances);
 }
 
@@ -154,9 +138,17 @@ bool DrawCall::ValidateDrawCall() const
 	return true;
 
 	// Unfortunatley I wrote those check a bit hastefully as they could contain an unused data that has been used in a previous draw call.
-	
-#define SGE_RET_NULL_OR_INVALID(p) if((p) == nullptr || (p).isValid() == false) { sgeAssert(false); return false; }
-#define SGE_DCV_FAIL_IF(expr) if(expr) { sgeAssert(false); return false; }
+
+#define SGE_RET_NULL_OR_INVALID(p)                  \
+	if ((p) == nullptr || (p).isValid() == false) { \
+		sgeAssert(false);                           \
+		return false;                               \
+	}
+#define SGE_DCV_FAIL_IF(expr) \
+	if (expr) {               \
+		sgeAssert(false);     \
+		return false;         \
+	}
 
 	m_shadingProg.isValid();
 	SGE_RET_NULL_OR_INVALID(m_shadingProg);
@@ -232,18 +224,16 @@ bool DrawCall::ValidateDrawCall() const
 //----------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------
-ClearColorCmd::ClearColorCmd(FrameTarget* frameTarget, int index, const float rgba[4])
-{
+ClearColorCmd::ClearColorCmd(FrameTarget* frameTarget, int index, const float rgba[4]) {
 	m_frameTarget = frameTarget;
 	m_index = index;
 
 	std::copy(rgba, rgba + 4, m_rgba);
 }
 
-ClearDepthStencilCmd::ClearDepthStencilCmd(FrameTarget* frameTarget, float depth)
-{
+ClearDepthStencilCmd::ClearDepthStencilCmd(FrameTarget* frameTarget, float depth) {
 	m_frameTarget = frameTarget;
 	m_depth = depth;
 }
 
-}
+} // namespace sge

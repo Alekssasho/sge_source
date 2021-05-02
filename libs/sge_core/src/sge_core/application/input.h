@@ -39,7 +39,7 @@ struct SGE_CORE_API GamepadState {
 	bool isBtnPressed(Button btn) const;
 	bool isBtnReleased(Button btn) const;
 
-	unsigned char btnState[btn_numButtons] = { 0 };
+	unsigned char btnState[btn_numButtons] = {0};
 
 	vec2f axisL = vec2f(0.f);
 	vec2f axisR = vec2f(0.f);

@@ -247,11 +247,12 @@ void copyFile(const char* srcFile, const char* destFile) {
 	[[maybe_unused]] BOOL succeeded = CopyFileA(srcFile, destFile, FALSE);
 	sgeAssert(succeeded != 0);
 #else
-	//const std::string cmd = string_format("cp \"%s\" \"%s\"", srcFile, destFile);
-	//system(cmd.c_str());
+	// const std::string cmd = string_format("cp \"%s\" \"%s\"", srcFile, destFile);
+	// system(cmd.c_str());
 	try {
 		std::filesystem::copy(srcFile, destFile);
-	} catch(...) {}
+	} catch (...) {
+	}
 #endif
 }
 

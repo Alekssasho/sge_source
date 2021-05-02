@@ -1,4 +1,4 @@
-#pragma once 
+#pragma once
 
 #include "imgui/imgui.h"
 #include "sgecore_api.h"

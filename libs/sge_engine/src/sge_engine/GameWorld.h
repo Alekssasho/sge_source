@@ -321,7 +321,7 @@ struct SGE_ENGINE_API GameWorld {
 	/// When creating new nodes or duplicating existing we use these indices for naming new nodes.
 	int m_nextNameIndex = 0;
 
-	int totalStepsTaken = 0; ///< The number of updates done, both paused and playing.
+	int totalStepsTaken = 0;      ///< The number of updates done, both paused and playing.
 	float timeSpendPlaying = 0.f; ///< The total time spend playing in seconds.
 
 	int m_physicsSimNumSubSteps = 3;

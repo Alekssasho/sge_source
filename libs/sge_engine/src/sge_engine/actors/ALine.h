@@ -1,8 +1,8 @@
 #pragma once
-#include <string>
 #include "sge_engine/Actor.h"
 #include "sge_engine/traits/TraitPath.h"
 #include "sge_engine/traits/TraitViewportIcon.h"
+#include <string>
 
 #include "sge_engine/InspectorCmd.h"
 
@@ -11,8 +11,7 @@ namespace sge {
 //--------------------------------------------------------------------
 // TraitPath3DForASpline
 //--------------------------------------------------------------------
-struct SGE_ENGINE_API TraitPath3DForASpline final : public TraitPath3D
-{
+struct SGE_ENGINE_API TraitPath3DForASpline final : public TraitPath3D {
 	SGE_TraitDecl_Final(TraitPath3DForASpline);
 
 	bool isEmpty() const final;
@@ -23,8 +22,7 @@ struct SGE_ENGINE_API TraitPath3DForASpline final : public TraitPath3D
 //--------------------------------------------------------------------
 // ALine
 //--------------------------------------------------------------------
-struct SGE_ENGINE_API ALine : public Actor
-{
+struct SGE_ENGINE_API ALine : public Actor {
 	std::vector<vec3f> points;
 	bool isLooped = false;
 
@@ -65,7 +63,7 @@ struct SGE_ENGINE_API ALine : public Actor
 
 		if (isLooped && iSegment == (numSegments - 1)) {
 			i0 = getNumPoints() - 1;
-			i1  = 0;
+			i1 = 0;
 		} else {
 			i0 = iSegment;
 			i1 = iSegment + 1;
@@ -75,14 +73,14 @@ struct SGE_ENGINE_API ALine : public Actor
 	}
 
 	int getNumItemsInMode(EditMode const mode) const final {
-		if(mode == editMode_points) return int(points.size());
+		if (mode == editMode_points)
+			return int(points.size());
 		return Actor::getNumItemsInMode(mode);
 	}
-	
-	bool getItemTransform(transf3d& result, EditMode const mode, int itemIndex) final
-	{
-		if(mode == editMode_points) {
-			if(itemIndex > points.size())
+
+	bool getItemTransform(transf3d& result, EditMode const mode, int itemIndex) final {
+		if (mode == editMode_points) {
+			if (itemIndex > points.size())
 				return false;
 
 			result = transf3d::getIdentity();
@@ -92,11 +90,10 @@ struct SGE_ENGINE_API ALine : public Actor
 
 		return Actor::getItemTransform(result, mode, itemIndex);
 	}
-	
-	void setItemTransform(EditMode const mode, int itemIndex, const transf3d& tr)
-	{
-		if(mode == editMode_points) {
-			if(itemIndex > points.size()) {
+
+	void setItemTransform(EditMode const mode, int itemIndex, const transf3d& tr) {
+		if (mode == editMode_points) {
+			if (itemIndex > points.size()) {
 				sgeAssert(false);
 				return;
 			}
@@ -106,26 +103,20 @@ struct SGE_ENGINE_API ALine : public Actor
 			Actor::setItemTransform(mode, itemIndex, tr);
 		}
 	}
-	
-	InspectorCmd* generateDeleteItemCmd(
-		GameInspector* inspector,
-		const SelectedItem* items,
-		int numItems,
-		bool ifActorModeShouldDeleteActorsUnder) final;
+
+	InspectorCmd* generateDeleteItemCmd(GameInspector* inspector,
+	                                    const SelectedItem* items,
+	                                    int numItems,
+	                                    bool ifActorModeShouldDeleteActorsUnder) final;
 
 	InspectorCmd* generateItemSetTransformCmd(
-		GameInspector* inspector,
-		EditMode const mode,
-		int itemIndex,
-		const transf3d& initalTrasform,
-		const transf3d& newTransform) final;
+	    GameInspector* inspector, EditMode const mode, int itemIndex, const transf3d& initalTrasform, const transf3d& newTransform) final;
 };
 
 //--------------------------------------------------------------------
 //
 //--------------------------------------------------------------------
-struct SGE_ENGINE_API ASplineMovePointCmd : public InspectorCmd
-{
+struct SGE_ENGINE_API ASplineMovePointCmd : public InspectorCmd {
 	ObjectId m_actorid;
 	int m_pointIndex;
 	vec3f m_originalPosition;
@@ -143,8 +134,7 @@ struct SGE_ENGINE_API ASplineMovePointCmd : public InspectorCmd
 //--------------------------------------------------------------------
 //
 //--------------------------------------------------------------------
-struct SGE_ENGINE_API ASplineAddPoints : public InspectorCmd
-{
+struct SGE_ENGINE_API ASplineAddPoints : public InspectorCmd {
 	ObjectId m_actorid;
 	std::vector<int> m_pointsToTessalateBetween; // the edges between each consecutive points.
 	std::vector<vec3f> m_originalSplinePoints;
@@ -162,8 +152,7 @@ struct SGE_ENGINE_API ASplineAddPoints : public InspectorCmd
 //--------------------------------------------------------------------
 //
 //--------------------------------------------------------------------
-struct SGE_ENGINE_API ASplineDeletePoints : public InspectorCmd
-{
+struct SGE_ENGINE_API ASplineDeletePoints : public InspectorCmd {
 	ObjectId m_actorid;
 	std::vector<int> m_indicesToDelete; // The indices of the points that are going to be deleted. MUST BE SORTED in GREATER TO SMALLER.
 	std::vector<vec3f> m_originalSplinePoints;
@@ -178,4 +167,4 @@ struct SGE_ENGINE_API ASplineDeletePoints : public InspectorCmd
 	void getText(std::string& text) final { text = "Spline points deleted"; }
 };
 
-}
+} // namespace sge

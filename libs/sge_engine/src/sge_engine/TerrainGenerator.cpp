@@ -1,6 +1,6 @@
 #include "TerrainGenerator.h"
-#include "sge_engine/typelibHelper.h"
 #include "sge_core/model/CollisionMesh.h"
+#include "sge_engine/typelibHelper.h"
 
 namespace sge {
 // clang-format off

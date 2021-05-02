@@ -6,25 +6,18 @@
 
 namespace sge {
 
-struct ContentParsingSettings
-{
+struct ContentParsingSettings {
 	ContentParsingSettings() = default;
 
-	ContentParsingSettings(
-		const std::string& absoluteInputDir,
-		const std::string& absoluteOutputDir
-	)
-		: absoluteInputDir(absoluteInputDir)
-		, absoluteOutputDir(absoluteOutputDir)
-	{
-	}
+	ContentParsingSettings(const std::string& absoluteInputDir, const std::string& absoluteOutputDir)
+	    : absoluteInputDir(absoluteInputDir)
+	    , absoluteOutputDir(absoluteOutputDir) {}
 
 	std::string absoluteInputDir;
 	std::string absoluteOutputDir;
 };
 
-struct IAssetRelocationPolicy
-{
+struct IAssetRelocationPolicy {
 	IAssetRelocationPolicy() = default;
 	virtual ~IAssetRelocationPolicy() = default;
 
@@ -33,18 +26,13 @@ struct IAssetRelocationPolicy
 	virtual std::string whatWillBeTheAssetNameOf(const std::string& askerDir, const char* path) = 0;
 };
 
-struct NoneAssetRelocationPolicy final : public IAssetRelocationPolicy 
-{
-	std::string whatWillBeTheAssetNameOf(const std::string& UNUSED(askerDir), const char* path) final {
-		return path;
-	}
+struct NoneAssetRelocationPolicy final : public IAssetRelocationPolicy {
+	std::string whatWillBeTheAssetNameOf(const std::string& UNUSED(askerDir), const char* path) final { return path; }
 };
 
-struct RelativeAssetRelocationPolicy final : public IAssetRelocationPolicy 
-{
-	RelativeAssetRelocationPolicy(const ContentParsingSettings& contentParsingSets) 
-		: m_contentParsingSets(contentParsingSets)
-	{}
+struct RelativeAssetRelocationPolicy final : public IAssetRelocationPolicy {
+	RelativeAssetRelocationPolicy(const ContentParsingSettings& contentParsingSets)
+	    : m_contentParsingSets(contentParsingSets) {}
 
 	std::string whatWillBeTheAssetNameOf(const std::string& askerDir, const char* path) final;
 
@@ -64,4 +52,4 @@ struct SeparateTypeAssetRelocationPolicy final : public IAssetRelocationPolicy
 };
 #endif
 
-}
+} // namespace sge

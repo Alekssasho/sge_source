@@ -25,20 +25,13 @@ struct Optional {
 
 	Optional() = default;
 
-	~Optional() {
-		destroyStorage();
-	}
+	~Optional() { destroyStorage(); }
 
-	Optional(const NullOptional&) {
-	}
+	Optional(const NullOptional&) {}
 
-	Optional(const T& other) {
-		copyConstructStorage(other);
-	}
+	Optional(const T& other) { copyConstructStorage(other); }
 
-	Optional(T&& other) {
-		moveConstructStorage(std::move(other));
-	}
+	Optional(T&& other) { moveConstructStorage(std::move(other)); }
 
 	Optional(const Optional& other) {
 		if (other.isValid()) {
@@ -83,17 +76,11 @@ struct Optional {
 		return *this;
 	}
 
-	bool operator==(T& other) const {
-		return m_isValid && get() == other;
-	}
+	bool operator==(T& other) const { return m_isValid && get() == other; }
 
-	bool operator!=(T& other) const {
-		return !m_isValid || (get() != other);
-	}
+	bool operator!=(T& other) const { return !m_isValid || (get() != other); }
 
-	void reset() {
-		*this = Optional();
-	}
+	void reset() { *this = Optional(); }
 
 	TNoRef* operator->() {
 		sgeAssert(isValid());
@@ -107,17 +94,11 @@ struct Optional {
 		return &result;
 	}
 
-	operator bool() const {
-		return m_isValid;
-	}
+	operator bool() const { return m_isValid; }
 
-	bool isValid() const {
-		return (bool)(*this);
-	}
+	bool isValid() const { return (bool)(*this); }
 
-	bool hasValue() const {
-		return (bool)(*this);
-	}
+	bool hasValue() const { return (bool)(*this); }
 
 	T& get() {
 		sgeAssert(isValid());

@@ -12,7 +12,7 @@ struct TrackInfo {
 	uint32_t numSamples = 0;
 	/// numChannles specifies the the number of channel in each sample.
 	uint32_t numChannels = 0;
-	
+
 	/// @brief Computes the length of the track (song or sound effect for example) in seconds.
 	float getLengthInSeconds() const {
 		if (samplesPerSecond > 0.f) {
@@ -30,6 +30,7 @@ struct VorbisDecoder {
 
 	uint32_t decodeSamples(float* const outDecodedSamples, const int numSamplesToDecode);
 	void seekToBegining();
+
   private:
 	stb_vorbis* m_decoder = nullptr;
 };

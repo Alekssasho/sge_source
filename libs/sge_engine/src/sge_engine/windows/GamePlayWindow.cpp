@@ -1,10 +1,10 @@
+#include "sge_core/ICore.h"
+#include "sge_core/QuickDraw.h"
+#include "sge_core/SGEImGui.h"
 #include "sge_engine/Camera.h"
 #include "sge_engine/EngineGlobal.h"
 #include "sge_engine/GameInspector.h"
 #include "sge_engine/GameSerialization.h"
-#include "sge_core/ICore.h"
-#include "sge_core/QuickDraw.h"
-#include "sge_core/SGEImGui.h"
 #include "sge_utils/utils/Wildcard.h"
 
 #include "sge_core/GameUI/UIContext.h"

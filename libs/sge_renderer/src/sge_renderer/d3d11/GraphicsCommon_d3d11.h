@@ -22,7 +22,7 @@ D3D11_TEXTURE_ADDRESS_MODE TextureAddressMode_D3D11_Native(const TextureAddressM
 
 D3D11_FILTER TextureFilter_D3D11_Native(const TextureFilter::Enum& filter);
 
-D3D11_SAMPLER_DESC SamplerDesc_D3D11_Native(SamplerDesc const &desc);
+D3D11_SAMPLER_DESC SamplerDesc_D3D11_Native(SamplerDesc const& desc);
 
 DXGI_FORMAT UniformType_GetDX_DXGI_FORMAT(const UniformType::Enum uniformType);
 
@@ -30,7 +30,8 @@ D3D11_BUFFER_DESC BufferDesc_D3D11_Native(const BufferDesc& desc);
 
 D3D11_FILL_MODE FillMode_D3D11_Native(const FillMode::Enum& fillMode);
 
-D3D11_CULL_MODE CullMode_D3D11_Native(const CullMode::Enum& cullMode);;
+D3D11_CULL_MODE CullMode_D3D11_Native(const CullMode::Enum& cullMode);
+;
 
 D3D11_COMPARISON_FUNC DepthComparisonFunc_D3D11_Native(const DepthComparisonFunc::Enum& comaprisonFunc);
 
@@ -51,4 +52,4 @@ D3D11_BLEND_DESC BlendStateDesc_D3D11_Native(const BlendStateDesc& desc);
 D3D11_QUERY QueryType_D3D11_Native(QueryType::Enum const queryType);
 
 D3D11_TEXTURECUBE_FACE signedAxis_toTexCubeFaceIdx_D3D11(const SignedAxis sa);
-}
+} // namespace sge

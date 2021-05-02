@@ -3,11 +3,11 @@
 #include <string>
 
 #include "InspectorTool.h"
+#include "sge_engine/GameObject.h"
+#include "sge_renderer/renderer/renderer.h"
 #include "sge_utils/math/Box.h"
 #include "sge_utils/math/transform.h"
-#include "sge_renderer/renderer/renderer.h"
 #include "sge_utils/utils/vector_set.h"
-#include "sge_engine/GameObject.h"
 
 namespace sge {
 

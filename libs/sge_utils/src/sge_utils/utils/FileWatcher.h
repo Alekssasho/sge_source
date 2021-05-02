@@ -4,8 +4,7 @@
 
 namespace sge {
 
-struct FileWatcher
-{
+struct FileWatcher {
 	FileWatcher() = default;
 	FileWatcher(const char* const filenameToWatch) {
 		*this = FileWatcher();
@@ -15,11 +14,11 @@ struct FileWatcher
 	// Returns true if the file exists.
 	bool initilize(const char* const filenameToWatch) {
 		*this = FileWatcher(); // reset to defaults.
-		if(filenameToWatch) {
+		if (filenameToWatch) {
 			this->filename = filenameToWatch;
 			return update();
 		}
-		
+
 		return false;
 	}
 
@@ -31,29 +30,24 @@ struct FileWatcher
 		return lastUpdateModtime != modtime;
 	}
 
-	bool doesFileExists() const {
-		return isFileExisting;
-	}
+	bool doesFileExists() const { return isFileExisting; }
 
 	bool hasChangedSinceLastUpdate() {
-		if(isFileExisting == false) {
+		if (isFileExisting == false) {
 			return false;
 		}
-		
+
 		sgeAssert(modtime >= lastUpdateModtime);
 		return modtime > lastUpdateModtime;
 	}
-	
-	const std::string& getFilename() const {
-		return filename;
-	}
-	
-private:
 
+	const std::string& getFilename() const { return filename; }
+
+  private:
 	bool isFileExisting = false;
 	sint64 modtime = 0;
 	sint64 lastUpdateModtime = 0;
 	std::string filename;
 };
 
-}
+} // namespace sge

@@ -62,9 +62,7 @@ struct Timer {
 
 	static const time_point application_start_time;
 
-	Timer() {
-		reset();
-	}
+	Timer() { reset(); }
 
 	void reset() {
 		lastUpdate = clock::now();
@@ -100,13 +98,9 @@ struct Timer {
 		return true;
 	}
 
-	float diff_seconds() const {
-		return dtSeconds;
-	}
+	float diff_seconds() const { return dtSeconds; }
 
-	void setFPSCap(float fps) {
-		maxTicksPerSeconds = fps;
-	}
+	void setFPSCap(float fps) { maxTicksPerSeconds = fps; }
 
   private:
 	time_point lastUpdate;

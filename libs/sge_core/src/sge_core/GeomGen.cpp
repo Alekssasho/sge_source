@@ -155,8 +155,8 @@ int GeomGen::cylinder(Buffer* resultVertBuffer, const vec3f position, float heig
 	// Verts for the bottom base of the cylinder.
 	for (int i = 0; i <= numSlices; ++i) {
 		verts.push_back(vec3f(position.x, position.y, position.z));
-		verts.push_back(vec3f(position.x + (radius * cos(i * sge2Pi / numSlices)), position.y,
-		                      position.z + (radius * sinf(i * sge2Pi / numSlices))));
+		verts.push_back(
+		    vec3f(position.x + (radius * cos(i * sge2Pi / numSlices)), position.y, position.z + (radius * sinf(i * sge2Pi / numSlices))));
 	}
 
 	// Verts for the top base of the cylinder.

@@ -31,15 +31,11 @@ struct SGE_ENGINE_API TraitViewportIcon : public Trait {
 		}
 	}
 
-	void setObjectSpaceOffset(const vec3f& offset) {
-		m_objectSpaceIconOffset = offset;
-	}
+	void setObjectSpaceOffset(const vec3f& offset) { m_objectSpaceIconOffset = offset; }
 
 	// Updates the texture model.
 	// Returns true if the model has been changed (no matter if it is valid or not).
-	bool postUpdate() {
-		return m_assetProperty.update();
-	}
+	bool postUpdate() { return m_assetProperty.update(); }
 
 	/// Computes the node-to-world transform of the icon, taking into account the billboarding.
 	/// @param [in] camera to be used for computing the billboarding orientation.

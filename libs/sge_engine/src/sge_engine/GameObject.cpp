@@ -48,9 +48,7 @@ void GameObject::composeDebugDisplayName(std::string& result) const {
 
 void GameObject::onPlayStateChanged(bool const isStartingToPlay) {
 	for (auto itr : m_traits) {
-		if_checked(itr.value()) {
-			itr.value()->onPlayStateChanged(isStartingToPlay);
-		}
+		if_checked(itr.value()) { itr.value()->onPlayStateChanged(isStartingToPlay); }
 	}
 }
 

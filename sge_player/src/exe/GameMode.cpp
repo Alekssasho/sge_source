@@ -4,7 +4,7 @@
 
 namespace sge {
 void GameMode::create(IGameDrawer* gameDrawer, const char* openingLevelPath) {
-	if(openingLevelPath == nullptr) {
+	if (openingLevelPath == nullptr) {
 		return;
 	}
 

@@ -2,8 +2,8 @@
 
 #include "IImGuiWindow.h"
 
-#include "sge_engine/GameObject.h"
 #include "imgui/imgui.h"
+#include "sge_engine/GameObject.h"
 #include <string>
 
 namespace sge {
@@ -22,7 +22,6 @@ struct SGE_ENGINE_API LogWindow : public IImGuiWindow {
 	bool m_isOpened = true;
 	std::string m_windowName;
 	int prevUpdateMessageCount = 0;
-
 };
 
 

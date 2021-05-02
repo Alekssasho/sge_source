@@ -3,14 +3,14 @@
 #ifdef WINAPI_FAMILY_DESKTOP_APP
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
 #include <Psapi.h>
+#include <Windows.h>
 #endif
 
 #include "sge_core/SGEImGui.h"
 
-#include "sge_renderer/renderer/renderer.h"
 #include "sge_core/AssetLibrary.h"
+#include "sge_renderer/renderer/renderer.h"
 
 #include "InfoWindow.h"
 

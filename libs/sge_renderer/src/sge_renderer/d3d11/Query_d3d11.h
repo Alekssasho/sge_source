@@ -5,8 +5,7 @@
 
 namespace sge {
 
-struct QueryD3D11 : public Query
-{
+struct QueryD3D11 : public Query {
 	QueryD3D11() {}
 	~QueryD3D11() { destroy(); }
 
@@ -19,10 +18,9 @@ struct QueryD3D11 : public Query
 
 	ID3D11Query* D3D11_GetResource() const { return m_d3d11_query; }
 
-private : 
-
+  private:
 	QueryType::Enum m_queryType;
 	TComPtr<ID3D11Query> m_d3d11_query;
 };
 
-}
+} // namespace sge

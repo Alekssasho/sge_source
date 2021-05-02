@@ -233,7 +233,8 @@ void UIContext::draw(const UIDrawSets& drawSets) {
 
 	if (auto gamepadTarget = getGamepadTarget(); m_isUsingGamepad && gamepadTarget && !gamepadTarget->isSuspended()) {
 		AABox2f bb = gamepadTarget->getBBoxPixels();
-		drawSets.quickDraw->drawRect(drawSets.rdest, bb, vec4f(1.f, 1.f, 0.f, 0.33f), getCore()->getGraphicsResources().BS_backToFrontAlpha);
+		drawSets.quickDraw->drawRect(drawSets.rdest, bb, vec4f(1.f, 1.f, 0.f, 0.33f),
+		                             getCore()->getGraphicsResources().BS_backToFrontAlpha);
 	}
 }
 

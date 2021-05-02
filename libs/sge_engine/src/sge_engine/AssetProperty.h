@@ -8,7 +8,6 @@ namespace sge {
 /// @brief A Helper class usually used as a property to game object.
 /// This is a reference to an asset, by using the @update() method you can check if new asset has been assigned.
 struct SGE_ENGINE_API AssetProperty {
-
 	AssetProperty() = delete;
 
 	explicit AssetProperty(AssetType assetType) { m_acceptedAssetTypes.push_back(assetType); }
@@ -51,11 +50,11 @@ struct SGE_ENGINE_API AssetProperty {
 
 	GpuHandle<Texture>* getAssetTexture();
 	const GpuHandle<Texture>* getAssetTexture() const;
-	
+
 	SpriteAnimationAsset* getAssetSprite();
 	const SpriteAnimationAsset* getAssetSprite() const;
 
-        AudioAsset* getAssetAudio();
+	AudioAsset* getAssetAudio();
 	const AudioAsset* getAssetAudio() const;
 
 	AssetProperty& operator=(const AssetProperty& ref) {
@@ -66,7 +65,7 @@ struct SGE_ENGINE_API AssetProperty {
 		// m_currentAsset not copied so when an object is duplicated it would need to force inititalize it,
 		// which is needed so it could initialize its dependencies like rigid body.
 		// m_asset is not copied for the same reason as m_currentAsset.
-		// TODO: the above might no longer be needed.	
+		// TODO: the above might no longer be needed.
 		return *this;
 	}
 

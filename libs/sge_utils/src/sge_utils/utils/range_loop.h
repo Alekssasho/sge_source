@@ -11,15 +11,10 @@ struct range_t {
 		T i;
 
 		const_iterator(T i)
-		    : i(i) {
-		}
+		    : i(i) {}
 
-		bool operator!=(const const_iterator& ref) const {
-			return i != ref.i;
-		}
-		T operator*() const {
-			return i;
-		}
+		bool operator!=(const const_iterator& ref) const { return i != ref.i; }
+		T operator*() const { return i; }
 		const_iterator operator++() {
 			++i;
 			return *this;
@@ -29,8 +24,7 @@ struct range_t {
 	// a is assumed 0. the interval is [0, _end)
 	range_t(const T _end)
 	    : _begin(0)
-	    , _end(_end) {
-	}
+	    , _end(_end) {}
 
 	// [_begin, _end)
 	range_t(const T _begin, const T _end)
@@ -39,12 +33,8 @@ struct range_t {
 		sgeAssert(_begin <= _end);
 	}
 
-	const_iterator begin() const {
-		return _begin;
-	}
-	const_iterator end() const {
-		return _end;
-	}
+	const_iterator begin() const { return _begin; }
+	const_iterator end() const { return _end; }
 
 	T _begin, _end;
 };
@@ -65,22 +55,13 @@ struct LoopCArray {
 
 	LoopCArray(value_type* const ptr, const size_t numElems)
 	    : ptr(ptr)
-	    , numElems(numElems) {
-	}
+	    , numElems(numElems) {}
 
-	iterator begin() {
-		return ptr;
-	}
-	iterator end() {
-		return ptr + numElems;
-	}
+	iterator begin() { return ptr; }
+	iterator end() { return ptr + numElems; }
 
-	const_iterator begin() const {
-		return ptr;
-	}
-	const_iterator end() const {
-		return ptr + numElems;
-	}
+	const_iterator begin() const { return ptr; }
+	const_iterator end() const { return ptr + numElems; }
 };
 
 } // namespace sge

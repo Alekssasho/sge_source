@@ -1,9 +1,9 @@
 #include <array>
+#include <clocale>
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
 #include <string>
-#include <clocale>
 
 #include "strings.h"
 
@@ -85,13 +85,10 @@ bool string_endsWith(const std::string& fullString, char* const ending) {
 	return false;
 }
 
-int sge_stricmp(const char* a, const char* b)
-{
+int sge_stricmp(const char* a, const char* b) {
 #if defined(WIN32)
 	return _stricmp(a, b);
 #else
 	return strcasecmp(a, b);
 #endif
-
 }
-

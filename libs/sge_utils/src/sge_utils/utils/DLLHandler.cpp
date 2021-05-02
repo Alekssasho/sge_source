@@ -4,9 +4,9 @@
 #include <dlfcn.h>
 #endif
 
-#include <string>
-#include "sge_utils/sge_utils.h"
 #include "DLLHandler.h"
+#include "sge_utils/sge_utils.h"
+#include <string>
 
 namespace sge {
 
@@ -24,8 +24,7 @@ bool DLLHandler::load(const char* const path) {
 #endif
 }
 
-bool DLLHandler::loadNoExt(const char* pPath)
-{
+bool DLLHandler::loadNoExt(const char* pPath) {
 	std::string filename = pPath;
 #if defined(WIN32)
 	filename += ".dll";
@@ -44,7 +43,7 @@ void DLLHandler::unload() {
 	}
 	m_nativeHandle = nullptr;
 #else
-	if(m_nativeHandle != nullptr) {
+	if (m_nativeHandle != nullptr) {
 		dlclose(m_nativeHandle);
 		m_nativeHandle = nullptr;
 	}
@@ -66,6 +65,3 @@ void* DLLHandler::getProcAdress(const char* const proc) {
 }
 
 } // namespace sge
-
-
-

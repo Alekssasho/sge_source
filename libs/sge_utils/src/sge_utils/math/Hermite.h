@@ -1,7 +1,7 @@
 #pragma once
 
-#include "sge_utils/sge_utils.h"
 #include "sge_utils/math/vec3.h"
+#include "sge_utils/sge_utils.h"
 
 namespace sge {
 

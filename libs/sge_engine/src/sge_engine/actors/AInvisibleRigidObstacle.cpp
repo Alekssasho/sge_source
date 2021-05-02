@@ -1,6 +1,6 @@
 #include "AInvisibleRigidObstacle.h"
-#include "sge_engine/GameWorld.h"
 #include "sge_core/ICore.h"
+#include "sge_engine/GameWorld.h"
 
 namespace sge {
 

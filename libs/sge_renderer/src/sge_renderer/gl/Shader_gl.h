@@ -10,12 +10,10 @@ struct ShadingProgramGL;
 //----------------------------------------------------------------------------
 // VertexMapperGL
 //----------------------------------------------------------------------------
-struct VertexMapperGL : public RAIResource
-{
-	struct GL_AttribLayout
-	{
-		// This is not really needed by OpenGL. But vertex buffer binding 
-		// in 'SGE API' tries to replicate the direct3d 11 behaviour. 
+struct VertexMapperGL : public RAIResource {
+	struct GL_AttribLayout {
+		// This is not really needed by OpenGL. But vertex buffer binding
+		// in 'SGE API' tries to replicate the direct3d 11 behaviour.
 		int bufferSlot;
 
 		GLuint index;
@@ -34,13 +32,9 @@ struct VertexMapperGL : public RAIResource
 
 	int getVertexDeclIndex() const { return m_vertexDeclIndex; }
 
-	const std::vector<GL_AttribLayout>& GL_GetVertexLayout() const
-	{ 
-		return m_glVertexLayout; 
-	}
+	const std::vector<GL_AttribLayout>& GL_GetVertexLayout() const { return m_glVertexLayout; }
 
-protected :
-
+  protected:
 	VertexDeclIndex m_vertexDeclIndex;
 	std::vector<GL_AttribLayout> m_glVertexLayout;
 };
@@ -48,9 +42,8 @@ protected :
 //----------------------------------------------------------------------------
 // ShaderGL
 //----------------------------------------------------------------------------
-struct ShaderGL : public Shader
-{
-	ShaderGL() { }
+struct ShaderGL : public Shader {
+	ShaderGL() {}
 	~ShaderGL() { destroy(); }
 
 	// Creates the shader using the native language for the API.
@@ -66,12 +59,11 @@ struct ShaderGL : public Shader
 
 	GLuint GL_GetShader() { return m_glShader; }
 
-private :
-
+  private:
 	ShaderType::Enum m_shaderType;
 	std::string m_cachedCode;
 
 	GLuint m_glShader = 0;
 };
 
-}
+} // namespace sge

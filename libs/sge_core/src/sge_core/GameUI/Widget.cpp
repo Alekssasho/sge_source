@@ -320,7 +320,8 @@ void Checkbox::draw(const UIDrawSets& drawSets) {
 	const AABox2f checkBoxRectPixelSpace =
 	    checboxPos.getBBoxPixels(bboxPixels, getParentContentOrigin().toPixels(bboxPixels.size()), checkboxSize);
 	const vec4f checkBoxColor = m_isOn ? vec4f(0.f, 1.f, 0.f, 1.f) : vec4f(0.3f, 0.3f, 0.3f, 1.f);
-	drawSets.quickDraw->drawRect(drawSets.rdest, checkBoxRectPixelSpace, checkBoxColor, getCore()->getGraphicsResources().BS_backToFrontAlpha);
+	drawSets.quickDraw->drawRect(drawSets.rdest, checkBoxRectPixelSpace, checkBoxColor,
+	                             getCore()->getGraphicsResources().BS_backToFrontAlpha);
 }
 
 bool Checkbox::onPress() {

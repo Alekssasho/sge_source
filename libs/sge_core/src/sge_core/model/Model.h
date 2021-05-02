@@ -1,13 +1,13 @@
 #pragma once
 
+#include "sge_core/model/Parameter.h"
 #include "sge_core/sgecore_api.h"
-#include "sge_utils/utils/ChunkContainer.h"
+#include "sge_renderer/renderer/renderer.h"
 #include "sge_utils/math/Box.h"
 #include "sge_utils/math/mat4.h"
 #include "sge_utils/math/primitives.h"
 #include "sge_utils/math/transform.h"
-#include "sge_core/model/Parameter.h"
-#include "sge_renderer/renderer/renderer.h"
+#include "sge_utils/utils/ChunkContainer.h"
 #include "sge_utils/utils/IStream.h"
 #include <string>
 
@@ -22,8 +22,7 @@ namespace Model {
 		CollisionShapeBox(std::string name, transf3d transform, vec3f halfDiagonal)
 		    : name(std::move(name))
 		    , transform(transform)
-		    , halfDiagonal(halfDiagonal) {
-		}
+		    , halfDiagonal(halfDiagonal) {}
 
 		std::string name;
 		transf3d transform = transf3d::getIdentity();
@@ -38,8 +37,7 @@ namespace Model {
 		    : name(std::move(name))
 		    , transform(transform)
 		    , halfHeight(halfHeight)
-		    , radius(radius) {
-		}
+		    , radius(radius) {}
 
 		std::string name;
 		transf3d transform = transf3d::getIdentity();
@@ -52,8 +50,7 @@ namespace Model {
 		CollisionShapeCylinder(std::string name, transf3d transform, vec3f halfDiagonal)
 		    : name(std::move(name))
 		    , transform(transform)
-		    , halfDiagonal(halfDiagonal) {
-		}
+		    , halfDiagonal(halfDiagonal) {}
 
 		std::string name;
 		transf3d transform = transf3d::getIdentity();
@@ -65,8 +62,7 @@ namespace Model {
 		CollisionShapeSphere(std::string name, transf3d transform, float radius)
 		    : name(std::move(name))
 		    , transform(transform)
-		    , radius(radius) {
-		}
+		    , radius(radius) {}
 
 		std::string name;
 		transf3d transform = transf3d::getIdentity();
@@ -153,8 +149,7 @@ namespace Model {
 		AnimationInfo(const char* curveName, float startTime, float duration)
 		    : curveName(curveName)
 		    , startTime(startTime)
-		    , duration(duration) {
-		}
+		    , duration(duration) {}
 
 		std::string curveName;
 		float startTime = 0;

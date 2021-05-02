@@ -4,9 +4,8 @@
 
 namespace sge {
 
-struct ShadingProgramD3D11 : public ShadingProgram
-{
-	ShadingProgramD3D11() { }
+struct ShadingProgramD3D11 : public ShadingProgram {
+	ShadingProgramD3D11() {}
 	~ShadingProgramD3D11() { destroy(); }
 
 	bool create(Shader* vertShdr, Shader* pixelShdr) final;
@@ -20,21 +19,16 @@ struct ShadingProgramD3D11 : public ShadingProgram
 	Shader* getPixelShader() const final { return m_pixShadr.GetPtr(); }
 
 
-	const ShadingProgramRefl& getReflection() const final {
-		return m_reflection;
-	}
+	const ShadingProgramRefl& getReflection() const final { return m_reflection; }
 
 	ID3D11VertexShader* D3D11_GetVertexShader() const;
 	ID3D11PixelShader* D3D11_GetPixelShader() const;
 
 	// Returns the slot of the $Globals cbuffer.
 	// returns -1 if not present.
-	int getGlobalCBufferSlot(ShaderType::Enum shaderType) const {
-		return m_globalCBufferSlot[shaderType];
-	}
+	int getGlobalCBufferSlot(ShaderType::Enum shaderType) const { return m_globalCBufferSlot[shaderType]; }
 
-private :
-
+  private:
 	GpuHandle<Shader> m_vertShdr;
 	GpuHandle<Shader> m_pixShadr;
 
@@ -43,4 +37,4 @@ private :
 	int m_globalCBufferSlot[ShaderType::NumElems];
 };
 
-}
+} // namespace sge

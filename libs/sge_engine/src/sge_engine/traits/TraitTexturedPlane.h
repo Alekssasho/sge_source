@@ -55,13 +55,13 @@ struct SGE_ENGINE_API TraitTexturedPlane : public Trait {
 	/// @brief Describes how much along the plane normal (which is X) should the plane be moved.
 	/// This is useful when we want to place recoration on top of walls or floor objects.
 	float m_localXOffset = 0.01f;
-	
+
 	/// @brief Describes how big is one pixel in world space.
 	float m_pixelSizeInWorld = 0.1f;
-	
+
 	/// @brief Describes if any billboarding should happen for the plane.
 	Billboarding m_billboarding = billboarding_none;
-	
+
 	/// @brief Describes the current texture to be used.
 	/// TODO: add support for sprites.
 	AssetProperty m_assetProperty;

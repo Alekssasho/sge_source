@@ -79,7 +79,6 @@ struct SGEGameWindow : public WindowBase {
 		}
 
 		if (event == WE_Destroying) {
-
 			gameMode.m_sceneInstance.getWorld().clear();
 
 			SGEImGui::destroy();
@@ -143,7 +142,7 @@ struct SGEGameWindow : public WindowBase {
 
 		m_pGameDrawer = m_pluginInst->allocateGameDrawer();
 
-		
+
 
 		gameMode.create(m_pGameDrawer, g_playerSettings.initalLevel.c_str());
 	}
@@ -246,17 +245,16 @@ void main_loop() {
 // Caution:
 // SDL2 might have a macro (depending on the target platform) for the main function!
 int main(int argc, char* argv[]) {
-
 	SGE_DEBUG_LOG("main()\n");
-	
+
 	sgeRegisterMiniDumpHandler();
 	setlocale(LC_NUMERIC, "C");
 
 	g_argc = argc;
 	g_argv = argv;
 
-	//float ddpi = 0.f;
-	//SDL_GetDisplayDPI(0, &ddpi, nullptr, nullptr);
+	// float ddpi = 0.f;
+	// SDL_GetDisplayDPI(0, &ddpi, nullptr, nullptr);
 
 #ifdef __EMSCRIPTEN__
 	// Emscripten file system reassembles default Unix installation with the /home, /dev and all the other dirs.
@@ -273,13 +271,13 @@ int main(int argc, char* argv[]) {
 
 #else
 	SDL_Init(SDL_INIT_EVERYTHING);
-	#ifdef SGE_RENDERER_GL
-		SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
+#ifdef SGE_RENDERER_GL
+	SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
 
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-		// SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	#endif
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+	// SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+#endif
 #endif
 
 	if (!g_playerSettings.loadFromJsonFile("appdata/game_project_settings.json")) {

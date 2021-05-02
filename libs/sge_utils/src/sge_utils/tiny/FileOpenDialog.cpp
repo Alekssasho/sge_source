@@ -11,8 +11,8 @@
 #include <cstdio>
 #endif
 
-#include "sge_utils/utils/strings.h"
 #include "FileOpenDialog.h"
+#include "sge_utils/utils/strings.h"
 
 namespace sge {
 
@@ -77,18 +77,18 @@ std::string FileOpenDialog(const std::string& prompt, bool fileMustExists, const
 
 	char pickedPathCStr[1024] = {0};
 	FILE* const fPipe = popen(cmd.c_str(), "r");
-	if(fPipe == nullptr) {
+	if (fPipe == nullptr) {
 		return std::string();
 	}
 
 	fgets(pickedPathCStr, 1024, fPipe);
 	pclose(fPipe);
-	
+
 	// Clamp if the filename is too long.
-	pickedPathCStr[SGE_ARRSZ(pickedPathCStr)] = '\0'; 
-	std::string pickedPath(pickedPathCStr);     
-	pickedPath.pop_back(); // Delete the '\n' printed by zenity.               
-	
+	pickedPathCStr[SGE_ARRSZ(pickedPathCStr)] = '\0';
+	std::string pickedPath(pickedPathCStr);
+	pickedPath.pop_back(); // Delete the '\n' printed by zenity.
+
 	return pickedPath;
 #else
 	return std::string();
@@ -130,18 +130,18 @@ std::string FileSaveDialog(const std::string& prompt, const char* fileFilter, co
 
 	char pickedPathCStr[1024] = {0};
 	FILE* const fPipe = popen(cmd.c_str(), "r");
-	if(fPipe == nullptr) {
+	if (fPipe == nullptr) {
 		return std::string();
 	}
 
 	fgets(pickedPathCStr, 1024, fPipe);
 	pclose(fPipe);
-	
+
 	// Clamp if the filename is too long.
-	pickedPathCStr[SGE_ARRSZ(pickedPathCStr)] = '\0'; 
-	std::string pickedPath(pickedPathCStr);     
-	pickedPath.pop_back(); // Delete the '\n' printed by zenity.               
-	
+	pickedPathCStr[SGE_ARRSZ(pickedPathCStr)] = '\0';
+	std::string pickedPath(pickedPathCStr);
+	pickedPath.pop_back(); // Delete the '\n' printed by zenity.
+
 	return pickedPath;
 #else
 	return std::string();
@@ -178,8 +178,8 @@ std::string FolderOpenDialog(const char* const prompt, const std::string& initia
 	// [TODO] Fix this madness...
 	char file[1024] = {0};
 	FILE* const f = popen(zenityCmd.c_str(), "r");
-	
-	if(f == nullptr) {
+
+	if (f == nullptr) {
 		return std::string();
 	}
 

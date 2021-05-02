@@ -28,13 +28,9 @@ struct Rangef {
 		return min + v * (max - min);
 	}
 
-	bool operator==(const Rangef& ref) const {
-		return min == ref.min && max == ref.max && locked == ref.locked;
-	}
+	bool operator==(const Rangef& ref) const { return min == ref.min && max == ref.max && locked == ref.locked; }
 
-	bool operator!=(const Rangef& ref) const {
-		return !(*this == ref);
-	}
+	bool operator!=(const Rangef& ref) const { return !(*this == ref); }
 
 	float min = 0.f;
 	float max = 0.f;
