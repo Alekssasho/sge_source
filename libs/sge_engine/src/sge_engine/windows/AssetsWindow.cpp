@@ -345,7 +345,7 @@ void AssetsWindow::update(SGEContext* const sgecon, const InputState& is) {
 				// Show every file in the current directory with an icon next to it.
 				for (const fs::directory_entry& entry : fs::directory_iterator(pathToAssets)) {
 					if (entry.is_regular_file() && exploreFilter.PassFilter(entry.path().filename().string().c_str())) {
-						AssetType assetType = assetType_fromExtension(extractFileExtension(entry.path().string().c_str()).c_str(), false);
+						AssetType assetType = assetType_guessFromExtension(extractFileExtension(entry.path().string().c_str()).c_str(), false);
 						if (assetType == AssetType::Model) {
 							string_format(label, "%s %s", ICON_FK_CUBE, entry.path().filename().string().c_str());
 						} else if (assetType == AssetType::TextureView) {
@@ -450,7 +450,7 @@ void AssetsWindow::update(SGEContext* const sgecon, const InputState& is) {
 
 						// Guess the type of the inpute asset.
 						const std::string inputExtension = extractFileExtension(m_importAssetToImportInPopup.filename.c_str());
-						m_importAssetToImportInPopup.assetType = assetType_fromExtension(inputExtension.c_str(), true);
+						m_importAssetToImportInPopup.assetType = assetType_guessFromExtension(inputExtension.c_str(), true);
 
 						// If the asset type is None, maybe the asset has a commonly used extension
 						// like Aseprite json sprite sheet descriptors, or they might be just generic
@@ -615,9 +615,9 @@ void AssetsWindow::update(SGEContext* const sgecon, const InputState& is) {
 			} else if (explorePreviewAsset->getType() == AssetType::Audio) {
 				auto track = explorePreviewAsset->asAudio();
 				ImGui::Text("Vorbis encoded Audio file");
-				ImGui::Text("Sample Rate: %.1f kHZ", (float)(*track)->info.sampleRate / 1000.0f);
-				ImGui::Text("Number of channels: %d", (*track)->info.channels);
-				ImGui::Text("Length: %.2f s", (float)(*track)->info.numSamples / (float)(*track)->info.sampleRate);
+				ImGui::Text("Sample Rate: %.1f kHZ", (float)(*track)->info.samplesPerSecond / 1000.0f);
+				ImGui::Text("Number of channels: %d", (*track)->info.numChannels);
+				ImGui::Text("Length: %.2f s", (float)(*track)->info.numSamples / (float)(*track)->info.samplesPerSecond);
 			} else {
 				ImGui::Text("No Preview");
 			}

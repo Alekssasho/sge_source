@@ -1,11 +1,11 @@
 #include "AssetLibrary.h"
+#include "sge_audio/AudioTrack.h"
 #include "sge_core/ICore.h"
 #include "sge_core/dds/dds.h"
 #include "sge_core/model/EvaluatedModel.h"
 #include "sge_core/model/Model.h"
 #include "sge_core/model/ModelReader.h"
 #include "sge_renderer/renderer/renderer.h"
-#include "sge_audio/audio_track.h"
 #include "sge_utils/utils/FileStream.h"
 #include "sge_utils/utils/Path.h"
 #include "sge_utils/utils/json.h"
@@ -36,7 +36,7 @@ SGE_CORE_API const char* assetType_getName(const AssetType type) {
 	}
 }
 
-AssetType assetType_fromExtension(const char* const ext, bool includeExternalExtensions) {
+AssetType assetType_guessFromExtension(const char* const ext, bool includeExternalExtensions) {
 	if (ext == nullptr) {
 		return AssetType::None;
 	}
@@ -522,7 +522,7 @@ std::shared_ptr<Asset> AssetLibrary::getAsset(AssetType type, const char* pPath,
 }
 
 std::shared_ptr<Asset> AssetLibrary::getAsset(const char* pPath, bool loadIfMissing) {
-	AssetType assetType = assetType_fromExtension(extractFileExtension(pPath).c_str(), false);
+	AssetType assetType = assetType_guessFromExtension(extractFileExtension(pPath).c_str(), false);
 	return getAsset(assetType, pPath, loadIfMissing);
 }
 
@@ -580,25 +580,27 @@ void AssetLibrary::scanForAvailableAssets(const char* const path) {
 	m_gameAssetsDir = absoluteOf(path);
 	sgeAssert(m_gameAssetsDir.empty() == false);
 
-	if (filesystem::is_directory(path))
+	if (filesystem::is_directory(path)) {
 		for (const filesystem::directory_entry& entry : filesystem::recursive_directory_iterator(path)) {
 			if (entry.status().type() == filesystem::file_type::regular) {
+				// Extract the extension of the found file use it for guessing the type of the asset,
+				// then mark the asset as existing without loading it.
 				const std::string ext = entry.path().extension().u8string();
-				if (ext == ".mdl") {
-					// Mark the assets as something that exists but do not load it.
-					markThatAssetExists(entry.path().generic_u8string().c_str(), AssetType::Model);
-				} else if (ext == ".png" || ext == ".jpg" || ext == ".dds") {
-					if (string_endsWith(entry.path().string(), ".png.dds")) {
-						const std::string pathWithPngOnlyExt = removeFileExtension(entry.path().generic_u8string().c_str());
-						markThatAssetExists(pathWithPngOnlyExt.c_str(), AssetType::TextureView);
-					} else {
-						markThatAssetExists(entry.path().generic_u8string().c_str(), AssetType::TextureView);
+				const char* extCStr = ext.c_str();
+
+				// the extension() method returns the dot, however assetType_guessFromExtension
+				// needs the extension without the dot.
+				if (extCStr != nullptr && extCStr[0] == '.') {
+					extCStr++;
+
+					const AssetType guessedType = assetType_guessFromExtension(extCStr, false);
+					if (guessedType != AssetType::None) {
+						markThatAssetExists(entry.path().generic_u8string().c_str(), guessedType);
 					}
-				} else if (ext == ".sprite") {
-					markThatAssetExists(entry.path().generic_u8string().c_str(), AssetType::Sprite);
 				}
 			}
 		}
+	}
 }
 
 void AssetLibrary::reloadChangedAssets() {

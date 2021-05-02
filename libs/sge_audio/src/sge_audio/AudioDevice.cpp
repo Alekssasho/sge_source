@@ -1,5 +1,5 @@
-#include "audio_device.h"
-#include "audio_device_sdl.h"
+#include "AudioDevice.h"
+#include "AudioDeviceSdl.h"
 #include "sge_utils/sge_utils.h"
 
 namespace sge {

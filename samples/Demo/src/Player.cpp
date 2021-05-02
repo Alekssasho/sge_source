@@ -104,7 +104,6 @@ struct Player : public Actor {
 			jumpButtonHeldTime = clamp(kMaxJumpHeldTime, 0.f, kMaxJumpHeldTime);
 		}
 
-
 		vec3f additionalForce = vec3f(0.f);
 		float dr = inputDirWsRight.dot(ttRigidbody.getRigidBody()->getLinearVel().x0z());
 		float df = inputDirWs.dot(ttRigidbody.getRigidBody()->getLinearVel().x0z());

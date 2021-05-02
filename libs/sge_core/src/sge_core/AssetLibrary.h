@@ -3,11 +3,11 @@
 #include <map>
 #include <memory>
 
-#include "sgecore_api.h"
+#include "sge_core/Sprite.h"
 #include "sge_core/model/EvaluatedModel.h"
 #include "sge_core/model/Model.h"
 #include "sge_utils/utils/vector_map.h"
-#include "sge_core/Sprite.h"
+#include "sgecore_api.h"
 
 namespace sge {
 struct AudioTrack;
@@ -23,41 +23,51 @@ struct AssetModel {
 // Defines all posible asset types.
 enum class AssetType : int {
 	None,
-	Model,       // sge::Model::Model
-	TextureView, // sge::GpuHandle<sge::Texture>
-	Text,        // A file containing some text (including code).
-	Sprite,
-	Audio,       // Vorbis encoded audio file. Usually used for background music or longer audio tracks.
+	Model,       ///< A 3D model.
+	TextureView, ///< sge::GpuHandle<sge::Texture>
+	Text,        ///< A file containing some text (including code).
+	Sprite,      ///< A 2D sprite sheet animation.
+	Audio,       ///< Vorbis encoded audio file. Usually used for background music or longer audio tracks.
 
 	Count,
 };
 
+/// @brief Returns a name suitable for displaying to the user for the specified asset type.
 SGE_CORE_API const char* assetType_getName(const AssetType type);
 
-SGE_CORE_API AssetType assetType_fromExtension(const char* const ext, bool includeExternalExtensions);
+/// @brief Guesses the potential assset type based in the specified extension. Keep in mind that this is a guess.
+/// @param [in] ext the extension to be used for guessing. Should not include the dot.
+///                 The comparison will be case insensitive ("txt" is the same as "TXT").
+/// @param [in] includeExternalExtensions True if unconverted file types should be concidered,
+///             like fbx/obj/dae could be guessed as a 3d model.
+/// @return the guessed asset type.
+SGE_CORE_API AssetType assetType_guessFromExtension(const char* const ext, bool includeExternalExtensions);
 
-// Provides an interfaces that is used to allocated a particular asset of a type.
+/// Provides an interface that is used to allocated a particular asset of a type.
 struct SGE_CORE_API IAssetAllocator {
 	virtual void* allocate() = 0;
 	virtual void deallocate(void* ptr) = 0;
 };
 
-// Provides an interfaces that is used to load/unload/ect a particular asset of a type.
+/// Provides an interface that is used to load/unload/ect a particular asset of a type.
 struct SGE_CORE_API IAssetFactory {
 	virtual void getDependancyList(void* UNUSED(asset), std::vector<std::string>& UNUSED(deps)) {}
 	virtual bool load(void* const pAsset, const char* const pPath, AssetLibrary* const mpMngrngr) = 0;
 	virtual void unload(void* const pAsset, AssetLibrary* const pMngr) = 0;
 };
 
-enum class AssetStatus {
+/// @brief Describes the current status of an asset.
+enum class AssetStatus : int {
+	/// The assets seems to exist but it is not loaded.
 	NotLoaded,
+	/// The asset is loaded.
 	Loaded,
+	/// Loading the asset failed. Maybe the files is broken or it does not exist.
 	LoadFailed,
 };
 
-//-------------------------------------------------------
-//
-//-------------------------------------------------------
+/// @brief Asset provides a data storage and and status tracker for all assets.
+/// It is usually used as a weak/shared_ptr for reference counting.
 struct SGE_CORE_API Asset {
 	friend AssetLibrary;
 
@@ -81,7 +91,7 @@ struct SGE_CORE_API Asset {
 		return (SpriteAnimationAsset*)m_pAsset;
 	}
 
-        sge::AudioAsset* asAudio() {
+	sge::AudioAsset* asAudio() {
 		sgeAssert(getType() == AssetType::Audio);
 		return (AudioAsset*)m_pAsset;
 	}
@@ -91,18 +101,22 @@ struct SGE_CORE_API Asset {
 		sgeAssert(getType() == AssetType::Model);
 		return (AssetModel*)m_pAsset;
 	}
+
 	const AssetModel* asModel() const {
 		sgeAssert(getType() == AssetType::Model);
 		return (AssetModel*)m_pAsset;
 	}
+
 	const std::string* asText() const {
 		sgeAssert(getType() == AssetType::Text);
 		return (const std::string*)m_pAsset;
 	}
+
 	const SpriteAnimationAsset* asSprite() const {
 		sgeAssert(getType() == AssetType::Sprite);
 		return (const SpriteAnimationAsset*)m_pAsset;
 	}
+
 	const sge::AudioAsset* asAudio() const {
 		sgeAssert(getType() == AssetType::Audio);
 		return (const AudioAsset*)m_pAsset;
@@ -114,23 +128,21 @@ struct SGE_CORE_API Asset {
 	sint64 getLastModTime() const { return m_loadedModifiedTime; }
 
   private:
-	void* m_pAsset = nullptr;
-	AssetType m_type;
+	
+	void* m_pAsset = nullptr; ///< Holds the dynamically allocated storage of the asset.
+	AssetType m_type; ///< Holds the type of the asset.
 	AssetStatus m_status = AssetStatus::NotLoaded;
-	std::string m_path;          // TODO: Or should I use a raw data? Different assets could use different load settings.
-	sint64 m_loadedModifiedTime; // The last time the file was modified since last load.
+	std::string m_path;
+	sint64 m_loadedModifiedTime; ///< The last time the file was modified since last load.
 };
 
 using PAsset = std::shared_ptr<Asset>;
 using WAsset = std::weak_ptr<Asset>;
 
-//-------------------------------------------------------
-// AssetLibrary
-//-------------------------------------------------------
+/// @brief AssetLibrary provides a way for loading and tracking used assets of any kind.
 struct SGE_CORE_API AssetLibrary {
   public:
 	AssetLibrary(SGEDevice* const sgedev);
-
 
 	/// Make runtime asset
 	std::shared_ptr<Asset> makeRuntimeAsset(AssetType type, const char* path);
